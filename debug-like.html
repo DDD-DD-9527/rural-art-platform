@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>点赞功能调试</title>
+</head>
+<body>
+    <h1>点赞功能调试</h1>
+    <button id="testLike">测试点赞API</button>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('testLike').addEventListener('click', async () => {
+            try {
+                const token = localStorage.getItem('auth_token');
+                if (!token) {
+                    document.getElementById('result').innerHTML = '请先登录';
+                    return;
+                }
+
+                const response = await fetch('/api/posts/68a30de158140f1e9093f681/like', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                console.log('完整响应:', data);
+                document.getElementById('result').innerHTML = `
+                    <h3>响应数据:</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                console.error('请求失败:', error);
+                document.getElementById('result').innerHTML = `错误: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

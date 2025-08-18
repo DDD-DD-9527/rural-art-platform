@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # MongoDB数据库
+  mongodb:
+    image: mongo:6.0
+    container_name: rural-art-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: rural-art-platform
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./backend/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - rural-art-network
+
+  # 后端API服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rural-art-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:password123@mongodb:27017/rural-art-platform?authSource=admin
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+      JWT_EXPIRES_IN: 7d
+      # AI服务配置
+      GZHU_AGENT_API_URL: https://api.gzhu.edu.cn/agent
+      GZHU_AGENT_KEY: your-gzhu-agent-key
+      COZE_API_URL: https://api.coze.com/v1
+      COZE_API_KEY: your-coze-api-key
+      COZE_IMAGE_ENHANCE_BOT_ID: your-image-enhance-bot-id
+      COZE_STYLE_TRANSFER_BOT_ID: your-style-transfer-bot-id
+      COZE_PATTERN_GENERATE_BOT_ID: your-pattern-generate-bot-id
+      COZE_SMART_REPAIR_BOT_ID: your-smart-repair-bot-id
+      # 文件上传配置
+      UPLOAD_PATH: ./uploads
+      MAX_FILE_SIZE: 10485760
+      LOG_LEVEL: info
+    ports:
+      - "3000:3000"
+    volumes:
+      - backend_uploads:/app/uploads
+      - backend_logs:/app/logs
+    depends_on:
+      - mongodb
+    networks:
+      - rural-art-network
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 前端应用
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: rural-art-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - rural-art-network
+
+  # Nginx反向代理（可选）
+  nginx:
+    image: nginx:alpine
+    container_name: rural-art-nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - rural-art-network
+
+volumes:
+  mongodb_data:
+    driver: local
+  backend_uploads:
+    driver: local
+  backend_logs:
+    driver: local
+
+networks:
+  rural-art-network:
+    driver: bridge

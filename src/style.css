@@ -1,0 +1,637 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+:root {
+  --primary-emerald: #059669;
+  --primary-blue: #2563eb;
+  --primary-indigo: #4f46e5;
+  --primary-violet: #7c3aed;
+  --accent-orange: #ea580c;
+  --accent-rose: #e11d48;
+  --neutral-slate: #475569;
+  --surface-white: #ffffff;
+  --surface-gray: #f8fafc;
+}
+
+/* 现代化玻璃效果 */
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* 现代化渐变 */
+.gradient-primary {
+  background: linear-gradient(135deg, #86efac 0%, #93c5fd 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.gradient-accent {
+  background: linear-gradient(135deg, #ea580c 0%, #e11d48 100%);
+}
+
+/* 动画效果 */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(5, 150, 105, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(5, 150, 105, 0.6); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Rainbow Brothers Animation Styles - Based on Original ddd.html */
+.rainbow-animation-container {
+  position: relative;
+  width: 800px;
+  height: 500px;
+  max-width: 100%;
+  background: transparent;
+  overflow: hidden;
+  z-index: 1;
+  margin: 0 auto;
+}
+
+/* SVG Legs Animation */
+.rainbow-red-legs {
+  position: absolute;
+  right: 73px;
+  bottom: -20px;
+  width: 239px;
+  height: 213px;
+  z-index: 0;
+}
+
+.rainbow-orange-legs {
+  position: absolute;
+  right: 110px;
+  bottom: -20px;
+  width: 239px;
+  height: 213px;
+  z-index: 0;
+}
+
+.rainbow-viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  bottom: 180px;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.rainbow-circles {
+  margin-bottom: 0;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  word-break: normal;
+  white-space: nowrap;
+}
+
+.rainbow-circle-top {
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.rainbow-subviewport {
+  left: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+/* Red circles - Largest and slowest */
+.rainbow-red {
+  width: 605px;
+  max-width: 75%;
+}
+
+.rainbow-red .rainbow-circles {
+  animation: rainbow-toleftR 0.96s linear infinite;
+  height: 132px;
+  margin-left: -132px;
+}
+
+.rainbow-red .rainbow-circle-top {
+  width: 264px;
+  height: 264px;
+  border: 11px solid hsl(0, 60%, 75%);
+  margin-left: -10px;
+  box-shadow: 0 0 25px rgba(255, 69, 0, 0.8), 0 0 50px rgba(255, 0, 0, 0.4);
+}
+
+/* Orange circles */
+.rainbow-orange {
+  width: 505px;
+  max-width: 63%;
+}
+
+.rainbow-orange .rainbow-circles {
+  height: 98px;
+  animation: rainbow-toleftO 0.72s linear infinite;
+  margin-left: 17px;
+}
+
+.rainbow-orange .rainbow-circle-top {
+  width: 200px;
+  height: 200px;
+  border: 10px solid hsl(43, 77%, 76%);
+  margin-left: -10px;
+  box-shadow: 0 0 20px rgba(255, 140, 0, 0.8), 0 0 40px rgba(255, 165, 0, 0.4);
+}
+
+/* Green circles */
+.rainbow-green {
+  width: 425px;
+  max-width: 53%;
+}
+
+.rainbow-green .rainbow-circle-top {
+  width: 140px;
+  height: 140px;
+  border: 10px solid hsl(123, 55%, 73%);
+  margin-left: -10px;
+  box-shadow: 0 0 18px rgba(50, 205, 50, 0.8), 0 0 35px rgba(0, 255, 0, 0.4);
+}
+
+.rainbow-green .rainbow-circles {
+  height: 70px;
+  animation: rainbow-toleftG 0.48s linear infinite;
+  margin-left: -70px;
+}
+
+/* Blue circles - Smallest and fastest */
+.rainbow-blue {
+  width: 365px;
+  max-width: 46%;
+}
+
+.rainbow-blue .rainbow-circle-top {
+  width: 70px;
+  height: 70px;
+  border: 8px solid hsl(200, 77%, 73%);
+  margin-left: -8px;
+  box-shadow: 0 0 15px rgba(135, 206, 235, 0.8), 0 0 30px rgba(0, 191, 255, 0.4);
+}
+
+.rainbow-blue .rainbow-circles {
+  height: 35px;
+  animation: rainbow-toleftB 0.24s linear infinite;
+  margin-left: -35px;
+}
+
+/* Explosion effect */
+.rainbow-explosion {
+  margin-bottom: 0;
+  position: absolute;
+  bottom: 0;
+  width: 600px;
+  height: 100%;
+  left: 100px;
+}
+
+.rainbow-explosion-circle {
+  animation: rainbow-explosion 2.88s infinite;
+  animation-timing-function: cubic-bezier(0.14, 0.62, 0.405, 0.85);
+  animation-direction: normal;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+/* Characters - Based on Original Implementation */
+.rainbow-hexagon {
+  position: absolute;
+  background-color: hsl(355, 95%, 53%);
+  text-align: center;
+  top: 263px;
+  left: 594px;
+  z-index: 1;
+  width: 32px;
+  height: 53px;
+  border: 2px solid hsl(0, 0%, 20%);
+  border-width: 2px 0 2px 0;
+  border-style: solid;
+}
+
+.rainbow-hexagon.rainbow-dude {
+  animation-duration: 0.96s;
+  animation-name: rainbow-updownR;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.rainbow-hexagon::before {
+  background-color: inherit;
+  content: "";
+  position: absolute;
+  transform: translateY(-2px) rotate(-60deg);
+  z-index: 1;
+  top: 0;
+  left: 0;
+  border-color: inherit;
+  width: 32px;
+  height: 53px;
+  border-width: 2px 0 2px 0;
+  border-style: solid;
+}
+
+.rainbow-hexagon::after {
+  background-color: inherit;
+  content: "";
+  position: absolute;
+  transform: translateY(-2px) rotate(60deg);
+  z-index: -1;
+  top: 0;
+  left: 0;
+  border-color: inherit;
+  width: 32px;
+  height: 53px;
+  border-width: 2px 0 2px 0;
+  border-style: solid;
+}
+
+.rainbow-hexagon .rainbow-face {
+  position: absolute;
+  border-top: 3px solid;
+  border-color: inherit;
+  left: 8px;
+  top: 8px;
+  width: 26px;
+  z-index: 2;
+}
+
+.rainbow-hexagon .rainbow-face::after {
+  position: absolute;
+  content: "";
+  border-width: 0 3px 3px 0;
+  border-style: solid;
+  border-color: inherit;
+  width: 8px;
+  height: 21px;
+  left: 12px;
+  transform: skewX(11deg);
+}
+
+.rainbow-box {
+  top: 210px;
+  left: 490px;
+  position: absolute;
+  width: 27px;
+  height: 23px;
+  background-color: hsl(22, 90%, 50%);
+  z-index: 0;
+  border-color: hsl(0, 0%, 30%);
+  border: 2px solid;
+}
+
+.rainbow-box.rainbow-dude {
+  animation-duration: 1.44s;
+  animation-name: rainbow-updownO;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.rainbow-box::before {
+  width: 16px;
+  height: 23px;
+  position: absolute;
+  content: "";
+  top: -2px;
+  right: -16px;
+  background: inherit;
+  border: inherit;
+}
+
+.rainbow-box .rainbow-face {
+  width: 16px;
+  height: 0;
+  border-bottom: 3px solid;
+  position: absolute;
+  z-index: 5;
+  top: 11px;
+  left: 32px;
+  border-color: inherit;
+}
+
+.rainbow-box .rainbow-face::after,
+.rainbow-box .rainbow-face::before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-color: inherit;
+  border: 2px solid;
+  border-radius: 50%;
+  top: -6px;
+  border-color: inherit;
+}
+
+.rainbow-box .rainbow-face::before {
+  left: -4px;
+}
+
+.rainbow-box .rainbow-face::after {
+  left: 3px;
+}
+
+.rainbow-rectangle {
+  left: 411px;
+  top: 302px;
+  width: 21px;
+  height: 12px;
+  background: hsl(120, 65%, 55%);
+  position: absolute;
+  border: 2px solid hsl(0, 0%, 20%);
+  z-index: 2;
+}
+
+.rainbow-rectangle.rainbow-dude {
+  animation-duration: 0.48s;
+  animation-name: rainbow-updownG;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.rainbow-rectangle .rainbow-face {
+  position: absolute;
+  top: 7px;
+  left: 18px;
+  border-top: 3px solid;
+  height: 0;
+  width: 12px;
+  border-color: inherit;
+}
+
+.rainbow-rectangle .rainbow-face::after {
+  position: absolute;
+  content: "";
+  border-top: 2px solid;
+  border-left: 2px solid;
+  width: 1px;
+  height: 1px;
+  border-color: inherit;
+  top: -8px;
+  left: -1px;
+}
+
+.rainbow-circle.rainbow-dude {
+  top: 277px;
+  left: 355px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: hsl(200, 86%, 60%);
+  animation-duration: 0.24s;
+  animation-name: rainbow-updownB;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  position: absolute;
+  border: 2px solid hsl(0, 0%, 20%);
+  z-index: 2;
+}
+
+.rainbow-circle .rainbow-face {
+  position: absolute;
+  left: 16px;
+  top: 8px;
+  width: 17px;
+  border-top: 2px solid;
+  border-color: inherit;
+  z-index: 7;
+}
+
+.rainbow-circle .rainbow-face::after {
+  border-top: 2px solid;
+  border-color: inherit;
+  width: 17px;
+  top: -1px;
+  content: "";
+  position: absolute;
+  transform-origin: 0 0;
+  transform: rotateZ(8deg);
+}
+
+.rainbow-circle .rainbow-face::before {
+  position: absolute;
+  content: "";
+  border-top: 2px solid;
+  border-left: 2px solid;
+  width: 1px;
+  height: 1px;
+  border-color: inherit;
+  top: -7px;
+  left: -4px;
+  border-radius: 50%;
+}
+
+.rainbow-dude {
+  position: absolute;
+  border: 2px solid;
+  padding: 0;
+  z-index: 2;
+  border-color: hsl(0, 0%, 20%);
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.rainbow-face {
+  position: absolute;
+  border-top: 1px solid;
+  border-color: inherit;
+  width: 80%;
+  z-index: 2;
+  left: 10%;
+  top: 30%;
+}
+
+/* Animations - Based on Original ddd.html */
+@keyframes rainbow-toleftR {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-254px); }
+}
+
+@keyframes rainbow-toleftO {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-188px); }
+}
+
+@keyframes rainbow-toleftG {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-130px); }
+}
+
+@keyframes rainbow-toleftB {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-62px); }
+}
+
+@keyframes rainbow-explosion {
+  0% {
+    opacity: 0;
+    transform: translateX(0px) scale(0);
+    background-color: hsl(355, 95%, 53%);
+  }
+  75% {
+    opacity: 0.8;
+    transform: translateX(0px) scale(0);
+    background-color: hsl(355, 95%, 53%);
+  }
+  81.25% {
+    background-color: hsl(200, 86%, 60%);
+  }
+  87.5% {
+    background-color: hsl(120, 65%, 55%);
+  }
+  93.75% {
+    background-color: hsl(60, 100%, 50%);
+    opacity: 0.1;
+  }
+  100% {
+    transform: translateX(-254px) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes rainbow-updownR {
+  0% {
+    transform: translateY(0px);
+    animation-timing-function: cubic-bezier(0, 0.5, 0.5, 1);
+  }
+  50% {
+    transform: translateY(-96px);
+    animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
+  }
+}
+
+@keyframes rainbow-updownO {
+  0% {
+    transform: translateY(0px);
+    animation-timing-function: cubic-bezier(0.585, 0.24, 0.865, 0.445);
+  }
+  25% {
+    transform: translateY(75px) rotateZ(90deg);
+    animation-timing-function: cubic-bezier(0.07, 0.405, 0.4, 0.82);
+  }
+  50% {
+    transform: translateY(0px) rotateZ(180deg);
+    animation-timing-function: cubic-bezier(0.585, 0.24, 0.865, 0.445);
+  }
+  75% {
+    transform: translateY(75px) rotateZ(270deg);
+    animation-timing-function: cubic-bezier(0.07, 0.405, 0.4, 0.82);
+  }
+  100% {
+    transform: translateY(0px) rotateZ(360deg);
+    animation-timing-function: cubic-bezier(0.585, 0.24, 0.865, 0.445);
+  }
+}
+
+@keyframes rainbow-updownG {
+  0% {
+    transform: translateY(0px) skewX(-25deg) scale(0.8, 1.8);
+    animation-timing-function: cubic-bezier(0, 0.5, 0.5, 1);
+  }
+  50% {
+    transform: translateY(-50px);
+    animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
+  }
+  100% {
+    transform: translateY(0px) skewX(25deg) scale(0.8, 1.8);
+  }
+}
+
+@keyframes rainbow-updownB {
+  0% {
+    transform: translateY(0px);
+    animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
+  }
+  50% {
+    transform: translateY(25px) scale(1.2, 1);
+    animation-timing-function: cubic-bezier(0, 0.5, 0.5, 1);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  .rainbow-animation-container {
+    transform: scale(0.6);
+    transform-origin: center bottom;
+  }
+  
+  .rainbow-hexagon {
+    left: 400px;
+  }
+  
+  .rainbow-box {
+    left: 320px;
+  }
+  
+  .rainbow-rectangle {
+    left: 280px;
+  }
+  
+  .rainbow-circle.rainbow-dude {
+    left: 240px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rainbow-animation-container {
+    transform: scale(0.4);
+  }
+  
+  .rainbow-hexagon {
+    left: 300px;
+  }
+  
+  .rainbow-box {
+    left: 240px;
+  }
+  
+  .rainbow-rectangle {
+    left: 200px;
+  }
+  
+  .rainbow-circle.rainbow-dude {
+    left: 160px;
+  }
+}
