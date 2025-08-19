@@ -263,17 +263,118 @@ export const commentAPI = {
 }
 
 // 课程相关API
+// 课程数据映射函数
+const mapCourseData = (course) => {
+  if (!course) return null
+  
+  return {
+    ...course,
+    // 字段映射：统一前后端字段命名
+    level: course.difficulty || course.level, // 前端使用level，后端使用difficulty
+    image: course.thumbnail || course.image, // 前端使用image，后端使用thumbnail
+    students: course.stats?.enrolledCount || course.students || 0, // 统一学员数字段
+    rating: course.stats?.rating?.average || course.rating || 0, // 统一评分字段
+    progress: course.progress || 0, // 学习进度字段
+    // 创建者信息映射
+    creator: course.creator ? {
+      id: course.creator._id || course.creator.id,
+      username: course.creator.username,
+      nickname: course.creator.profile?.nickname || course.creator.nickname,
+      avatar: course.creator.profile?.avatar || course.creator.avatar,
+      bio: course.creator.profile?.bio || course.creator.bio
+    } : course.creator,
+    // 课程内容映射（如果存在lessons）
+    lessons: course.lessons ? course.lessons.map(lesson => ({
+      ...lesson,
+      xp: lesson.xp || 10, // 默认经验值
+      status: lesson.status || 'locked', // 默认状态
+      type: lesson.type || 'video' // 默认类型
+    })) : []
+  }
+}
+
+// 课程列表数据映射
+const mapCoursesResponse = (response) => {
+  if (!response?.data) return response
+  
+  return {
+    ...response,
+    data: {
+      ...response.data,
+      courses: response.data.courses?.map(mapCourseData) || [],
+      total: response.data.total || 0
+    }
+  }
+}
+
 export const courseAPI = {
   // 获取课程列表
-  getCourses: (params = {}) => {
-    const { page = 1, limit = 10, category = '', search = '' } = params
-    return api.get('/courses', {
-      params: { page, limit, category, search }
+  getCourses: async (params = {}) => {
+    const { 
+      page = 1, 
+      limit = 20, 
+      category = '', 
+      difficulty = '', 
+      search = '', 
+      sortBy = 'createdAt', 
+      sortOrder = 'desc',
+      isPublished = true 
+    } = params
+    
+    const response = await api.get('/courses', {
+      params: { page, limit, category, difficulty, search, sortBy, sortOrder, isPublished }
     })
+    
+    return mapCoursesResponse(response)
   },
   
   // 获取课程详情
-  getCourseById: (courseId) => api.get(`/courses/${courseId}`),
+  getCourseById: async (courseId) => {
+    const response = await api.get(`/courses/${courseId}`)
+    return {
+      ...response,
+      data: mapCourseData(response.data)
+    }
+  },
+  
+  // 创建课程
+  createCourse: (courseData) => api.post('/courses', courseData),
+  
+  // 更新课程
+  updateCourse: (courseId, courseData) => api.put(`/courses/${courseId}`, courseData),
+  
+  // 删除课程
+  deleteCourse: (courseId) => api.delete(`/courses/${courseId}`),
+  
+  // 发布课程
+  publishCourse: (courseId) => api.patch(`/courses/${courseId}/publish`),
+  
+  // 取消发布课程
+  unpublishCourse: (courseId) => api.patch(`/courses/${courseId}/unpublish`),
+  
+  // 获取热门课程
+  getPopularCourses: async (params = {}) => {
+    const { limit = 10 } = params
+    const response = await api.get('/courses/popular', {
+      params: { limit }
+    })
+    return {
+      ...response,
+      data: response.data?.map(mapCourseData) || []
+    }
+  },
+  
+  // 获取推荐课程
+  getRecommendedCourses: async (params = {}) => {
+    const { limit = 10 } = params
+    const response = await api.get('/courses/recommended', {
+      params: { limit }
+    })
+    return {
+      ...response,
+      data: response.data?.map(mapCourseData) || []
+    }
+  },
   
   // 报名课程
   enrollCourse: (courseId) => api.post(`/courses/${courseId}/enroll`),
@@ -282,7 +383,65 @@ export const courseAPI = {
   updateProgress: (courseId, progressData) => api.put(`/courses/${courseId}/progress`, progressData),
   
   // 获取学习进度
-  getProgress: (courseId) => api.get(`/courses/${courseId}/progress`)
+  getProgress: async (courseId) => {
+    const response = await api.get(`/courses/${courseId}/progress`)
+    return {
+      ...response,
+      data: {
+        ...response.data,
+        progress: response.data?.progress || 0,
+        completedLessons: response.data?.completedLessons || [],
+        currentLesson: response.data?.currentLesson || null
+      }
+    }
+  },
+  
+  // 获取我的课程报名列表
+  getMyEnrollments: async (params = {}) => {
+    const { 
+      status, 
+      page = 1, 
+      limit = 20, 
+      sortBy = 'enrolledAt', 
+      sortOrder = 'desc' 
+    } = params
+    const response = await api.get('/courses/enrollments/my', {
+      params: { status, page, limit, sortBy, sortOrder }
+    })
+    return {
+      ...response,
+      data: {
+        ...response.data,
+        enrollments: response.data?.enrollments?.map(enrollment => ({
+          ...enrollment,
+          course: mapCourseData(enrollment.course)
+        })) || [],
+        total: response.data?.total || 0
+      }
+    }
+  },
+  
+  // 获取课程报名学员列表（管理员/创作者）
+  getCourseEnrollments: async (courseId, params = {}) => {
+    const { 
+      status, 
+      page = 1, 
+      limit = 20, 
+      sortBy = 'enrolledAt', 
+      sortOrder = 'desc' 
+    } = params
+    const response = await api.get(`/courses/${courseId}/enrollments`, {
+      params: { status, page, limit, sortBy, sortOrder }
+    })
+    return {
+      ...response,
+      data: {
+        ...response.data,
+        enrollments: response.data?.enrollments || [],
+        total: response.data?.total || 0
+      }
+    }
+  }
 }
 
 // 文件上传API
@@ -383,6 +542,20 @@ export const aiAPI = {
     const { page = 1, limit = 10 } = params
     return api.get('/ai-tools/history', {
       params: { page, limit }
+    })
+  }
+}
+
+// 管理员相关API
+export const adminAPI = {
+  // 获取管理员仪表盘统计数据
+  getDashboardStats: () => api.get('/admin/dashboard/stats'),
+  
+  // 获取系统概览统计
+  getSystemOverview: (params = {}) => {
+    const { timeRange = '7d' } = params
+    return api.get('/admin/dashboard/overview', {
+      params: { timeRange }
     })
   }
 }

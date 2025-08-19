@@ -57,6 +57,32 @@ const courseSchema = new mongoose.Schema({
     maxlength: [20, '标签不能超过20个字符']
   }],
   
+  // 课程视频文件
+  videos: [{
+    originalName: String,
+    filename: String,
+    url: String,
+    size: Number,
+    mimetype: String,
+    uploadedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  
+  // 课程材料文件
+  materials: [{
+    originalName: String,
+    filename: String,
+    url: String,
+    size: Number,
+    mimetype: String,
+    uploadedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  
   // 课程内容
   lessons: [{
     title: {

@@ -30,8 +30,8 @@
           </div>
         </div>
 
-        <!-- Updated Filter Tabs - 只有3个大标签 -->
-        <div class="flex space-x-4 overflow-x-auto pb-2">
+        <!-- Updated Filter Tabs - 只有2个分类标签 -->
+        <div class="flex justify-center space-x-4 overflow-x-auto pb-2">
           <button
             v-for="tab in filterTabs"
             :key="tab"
@@ -158,13 +158,20 @@
       </div>
 
       <!-- Filtered Courses -->
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <CourseCard
-          v-for="course in filteredCourses"
-          :key="course.id"
-          :course="course"
-          @click="navigateToCourse(course.id)"
-        />
+      <div v-else>
+        <h2 class="text-3xl font-bold text-slate-800 mb-8 flex items-center">
+          <PaletteIcon v-if="activeFilter === '艺术教育'" class="w-8 h-8 mr-3 text-emerald-600" />
+          <SmartphoneIcon v-if="activeFilter === '数字技能'" class="w-8 h-8 mr-3 text-blue-600" />
+          {{ activeFilter }}课程
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <CourseCard
+            v-for="course in filteredCourses"
+            :key="course.id"
+            :course="course"
+            @click="navigateToCourse(course.id)"
+          />
+        </div>
       </div>
     </main>
 
@@ -173,8 +180,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { courseAPI } from '../services/api'
 import { 
   ArrowLeftIcon, 
   SearchIcon, 
@@ -197,7 +205,7 @@ const activeTab = ref('learning')
 const searchQuery = ref('')
 const activeFilter = ref('全部')
 
-// 只有3个大标签
+// 筛选标签
 const filterTabs = ['全部', '艺术教育', '数字技能']
 
 const weeklyStats = reactive({
@@ -212,48 +220,7 @@ const currentPath = reactive({
   progress: 30
 })
 
-const gamifiedLessons = reactive([
-  {
-    id: 1,
-    title: "工具认识",
-    type: "基础",
-    duration: "5分钟",
-    xp: 50,
-    status: "completed"
-  },
-  {
-    id: 2,
-    title: "基础图案",
-    type: "练习",
-    duration: "8分钟",
-    xp: 75,
-    status: "completed"
-  },
-  {
-    id: 3,
-    title: "花鸟图案",
-    type: "进阶",
-    duration: "12分钟",
-    xp: 100,
-    status: "current"
-  },
-  {
-    id: 4,
-    title: "复杂构图",
-    type: "高级",
-    duration: "15分钟",
-    xp: 150,
-    status: "locked"
-  },
-  {
-    id: 5,
-    title: "作品创作",
-    type: "实战",
-    duration: "20分钟",
-    xp: 200,
-    status: "locked"
-  }
-])
+const gamifiedLessons = reactive([])
 
 const learningStats = reactive([
   {
@@ -274,190 +241,25 @@ const learningStats = reactive([
 ])
 
 // 艺术教育课程
-const artCourses = reactive([
-  {
-    id: 1,
-    title: "陕北剪纸艺术入门",
-    description: "传承千年民间艺术，感受文化魅力",
-    image: "/art-coursesart-courses-placeholder.png",
-    progress: 30,
-    difficulty: "初级",
-    category: "艺术教育",
-    duration: "45分钟",
-    students: "1,234",
-    rating: 4.8
-  },
-  {
-    id: 6,
-    title: "传统绘画基础",
-    description: "学习中国传统绘画技法",
-    image: "/art-coursesart-courses-placeholder.png",
-    progress: 0,
-    difficulty: "初级",
-    category: "艺术教育",
-    duration: "60分钟",
-    students: "892",
-    rating: 4.7
-  },
-  {
-    id: 7,
-    title: "民间刺绣工艺",
-    description: "掌握传统刺绣技法和图案设计",
-    image: "/art-coursesart-courses-placeholder.png",
-    progress: 0,
-    difficulty: "中级",
-    category: "艺术教育",
-    duration: "90分钟",
-    students: "567",
-    rating: 4.9
-  },
-  {
-    id: 8,
-    title: "陶艺制作入门",
-    description: "体验泥土与火的艺术",
-    image: "/art-coursesart-courses-placeholder.png",
-    progress: 0,
-    difficulty: "初级",
-    category: "艺术教育",
-    duration: "120分钟",
-    students: "423",
-    rating: 4.6
-  },
-  {
-    id: 9,
-    title: "书法艺术基础",
-    description: "感受汉字之美，练习书法技巧",
-    image: "/art-coursesart-courses-placeholder.png",
-    progress: 0,
-    difficulty: "初级",
-    category: "艺术教育",
-    duration: "80分钟",
-    students: "756",
-    rating: 4.8
-  },
-  {
-    id: 10,
-    title: "民族音乐欣赏",
-    description: "了解传统民族音乐文化",
-    image: "/art-coursesart-courses-placeholder.png",
-    progress: 0,
-    difficulty: "初级",
-    category: "艺术教育",
-    duration: "50分钟",
-    students: "634",
-    rating: 4.5
-  }
-])
+const artCourses = reactive([])
 
 // 数字技能课程（包含原生活技能）
-const digitalCourses = reactive([
-  {
-    id: 2,
-    title: "手机摄影技巧",
-    description: "用手机记录美好乡村生活",
-    image: "/digital-skills-courses-placeholder.png",
-    progress: 0,
-    difficulty: "初级",
-    category: "数字技能",
-    duration: "60分钟",
-    students: "856",
-    rating: 4.6
-  },
-  {
-    id: 3,
-    title: "微信小商店运营",
-    description: "让土特产走向更广阔的市场",
-    image: "/digital-skills-courses-placeholder.png",
-    progress: 15,
-    difficulty: "中级",
-    category: "数字技能",
-    duration: "90分钟",
-    students: "2,156",
-    rating: 4.9
-  },
-  {
-    id: 11,
-    title: "短视频制作技巧",
-    description: "用短视频展示乡村文化",
-    image: "/digital-skills-courses-placeholder.png",
-    progress: 0,
-    difficulty: "中级",
-    category: "数字技能",
-    duration: "75分钟",
-    students: "1,345",
-    rating: 4.7
-  },
-  {
-    id: 12,
-    title: "电商直播入门",
-    description: "学会直播带货，推广农产品",
-    image: "/digital-skills-courses-placeholder.png",
-    progress: 0,
-    difficulty: "中级",
-    category: "数字技能",
-    duration: "100分钟",
-    students: "987",
-    rating: 4.8
-  },
-  {
-    id: 13,
-    title: "图片编辑基础",
-    description: "美化产品图片，提升销售效果",
-    image: "/digital-skills-courses-placeholder.png",
-    progress: 0,
-    difficulty: "初级",
-    category: "数字技能",
-    duration: "50分钟",
-    students: "1,567",
-    rating: 4.5
-  },
-  {
-    id: 14,
-    title: "农产品包装设计",
-    description: "设计吸引人的产品包装",
-    image: "/digital-skills-courses-placeholder.png",
-    progress: 0,
-    difficulty: "中级",
-    category: "数字技能",
-    duration: "85分钟",
-    students: "678",
-    rating: 4.6
-  },
-  {
-    id: 15,
-    title: "社交媒体营销",
-    description: "利用社交平台推广产品",
-    image: "/digital-skills-courses-placeholder.png",
-    progress: 0,
-    difficulty: "中级",
-    category: "数字技能",
-    duration: "95分钟",
-    students: "1,234",
-    rating: 4.7
-  },
-  {
-    id: 16,
-    title: "在线客服技巧",
-    description: "提升客户服务质量",
-    image: "/digital-skills-courses-placeholder.png",
-    progress: 0,
-    difficulty: "初级",
-    category: "数字技能",
-    duration: "40分钟",
-    students: "892",
-    rating: 4.4
-  }
-])
+const digitalCourses = reactive([])
 
 const allCourses = computed(() => [...artCourses, ...digitalCourses])
 
 const filteredCourses = computed(() => {
-  let courses = allCourses.value
+  let courses = []
   
-  if (activeFilter.value === '艺术教育') {
-    courses = artCourses
+  if (activeFilter.value === '全部') {
+    courses = allCourses.value
+  } else if (activeFilter.value === '艺术教育') {
+    // 艺术教育课程的category包括: paper-art, painting, textile, pottery, calligraphy, folk-art
+    const artCategories = ['paper-art', 'painting', 'textile', 'pottery', 'calligraphy', 'folk-art']
+    courses = allCourses.value.filter(course => artCategories.includes(course.category))
   } else if (activeFilter.value === '数字技能') {
-    courses = digitalCourses
+    // 数字技能课程的category是: other
+    courses = allCourses.value.filter(course => course.category === 'other')
   }
   
   if (searchQuery.value) {
@@ -486,7 +288,33 @@ const navigateToCourse = (courseId) => {
   router.push(`/course/${courseId}`)
 }
 
+// API 获取数据的函数
+const fetchCourses = async () => {
+  try {
+    // 获取艺术类课程（传统工艺、绘画、雕塑等）
+    const artCategories = ['traditional-crafts', 'painting', 'sculpture', 'textile', 'pottery', 'woodwork', 'paper-art', 'folk-art', 'calligraphy']
+    
+    // 分别获取每个艺术分类的课程
+    const artCoursesData = []
+    for (const category of artCategories) {
+      const response = await courseAPI.getCourses({ category })
+      artCoursesData.push(...(response.data?.courses || []))
+    }
+    artCourses.splice(0, artCourses.length, ...artCoursesData)
+     
+     // 获取数字技能课程（其他类别）
+     const digitalResponse = await courseAPI.getCourses({ category: 'other' })
+     digitalCourses.splice(0, digitalCourses.length, ...digitalResponse.data?.courses || [])
+    
+    // 游戏化课程使用前3个课程
+     const allCourses = [...artCoursesData, ...(digitalResponse.data?.courses || [])]
+     gamifiedLessons.splice(0, gamifiedLessons.length, ...allCourses.slice(0, 3))
+  } catch (error) {
+    console.error('获取课程数据失败:', error)
+  }
+}
+
 onMounted(() => {
-  // 页面初始化逻辑
+  fetchCourses()
 })
 </script>

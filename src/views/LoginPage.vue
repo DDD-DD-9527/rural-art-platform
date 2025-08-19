@@ -143,13 +143,23 @@
             </div>
           </div>
 
-          <div class="mt-6">
+          <div class="mt-6 space-y-3">
             <button
               @click="handleGuestLogin"
               class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-3 px-4 rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2"
             >
               <UserIcon class="w-5 h-5" />
               <span>游客体验</span>
+            </button>
+            
+            <button
+              @click="handleAdminLogin"
+              class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 2.676-.732 5.1-2.057 7.061-3.812C20.97 15.97 21 14.999 21 14c0-1.657-.454-3.210-1.382-4.984z" />
+              </svg>
+              <span>管理员登录</span>
             </button>
           </div>
         </div>
@@ -224,8 +234,12 @@ const handleLogin = async () => {
       rememberMe: form.rememberMe
     })
 
-    // 登录成功，跳转到首页
-    router.push('/')
+    // 根据用户角色跳转到不同页面
+    if (userStore.user.role === 'admin') {
+      router.push('/admin')
+    } else {
+      router.push('/')
+    }
   } catch (error) {
     console.error('登录失败:', error)
     // 处理登录错误
@@ -246,6 +260,15 @@ const handleGuestLogin = () => {
   // 设置游客模式
   userStore.setGuestMode()
   router.push('/')
+}
+
+// 管理员登录
+const handleAdminLogin = () => {
+  // 自动填入管理员账号信息
+  form.identifier = 'admin'
+  form.password = 'admin123'
+  // 自动提交登录
+  handleLogin()
 }
 
 // 返回上一页

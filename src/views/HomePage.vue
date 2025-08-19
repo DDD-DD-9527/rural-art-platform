@@ -179,6 +179,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
+import { courseAPI } from '../services/api'
 // 直接使用iframe引入原始HTML文件
 import { 
   PaletteIcon, 
@@ -295,41 +296,18 @@ const featureCards = reactive([
   }
 ])
 
-const recommendedCourses = reactive([
-  {
-    id: 1,
-    title: "陕北剪纸艺术入门",
-    description: "传承千年民间艺术，感受文化魅力",
-    image: "/traditional-paper-cutting.png",
-    duration: "45分钟",
-    students: "1,234",
-    rating: 4.8,
-    progress: 30,
-    category: "艺术教育"
-  },
-  {
-    id: 2,
-    title: "手机摄影技巧",
-    description: "用手机记录美好乡村生活",
-    image: "/mobile-rural-landscape.png",
-    duration: "60分钟",
-    students: "856",
-    rating: 4.6,
-    progress: 0,
-    category: "数字技能"
-  },
-  {
-    id: 3,
-    title: "微信小商店运营",
-    description: "让土特产走向更广阔的市场",
-    image: "/wechat-mini-store-rural-products.png",
-    duration: "90分钟",
-    students: "2,156",
-    rating: 4.9,
-    progress: 0,
-    category: "数字技能"
+// 推荐课程数据（从API获取）
+const recommendedCourses = reactive([])
+
+// 获取推荐课程
+const fetchRecommendedCourses = async () => {
+  try {
+    const response = await courseAPI.getCourses({ limit: 3, sort: 'rating' })
+    recommendedCourses.splice(0, recommendedCourses.length, ...response.data?.courses || [])
+  } catch (error) {
+    console.error('获取推荐课程失败:', error)
   }
-])
+}
 
 const navigateToFeature = (route) => {
   if (route === '/ai-tutor') {
@@ -349,6 +327,9 @@ const startVoiceSearch = () => {
 
 onMounted(() => {
   userStore.loadUserData()
+  
+  // 获取推荐课程数据
+  fetchRecommendedCourses()
   
   // 添加点击外部关闭菜单的事件监听
   document.addEventListener('click', (event) => {

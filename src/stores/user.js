@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 
 // API基础URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
 
 export const useUserStore = defineStore('user', () => {
   // 认证状态
@@ -63,6 +63,9 @@ export const useUserStore = defineStore('user', () => {
     difficulty: '',
     interests: []
   })
+
+  // 计算属性
+  const isAdmin = computed(() => user.role === 'admin')
 
   // 加载用户数据
   const loadUserData = async () => {
@@ -570,6 +573,7 @@ export const useUserStore = defineStore('user', () => {
     skillProgress,
     achievements,
     preferences,
+    isAdmin,
     
     // 认证方法
     register,

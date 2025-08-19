@@ -215,7 +215,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, nextTick } from 'vue'
 import { 
   BotIcon, 
   XIcon, 
@@ -232,6 +232,7 @@ import {
 const isOpen = ref(false)
 const isImmersive = ref(false)
 const inputMessage = ref('')
+const isGzhuAgentReady = ref(false)
 const messages = reactive([
   {
     id: 1,
@@ -239,6 +240,8 @@ const messages = reactive([
     content: '你好！我是小艺老师，你的专属AI学习助手。有什么问题可以随时问我哦！'
   }
 ])
+
+
 
 const quickHelp = [
   { icon: HelpCircleIcon, label: '答疑解惑', action: 'help' },
@@ -280,58 +283,126 @@ const closeImmersive = () => {
   isImmersive.value = false
 }
 
-const sendMessage = () => {
+const sendMessage = async () => {
   if (!inputMessage.value || !inputMessage.value.trim()) return
   
+  const userMessage = inputMessage.value
   messages.push({
     id: Date.now(),
     type: 'user',
-    content: inputMessage.value
+    content: userMessage
   })
   
-  setTimeout(() => {
+  inputMessage.value = ''
+  
+  // 如果广州大学智能体已准备好，使用真实智能体
+  if (isGzhuAgentReady.value && window.CxRobotSdkJs) {
+    try {
+      // 调用广州大学智能体API
+      const response = await sendToGzhuAgent(userMessage)
+      messages.push({
+        id: Date.now() + 1,
+        type: 'ai',
+        content: response
+      })
+    } catch (error) {
+      console.error('智能体调用失败:', error)
+      // 降级到模拟响应
+      messages.push({
+        id: Date.now() + 1,
+        type: 'ai',
+        content: '抱歉，我现在遇到了一些技术问题，请稍后再试。'
+      })
+    }
+  } else {
+    // 智能体未准备时的提示
     messages.push({
       id: Date.now() + 1,
       type: 'ai',
-      content: '我理解你的问题，让我来帮你解答...'
+      content: '智能体正在初始化中，请稍后再试...'
     })
-  }, 1000)
-  
-  inputMessage.value = ''
+  }
 }
 
 const handleQuickHelp = (action) => {
-  const responses = {
-    help: '我可以帮你解答学习过程中遇到的任何问题！',
-    advice: '根据你的学习进度，我建议你可以尝试...',
-    plan: '让我为你制定一个个性化的学习计划！'
+  // 使用智能体处理快速帮助
+  const helpMessages = {
+    help: '请问有什么学习问题需要我帮助解答？',
+    advice: '我想获取一些学习建议',
+    plan: '请帮我制定一个学习计划'
   }
   
-  messages.push({
-    id: Date.now(),
-    type: 'ai',
-    content: responses[action]
-  })
+  // 直接调用sendMessage处理
+  inputMessage.value = helpMessages[action]
+  sendMessage()
 }
 
 const handleQuickAction = (action) => {
-  const responses = {
-    learning: '我可以根据你的学习进度和兴趣，为你推荐最适合的课程和学习路径。',
-    creation: '在艺术创作中，我可以帮你分析作品构图、色彩搭配，并提供改进建议。',
-    community: '积极参与社区讨论，分享你的作品和学习心得，可以获得更多的反馈和灵感。'
+  // 使用智能体处理快速操作
+  const actionMessages = {
+    learning: '我想获取学习指导建议',
+    creation: '请给我一些艺术创作方面的帮助',
+    community: '如何更好地参与社区互动？'
   }
   
-  messages.push({
-    id: Date.now(),
-    type: 'ai',
-    content: responses[action]
+  // 直接调用sendMessage处理
+  inputMessage.value = actionMessages[action]
+  sendMessage()
+}
+
+// 初始化广州大学智能体
+const initGzhuAgent = async () => {
+  try {
+    if (window.CxRobotSdkJs) {
+      // 初始化广州大学智能体SDK
+      await window.CxRobotSdkJs.init(
+        "https://myagent.gzhu.edu.cn/embedChat?unitId=250199&robotId=e072948ce98b47c7bfff0070c3dd257a&groupId=0",
+        "689ebf9ac99c2fdc9fea136d1648e507"
+      )
+      isGzhuAgentReady.value = true
+      console.log('广州大学智能体初始化成功')
+      
+      // 更新欢迎消息
+      messages[0].content = '你好！我是乡艺未来的助教老师，有什么问题欢迎来问我哦！'
+    }
+  } catch (error) {
+    console.error('广州大学智能体初始化失败:', error)
+    isGzhuAgentReady.value = false
+  }
+}
+
+// 发送消息到广州大学智能体
+const sendToGzhuAgent = async (message) => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (window.CxRobotSdkJs && isGzhuAgentReady.value) {
+        // 调用广州大学智能体SDK发送消息
+        // 注意：这里需要根据实际SDK文档调整API调用方式
+        window.CxRobotSdkJs.sendMessage(message)
+          .then(response => resolve(response))
+          .catch(error => reject(error))
+      } else {
+        reject(new Error('智能体未准备就绪'))
+      }
+    } catch (error) {
+      reject(error)
+    }
   })
 }
+
+
 
 // Listen for immersive mode trigger from homepage
 onMounted(() => {
   window.addEventListener('open-ai-immersive', () => {
     openImmersive()
+  })
+  
+  // 延迟初始化智能体，确保SDK已加载
+  nextTick(() => {
+    setTimeout(() => {
+      initGzhuAgent()
+    }, 1000)
   })
 })
 </script>

@@ -224,7 +224,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { 
   ArrowLeftIcon, 
@@ -242,73 +242,70 @@ import {
   UserIcon
 } from 'lucide-vue-next'
 import BottomNavigation from '../components/BottomNavigation.vue'
+import { courseAPI } from '../services/api'
 
 const route = useRoute()
 const router = useRouter()
 const activeTab = ref('learning')
+const loading = ref(true)
+const error = ref(null)
 
+// 使用响应式数据，初始为空
 const course = reactive({
-  id: parseInt(route.params.id),
-  title: "陕北剪纸艺术入门",
-  description: "传承千年民间艺术，感受文化魅力",
-  image: "/traditional-paper-cutting.png",
-  duration: "45分钟",
-  students: "1,234",
-  rating: 4.8,
-  progress: 30,
-  difficulty: "初级"
+  id: null,
+  title: '',
+  description: '',
+  image: '',
+  duration: '',
+  students: 0,
+  rating: 0,
+  progress: 0,
+  level: '',
+  creator: null
 })
 
-const lessons = reactive([
-  {
-    id: 1,
-    title: "工具认识与准备",
-    duration: "5分钟",
-    xp: 50,
-    status: "completed",
-    type: "基础"
-  },
-  {
-    id: 2,
-    title: "基础图案练习",
-    duration: "8分钟",
-    xp: 75,
-    status: "completed",
-    type: "练习"
-  },
-  {
-    id: 3,
-    title: "花鸟图案设计",
-    duration: "12分钟",
-    xp: 100,
-    status: "current",
-    type: "进阶"
-  },
-  {
-    id: 4,
-    title: "复杂构图技巧",
-    duration: "15分钟",
-    xp: 150,
-    status: "locked",
-    type: "高级"
-  },
-  {
-    id: 5,
-    title: "作品创作实践",
-    duration: "20分钟",
-    xp: 200,
-    status: "locked",
-    type: "实战"
-  },
-  {
-    id: 6,
-    title: "作品展示分享",
-    duration: "10分钟",
-    xp: 100,
-    status: "locked",
-    type: "分享"
+const lessons = reactive([])
+
+// 加载课程数据
+const loadCourseData = async () => {
+  try {
+    loading.value = true
+    const courseId = route.params.id
+    
+    // 获取课程详情
+    const courseResponse = await courseAPI.getCourseById(courseId)
+    const courseData = courseResponse.data
+    
+    // 更新课程数据（字段已在API层映射）
+    Object.assign(course, {
+      id: courseData.id || courseData._id,
+      title: courseData.title || '课程标题',
+      description: courseData.description || '课程描述',
+      image: courseData.image || '/traditional-paper-cutting.png',
+      duration: courseData.estimatedDuration || courseData.duration || '45分钟',
+      students: courseData.students || 0,
+      rating: courseData.rating || 0,
+      progress: courseData.progress || 0,
+      level: courseData.level || '初级',
+      creator: courseData.creator
+    })
+    
+    // 更新课程内容（lessons已在API层映射）
+    lessons.splice(0, lessons.length, ...courseData.lessons)
+    
+    // 课程内容完全依赖API数据
+  } catch (err) {
+    console.error('加载课程数据失败:', err)
+    error.value = err.message || '加载课程数据失败'
+  } finally {
+    loading.value = false
   }
-])
+}
+
+// 组件挂载时加载数据
+onMounted(() => {
+  loadCourseData()
+})
 
 const getLessonIcon = (status) => {
   switch (status) {

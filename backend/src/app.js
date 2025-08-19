@@ -13,6 +13,8 @@ const postRoutes = require('./routes/postRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const socialRoutes = require('./routes/socialRoutes');
 const topicRoutes = require('./routes/topicRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // 创建Express应用
 const app = express();
@@ -28,7 +30,7 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
+      imgSrc: ["'self'", "data:", "https:", "http://localhost:3000", "http://127.0.0.1:3000"],
       connectSrc: ["'self'"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
@@ -80,7 +82,31 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 静态文件服务
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', (req, res, next) => {
+  // 设置 CORS 头部以避免 ORB 阻止
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  
+  // 根据文件扩展名设置正确的 Content-Type
+  const ext = path.extname(req.path).toLowerCase();
+  if (ext === '.jpg' || ext === '.jpeg') {
+    res.type('image/jpeg');
+  } else if (ext === '.png') {
+    res.type('image/png');
+  } else if (ext === '.gif') {
+    res.type('image/gif');
+  } else if (ext === '.webp') {
+    res.type('image/webp');
+  } else if (ext === '.mp4') {
+    res.type('video/mp4');
+  } else if (ext === '.pdf') {
+    res.type('application/pdf');
+  }
+  
+  next();
+}, express.static(path.join(__dirname, '../uploads')));
 
 // 速率限制
 const limiter = rateLimit({
@@ -103,6 +129,8 @@ app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/api/topics', topicRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 健康检查端点
 app.get('/health', (req, res) => {

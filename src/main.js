@@ -5,6 +5,7 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import App from './App.vue'
 import './style.css'
+import { useUserStore } from './stores/user.js'
 
 // 导入页面组件
 import HomePage from './views/HomePage.vue'
@@ -36,6 +37,10 @@ import CompletedCoursesPage from './views/CompletedCoursesPage.vue'
 import LearningPointsPage from './views/LearningPointsPage.vue'
 import LearningDaysPage from './views/LearningDaysPage.vue'
 
+// 导入后台管理页面
+import AdminDashboard from './views/admin/AdminDashboard.vue'
+import AdminCoursesPage from './views/admin/AdminCoursesPage.vue'
+
 // 路由配置
 const routes = [
   { path: '/', component: HomePage },
@@ -66,12 +71,51 @@ const routes = [
   { path: '/learning-days', component: LearningDaysPage },
   { path: '/debug', component: () => import('./views/DebugPage.vue') },
   { path: '/register', component: () => import('./views/RegisterPage.vue') },
-  { path: '/login', component: () => import('./views/LoginPage.vue') }
+  { path: '/login', component: () => import('./views/LoginPage.vue') },
+  // 后台管理路由
+  { path: '/admin', component: AdminDashboard, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/admin/courses', component: AdminCoursesPage, meta: { requiresAuth: true, requiresAdmin: true } }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+// 路由守卫
+router.beforeEach(async (to, from, next) => {
+  const userStore = useUserStore()
+  
+  // 检查是否需要认证
+  if (to.meta.requiresAuth) {
+    // 如果用户未登录，重定向到登录页
+    if (!userStore.isAuthenticated) {
+      next('/login')
+      return
+    }
+    
+    // 检查是否需要管理员权限
+    if (to.meta.requiresAdmin) {
+      // 确保用户信息已加载
+      if (!userStore.user) {
+        try {
+          await userStore.checkAuth()
+        } catch (error) {
+          next('/login')
+          return
+        }
+      }
+      
+      // 检查用户是否为管理员
+      if (!userStore.isAdmin) {
+        // 非管理员用户，重定向到首页
+        next('/')
+        return
+      }
+    }
+  }
+  
+  next()
 })
 
 import { createPersistedState } from 'pinia-plugin-persistedstate'
@@ -91,7 +135,6 @@ app.use(ElementPlus)
 app.mount('#app')
 
 // 在应用挂载后初始化用户状态
-import { useUserStore } from './stores/user.js'
 const userStore = useUserStore()
 
 // 检查用户登录状态并获取数据
