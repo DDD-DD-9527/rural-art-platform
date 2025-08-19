@@ -201,7 +201,7 @@ const validateForm = () => {
   let isValid = true
 
   // 验证注册号
-  if (!form.userId.trim()) {
+  if (!form.userId || !form.userId.trim()) {
     errors.userId = '请输入注册号'
     isValid = false
   } else if (form.userId.length < 3) {
@@ -210,7 +210,7 @@ const validateForm = () => {
   }
 
   // 验证用户名
-  if (!form.username.trim()) {
+  if (!form.username || !form.username.trim()) {
     errors.username = '请输入用户名'
     isValid = false
   } else if (form.username.length < 2) {

@@ -144,7 +144,7 @@ const mentionStartPos = ref(-1)
 const currentUser = computed(() => userStore.user)
 const isReply = computed(() => !!props.parentId)
 const canSubmit = computed(() => {
-  return content.value.trim().length > 0 && content.value.length <= 1000 && !submitting.value
+  return content.value && content.value.trim().length > 0 && content.value.length <= 1000 && !submitting.value
 })
 
 // 监听内容变化，处理@提及
@@ -209,7 +209,7 @@ const submitComment = async () => {
     const mentions = extractMentions(content.value)
     
     const commentData = {
-      content: content.value.trim(),
+      content: content.value ? content.value.trim() : '',
       targetType: props.targetType,
       targetId: props.targetId,
       parentId: props.parentId,

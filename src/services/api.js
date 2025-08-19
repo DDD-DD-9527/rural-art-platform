@@ -164,6 +164,16 @@ export const socialAPI = {
     return api.get('/social/recommended', {
       params: { limit }
     })
+  },
+  
+  // 获取关注统计
+  getFollowStats: () => {
+    const userStore = useUserStore()
+    const userId = userStore.user?.id
+    if (!userId) {
+      return Promise.reject(new Error('用户未登录'))
+    }
+    return api.get(`/social/follow-stats/${userId}`)
   }
 }
 
@@ -201,7 +211,15 @@ export const postAPI = {
   },
   
   // 添加帖子评论
-  addPostComment: (postId, commentData) => api.post(`/posts/${postId}/comments`, commentData)
+  addPostComment: (postId, commentData) => api.post(`/posts/${postId}/comments`, commentData),
+  
+  // 获取关注用户的帖子
+  getFollowingPosts: (params = {}) => {
+    const { page = 1, limit = 20, sortBy = 'createdAt', sortOrder = 'desc' } = params
+    return api.get('/posts/following', {
+      params: { page, limit, sortBy, sortOrder }
+    })
+  }
 }
 
 // 评论相关API

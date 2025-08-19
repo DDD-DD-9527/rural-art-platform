@@ -591,6 +591,17 @@ export const useUserStore = defineStore('user', () => {
     // 新增API方法
     updateLearningStats,
     updateSkillProgressAPI,
-    addAchievementAPI
+    addAchievementAPI,
+    
+    // 社交统计更新
+    updateSocialStats: (stats) => {
+      if (stats.following !== undefined) {
+        learningStats.followers = stats.followers || 0
+      }
+      if (stats.followers !== undefined) {
+        // 可以添加粉丝数到learningStats或创建新的socialStats对象
+        learningStats.followers = stats.followers || 0
+      }
+    }
   }
 })

@@ -4,6 +4,9 @@ version: '3.8'
 services:
   # MongoDB开发配置
   mongodb:
+    image: mongo:6.0
+    container_name: rural-art-mongodb-dev
+    restart: unless-stopped
     ports:
       - "27017:27017"
     volumes:

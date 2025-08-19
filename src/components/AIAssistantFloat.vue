@@ -281,7 +281,7 @@ const closeImmersive = () => {
 }
 
 const sendMessage = () => {
-  if (!inputMessage.value.trim()) return
+  if (!inputMessage.value || !inputMessage.value.trim()) return
   
   messages.push({
     id: Date.now(),

@@ -1,12 +1,12 @@
 const express = require('express');
 const { body, query, param } = require('express-validator');
 const postController = require('../controllers/postController');
-const { authenticate, authorize } = require('../middleware/auth');
+const { authenticate, authorize, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
 // 获取帖子列表
-router.get('/', [
+router.get('/', optionalAuth, [
   query('page').optional().isInt({ min: 1 }).withMessage('页码必须是正整数'),
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('每页数量必须在1-100之间'),
   query('sortBy').optional().isIn(['createdAt', 'updatedAt', 'likeCount', 'commentCount', 'viewCount']).withMessage('排序字段无效'),
@@ -25,13 +25,13 @@ router.get('/', [
 ], postController.getPosts);
 
 // 获取热门帖子
-router.get('/hot/list', [
+router.get('/hot/list', optionalAuth, [
   query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('数量限制必须在1-50之间'),
   query('days').optional().isInt({ min: 1, max: 30 }).withMessage('天数必须在1-30之间')
 ], postController.getHotPosts);
 
 // 获取推荐帖子
-router.get('/recommended/list', authenticate, [
+router.get('/recommended/list', optionalAuth, [
   query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('数量限制必须在1-50之间')
 ], postController.getRecommendedPosts);
 
@@ -145,5 +145,13 @@ router.post('/:id/report', authenticate, [
   body('reason').isIn(['spam', 'inappropriate', 'harassment', 'copyright', 'misinformation', 'other']).withMessage('举报原因无效'),
   body('description').optional().isString().isLength({ max: 500 }).withMessage('举报描述不能超过500个字符')
 ], postController.reportPost);
+
+// 获取关注用户的帖子
+router.get('/following', authenticate, [
+  query('page').optional().isInt({ min: 1 }).withMessage('页码必须是正整数'),
+  query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('每页数量必须在1-50之间'),
+  query('sortBy').optional().isIn(['createdAt', 'updatedAt', 'likeCount', 'commentCount', 'viewCount']).withMessage('排序字段无效'),
+  query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('排序方向无效')
+], postController.getFollowingPosts);
 
 module.exports = router;

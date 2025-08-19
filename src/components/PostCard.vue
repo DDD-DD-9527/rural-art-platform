@@ -22,14 +22,25 @@
           </div>
         </div>
         <div class="flex items-center space-x-2">
-          <button
-            v-if="!(post.author?.isFollowing || post.user?.isFollowing)"
-            @click="followUser"
-            :disabled="isFollowing"
-            class="px-4 py-1 text-sm border border-emerald-200 text-emerald-600 rounded-full hover:bg-emerald-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ isFollowing ? '关注中...' : '关注' }}
-          </button>
+          <!-- 不是自己的帖子才显示关注按钮 -->
+          <template v-if="!isOwnPost">
+            <button
+              v-if="!isUserFollowed"
+              @click="followUser"
+              :disabled="isFollowing"
+              class="px-4 py-1 text-sm border border-emerald-200 text-emerald-600 rounded-full hover:bg-emerald-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ isFollowing ? '关注中...' : '+ 关注' }}
+            </button>
+            <button
+              v-else
+              @click="unfollowUser"
+              :disabled="isFollowing"
+              class="px-4 py-1 text-sm bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ isFollowing ? '处理中...' : '✓ 已关注' }}
+            </button>
+          </template>
           <button class="p-2 text-slate-400 hover:text-slate-600 transition-colors">
             <MoreHorizontalIcon class="w-4 h-4" />
           </button>
@@ -86,13 +97,13 @@
             :disabled="isLiking"
             :class="[
               'flex items-center space-x-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
-              post.isLiked 
+              isLiked 
                 ? 'text-red-500 hover:text-red-600' 
                 : 'text-slate-600 hover:text-red-500'
             ]"
           >
-            <HeartIcon :class="['w-4 h-4', post.isLiked ? 'fill-current' : '']" />
-            <span>{{ post.stats?.likeCount || post.likes || 0 }}</span>
+            <HeartIcon :class="['w-4 h-4', isLiked ? 'fill-current' : '']" />
+            <span>{{ likeCount }}</span>
           </button>
           <button 
             @click="toggleComments"
@@ -125,7 +136,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { 
   MapPinIcon, 
   MoreHorizontalIcon, 
@@ -136,6 +147,8 @@ import {
 import { postService } from '@/services/postService'
 import { socialAPI } from '@/services/api'
 import { ElMessage } from 'element-plus'
+import { useSocialStore } from '@/stores/social'
+import { useUserStore } from '@/stores/user'
 import CommentList from './CommentList.vue'
 
 const props = defineProps({
@@ -145,10 +158,69 @@ const props = defineProps({
   }
 })
 
-const isLiking = ref(false)
-const isFollowing = ref(false)
+const socialStore = useSocialStore()
+const userStore = useUserStore()
 const showComments = ref(false)
 const commentCount = ref(props.post.stats?.commentCount || props.post.comments || 0)
+const isFollowing = ref(false)
+const isLiking = ref(false)
+
+// 计算是否为当前用户自己的帖子
+const isOwnPost = computed(() => {
+  const authorId = props.post.author?._id || props.post.author?.id || props.post.user?.id
+  const currentUserId = userStore.user.id
+  return authorId === currentUserId
+})
+
+// 计算用户是否已被关注
+const isUserFollowed = computed(() => {
+  const authorId = props.post.author?._id || props.post.author?.id || props.post.user?.id
+  if (!authorId) {
+    console.log('🚫 PostCard: 无法获取作者ID')
+    return false
+  }
+  const followState = socialStore.getUserFollowState(authorId)
+  console.log(`👤 PostCard: 作者 ${authorId} 关注状态:`, followState)
+  return followState
+})
+
+// 计算点赞状态
+const isLiked = computed(() => {
+  const postId = props.post._id || props.post.id
+  if (!postId) {
+    console.log('🚫 PostCard: 无法获取帖子ID')
+    return false
+  }
+  const likeState = socialStore.getPostLikeState(postId)
+  console.log(`❤️ PostCard: 帖子 ${postId} 点赞状态:`, likeState)
+  return likeState
+})
+
+// 计算点赞数
+const likeCount = computed(() => {
+  const postId = props.post._id || props.post.id
+  if (!postId) {
+    const fallbackCount = props.post.stats?.likeCount || props.post.likes || 0
+    console.log('🚫 PostCard: 无法获取帖子ID，使用fallback点赞数:', fallbackCount)
+    return fallbackCount
+  }
+  const storeCount = socialStore.getPostLikeCount(postId)
+  console.log(`🔢 PostCard: 帖子 ${postId} 点赞数:`, storeCount)
+  return storeCount
+})
+
+// 初始化组件状态
+onMounted(() => {
+  // 将当前帖子状态同步到store
+  socialStore.initializePostsState([props.post])
+})
+
+// 监听帖子变化，同步状态
+watch(() => props.post, (newPost) => {
+  if (newPost) {
+    socialStore.initializePostsState([newPost])
+  }
+}, { deep: true })
 
 // 切换评论显示
 const toggleComments = () => {
@@ -166,63 +238,71 @@ const updateCommentCount = (newCount) => {
 }
 
 const followUser = async () => {
-  if (isFollowing.value) return
+  const userId = props.post.author?._id || props.post.author?.id || props.post.user?.id
+  if (!userId) {
+    ElMessage.error('用户信息不完整，无法执行关注操作')
+    return
+  }
   
+  // 检查是否试图关注自己
+  if (isOwnPost.value) {
+    ElMessage.warning('不能关注自己哦 😊')
+    return
+  }
+  
+  isFollowing.value = true
   try {
-    isFollowing.value = true
-    const userId = props.post.author?._id || props.post.author?.id || props.post.user?.id
-    
-    if (!userId) {
-      ElMessage.error('用户信息不完整')
-      return
-    }
-    
-    const response = await socialAPI.followUser(userId)
-    
-    if (response.success) {
-      // 更新本地状态
-      if (props.post.author) {
-        props.post.author.isFollowing = true
-      }
-      if (props.post.user) {
-        props.post.user.isFollowing = true
-      }
-      ElMessage.success('关注成功')
-    } else {
-      ElMessage.error(response.message || '关注失败')
-    }
+    await socialStore.followUser(userId)
+    // store中已有成功提示，这里不需要重复显示
   } catch (error) {
     console.error('关注操作失败:', error)
-    ElMessage.error('关注失败，请稍后重试')
+    // store中已处理大部分错误提示，这里只处理特殊情况
+    if (error.message && error.message.includes('不能关注自己')) {
+      ElMessage.warning('不能关注自己哦 😊')
+    }
+  } finally {
+    isFollowing.value = false
+  }
+}
+
+const unfollowUser = async () => {
+  const userId = props.post.author?._id || props.post.author?.id || props.post.user?.id
+  if (!userId) {
+    ElMessage.error('用户信息不完整，无法执行取消关注操作')
+    return
+  }
+  
+  isFollowing.value = true
+  try {
+    await socialStore.unfollowUser(userId)
+    // store中已有成功提示，这里不需要重复显示
+  } catch (error) {
+    console.error('取消关注操作失败:', error)
+    // store中已处理错误提示，这里不需要重复处理
   } finally {
     isFollowing.value = false
   }
 }
 
 const toggleLike = async () => {
-  if (isLiking.value) return
+  const postId = props.post._id || props.post.id
+  if (!postId) {
+    console.log('🚫 PostCard: 点赞操作失败，无法获取帖子ID')
+    ElMessage.error('帖子信息不完整，无法执行点赞操作')
+    return
+  }
   
+  console.log(`🔄 PostCard: 开始切换帖子 ${postId} 的点赞状态`)
+  console.log(`🔄 PostCard: 当前状态 - 点赞: ${isLiked.value}, 点赞数: ${likeCount.value}`)
+  
+  isLiking.value = true
   try {
-    isLiking.value = true
-    const response = await postService.toggleLikePost(props.post._id || props.post.id)
-    
-    // API响应拦截器直接返回了后端data字段的内容，所以response就是{isLiked, likeCount}
-    if (response && typeof response.isLiked === 'boolean' && typeof response.likeCount === 'number') {
-      // 更新本地状态
-      props.post.isLiked = response.isLiked
-      props.post.stats = props.post.stats || {}
-      props.post.stats.likeCount = response.likeCount
-      // 兼容旧的数据结构
-      props.post.likes = response.likeCount
-      
-      // 显示成功消息
-      ElMessage.success(response.isLiked ? '点赞成功' : '取消点赞成功')
-    } else {
-      ElMessage.error('操作失败')
-    }
+    const result = await socialStore.togglePostLike(postId)
+    console.log(`✅ PostCard: 点赞操作完成:`, result)
+    // 不需要显示成功消息，UI变化已经足够反馈
   } catch (error) {
-    console.error('点赞操作失败:', error)
-    ElMessage.error('操作失败，请稍后重试')
+    console.error('❌ PostCard: 点赞操作失败:', error)
+    ElMessage.error('点赞操作失败，请稍后重试')
   } finally {
     isLiking.value = false
   }

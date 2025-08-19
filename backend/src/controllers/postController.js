@@ -2,6 +2,7 @@ const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 const User = require('../models/User');
 const Like = require('../models/Like');
+const Follow = require('../models/Follow');
 const { validationResult } = require('express-validator');
 
 // 获取帖子列表
@@ -46,18 +47,44 @@ exports.getPosts = async (req, res) => {
       .limit(parseInt(limit))
       .lean();
 
-    // 如果用户已登录，为每个帖子添加点赞状态
+    // 如果用户已登录，为每个帖子添加点赞状态和关注状态
     if (req.user) {
-      const user = await User.findById(req.user.id).lean();
-      const likedPostIds = user.likedPosts.map(id => id.toString());
+      const user = await User.findById(req.user._id).lean();
+      const likedPostIds = user.likedPosts ? user.likedPosts.map(id => id.toString()) : [];
+      
+      // 获取当前用户关注的用户列表 - 修复字段名
+      const followingList = await Follow.find({ follower: req.user._id }).select('following').lean();
+      const followingIds = followingList.map(f => f.following.toString());
+      
+      console.log('当前用户ID:', req.user._id);
+      console.log('查询关注列表结果:', followingList);
+      console.log('提取的关注用户ID列表:', followingIds);
       
       posts.forEach(post => {
         post.isLiked = likedPostIds.includes(post._id.toString());
+        // 添加关注状态
+        if (post.author) {
+          const authorId = post.author._id.toString();
+          const currentUserId = req.user._id.toString();
+          
+          // 用户不能关注自己
+          if (authorId === currentUserId) {
+            post.author.isFollowing = false;
+            console.log(`帖子作者 ${authorId} 是当前用户自己，关注状态设为 false`);
+          } else {
+            const isFollowing = followingIds.includes(authorId);
+            post.author.isFollowing = isFollowing;
+            console.log(`帖子作者 ${authorId} 关注状态: ${isFollowing} (在关注列表中: ${followingIds.includes(authorId)})`);
+          }
+        }
       });
     } else {
-      // 未登录用户，所有帖子都未点赞
+      // 未登录用户，所有帖子都未点赞且未关注
       posts.forEach(post => {
         post.isLiked = false;
+        if (post.author) {
+          post.author.isFollowing = false;
+        }
       });
     }
 
@@ -559,6 +586,91 @@ exports.getUserPosts = async (req, res) => {
     res.status(500).json({
       success: false,
       message: '获取用户帖子失败',
+      error: error.message
+    });
+  }
+};
+
+// 获取关注用户的帖子
+exports.getFollowingPosts = async (req, res) => {
+  try {
+    const { page = 1, limit = 20, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+    const userId = req.user._id;
+    const skip = (page - 1) * limit;
+
+    // 获取当前用户关注的用户列表
+    const followingList = await Follow.find({ follower: userId }).select('following');
+    const followingIds = followingList.map(f => f.following);
+
+    if (followingIds.length === 0) {
+      return res.json({
+        success: true,
+        data: {
+          posts: [],
+          pagination: {
+            current: parseInt(page),
+            total: 0,
+            count: 0,
+            totalCount: 0
+          }
+        }
+      });
+    }
+
+    // 查询关注用户的帖子
+    const query = {
+      author: { $in: followingIds },
+      status: 'published',
+      visibility: { $in: ['public', 'followers'] } // 包含公开和仅关注者可见的帖子
+    };
+
+    const sort = {};
+    sort.isPinned = -1; // 置顶帖子优先
+    sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+    const posts = await Post.find(query)
+      .populate('author', 'username profile.nickname profile.avatar')
+      .populate('relatedCourse', 'title coverImage')
+      .sort(sort)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean();
+
+    // 为每个帖子添加点赞状态和关注状态
+    const user = await User.findById(userId).lean();
+    const likedPostIds = user.likedPosts ? user.likedPosts.map(id => id.toString()) : [];
+    
+    // 获取当前用户关注的用户列表
+    const userFollowingList = await Follow.find({ follower: userId }).select('following');
+    const userFollowingIds = userFollowingList.map(f => f.following.toString());
+    
+    posts.forEach(post => {
+      post.isLiked = likedPostIds.includes(post._id.toString());
+      // 添加关注状态
+      if (post.author) {
+        post.author.isFollowing = userFollowingIds.includes(post.author._id.toString());
+      }
+    });
+
+    const total = await Post.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: {
+        posts,
+        pagination: {
+          current: parseInt(page),
+          total: Math.ceil(total / limit),
+          count: posts.length,
+          totalCount: total
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取关注用户帖子失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '获取关注用户帖子失败',
       error: error.message
     });
   }

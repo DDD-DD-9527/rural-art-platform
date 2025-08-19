@@ -215,7 +215,7 @@ const postTypes = [
 const suggestedTags = ['传统艺术', '摄影分享', '电商技能', '学习心得', '民族文化', '生活感悟']
 
 const canPublish = computed(() => {
-  return content.value.trim().length > 0 && !isPublishing.value
+  return content.value && content.value.trim().length > 0 && !isPublishing.value
 })
 
 // 根据帖子类型生成占位符文本
@@ -269,7 +269,7 @@ const toggleTag = (tag) => {
 }
 
 const addCustomTag = () => {
-  if (customTag.value.trim() && !selectedTags.includes(customTag.value.trim())) {
+  if (customTag.value && customTag.value.trim() && !selectedTags.includes(customTag.value.trim())) {
     selectedTags.push(customTag.value.trim())
     customTag.value = ''
   }

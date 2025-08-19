@@ -194,7 +194,7 @@ const validateForm = () => {
   let isValid = true
 
   // 验证用户名/注册号
-  if (!form.identifier.trim()) {
+  if (!form.identifier || !form.identifier.trim()) {
     errors.identifier = '请输入用户名或注册号'
     isValid = false
   }

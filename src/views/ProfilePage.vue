@@ -456,7 +456,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { socialAPI, commentAPI } from '../services/api'
@@ -492,7 +492,7 @@ const showMyLikesModal = ref(false)
 const showMyCommentsModal = ref(false)
 const showAchievementsModal = ref(false)
 
-const showMemberModal = ref(false)
+const showMembershipModal = ref(false)
 
 // 统计数据
 const socialStats = reactive({
@@ -518,46 +518,163 @@ const loadStats = async () => {
     if (commentsResponse.success && commentsResponse.data.pagination) {
       socialStats.myComments = commentsResponse.data.pagination.total || 0
     }
+    
+    // 获取关注统计
+    const followStatsResponse = await socialAPI.getFollowStats()
+    if (followStatsResponse.success) {
+      // 更新用户store中的关注和粉丝数据
+      userStore.updateSocialStats({
+        following: followStatsResponse.data.following || 0,
+        followers: followStatsResponse.data.followers || 0
+      })
+    }
   } catch (error) {
     console.error('加载统计数据失败:', error)
   }
 }
 
+// 刷新所有数据
+const refreshAllData = async () => {
+  await Promise.all([
+    loadStats(),
+    loadFollowingList(),
+    loadMyLikedPosts(),
+    loadFollowersList()
+  ])
+}
+
 // 组件挂载时加载数据
 onMounted(() => {
-  loadStats()
+  refreshAllData()
 })
 
+// 监听用户store的变化，当关注数据更新时刷新页面数据
+watch(() => userStore.socialStats, () => {
+  // 延迟刷新，避免频繁调用
+  setTimeout(() => {
+    refreshAllData()
+  }, 1000)
+}, { deep: true })
+
 // 关注列表数据
-const followingList = reactive([
-  { id: 1, name: '李师傅', location: '山西·临汾' },
-  { id: 2, name: '小芳', location: '河南·洛阳' },
-  { id: 3, name: '创作达人', location: '河北·保定' },
-  { id: 4, name: '艺术小白', location: '湖南·长沙' }
-])
+const followingList = reactive([])
+const followingLoading = ref(false)
 
 // 粉丝列表数据
-const followersList = reactive([
-  { id: 1, name: '王大爷', location: '陕西·西安' },
-  { id: 2, name: '刘阿姨', location: '甘肃·兰州' },
-  { id: 3, name: '手工爱好者', location: '宁夏·银川' }
-])
+const followersList = reactive([])
+const followersLoading = ref(false)
+
+// 加载关注列表
+const loadFollowingList = async () => {
+  if (!userStore.isAuthenticated) return
+  
+  try {
+    followingLoading.value = true
+    const response = await socialAPI.getFollowing({ page: 1, limit: 10 })
+    if (response.success && response.data) {
+      // 处理新的数据格式：data.list 或 data.users
+      const users = response.data.list || response.data.users || []
+      if (Array.isArray(users)) {
+        followingList.splice(0, followingList.length, ...users)
+      } else {
+        console.warn('关注列表数据格式不正确:', response)
+        followingList.splice(0, followingList.length)
+      }
+    } else {
+      console.warn('关注列表数据格式不正确:', response)
+      followingList.splice(0, followingList.length)
+    }
+  } catch (error) {
+    console.error('加载关注列表失败:', error)
+    followingList.splice(0, followingList.length)
+  } finally {
+    followingLoading.value = false
+  }
+}
+
+// 加载粉丝列表
+const loadFollowersList = async () => {
+  if (!userStore.isAuthenticated) return
+  
+  try {
+    followersLoading.value = true
+    const response = await socialAPI.getFollowers({ page: 1, limit: 10 })
+    if (response.success && response.data) {
+      // 处理新的数据格式：data.list 或 data.users
+      const users = response.data.list || response.data.users || []
+      if (Array.isArray(users)) {
+        followersList.splice(0, followersList.length, ...users)
+      } else {
+        console.warn('粉丝列表数据格式不正确:', response)
+        followersList.splice(0, followersList.length)
+      }
+    } else {
+      console.warn('粉丝列表数据格式不正确:', response)
+      followersList.splice(0, followersList.length)
+    }
+  } catch (error) {
+    console.error('加载粉丝列表失败:', error)
+    followersList.splice(0, followersList.length)
+  } finally {
+    followersLoading.value = false
+  }
+}
 
 // 我点赞的内容
-const myLikedPosts = reactive([
-  {
-    id: 1,
-    author: '李师傅',
-    time: '2小时前',
-    content: '用新学的手机摄影技巧拍了家乡的秋景，感觉比以前拍得好多了！'
-  },
-  {
-    id: 2,
-    author: '小芳',
-    time: '1天前',
-    content: '终于学会了微信小商店的运营！这个月我们家的土蜂蜜销量增加了50%'
+const myLikedPosts = ref([])
+const myLikedPostsLoading = ref(false)
+
+// 加载我的点赞内容
+const loadMyLikedPosts = async () => {
+  if (!userStore.isAuthenticated) return
+  
+  try {
+    myLikedPostsLoading.value = true
+    const response = await socialAPI.getUserLikes({
+      page: 1,
+      limit: 10,
+      sort: 'recent'
+    })
+    
+    if (response.success && response.data && response.data.likes) {
+      // 转换数据格式
+      myLikedPosts.value = response.data.likes.map(like => ({
+        id: like.id,
+        author: like.target?.author?.name || '未知用户',
+        time: formatTimeAgo(like.likedAt),
+        content: like.target?.content || like.target?.title || '无内容'
+      }))
+    } else {
+      myLikedPosts.value = []
+    }
+  } catch (error) {
+    console.error('加载点赞内容失败:', error)
+    myLikedPosts.value = []
+  } finally {
+    myLikedPostsLoading.value = false
   }
-])
+}
+
+// 格式化时间
+const formatTimeAgo = (dateString) => {
+  if (!dateString) return '未知时间'
+  
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffInSeconds = Math.floor((now - date) / 1000)
+  
+  if (diffInSeconds < 60) {
+    return '刚刚'
+  } else if (diffInSeconds < 3600) {
+    return `${Math.floor(diffInSeconds / 60)}分钟前`
+  } else if (diffInSeconds < 86400) {
+    return `${Math.floor(diffInSeconds / 3600)}小时前`
+  } else if (diffInSeconds < 2592000) {
+    return `${Math.floor(diffInSeconds / 86400)}天前`
+  } else {
+    return date.toLocaleDateString('zh-CN')
+  }
+}
 
 
 

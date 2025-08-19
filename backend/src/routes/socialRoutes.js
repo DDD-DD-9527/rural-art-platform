@@ -61,4 +61,7 @@ router.get('/stats/:userId', auth, followValidation, socialController.getSocialS
 // 获取互相关注的用户
 router.get('/mutual-follows', auth, paginationValidation, socialController.getMutualFollows);
 
+// 获取关注统计
+router.get('/follow-stats/:userId', auth, followValidation, socialController.getFollowStats);
+
 module.exports = router;

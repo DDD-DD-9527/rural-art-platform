@@ -156,7 +156,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { 
   ArrowLeftIcon, 
@@ -177,12 +177,14 @@ import PostCard from '../components/PostCard.vue'
 import PublishModal from '../components/PublishModal.vue'
 import BottomNavigation from '../components/BottomNavigation.vue'
 import { postService } from '@/services/postService'
-import { topicAPI } from '@/services/api'
+import { topicAPI, postAPI } from '@/services/api'
 import { useUserStore } from '@/stores/user'
+import { useSocialStore } from '@/stores/social'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const userStore = useUserStore()
+const socialStore = useSocialStore()
 const activeTab = ref('community')
 const activeNavTab = ref('推荐')
 const selectedTopic = ref('') // 选中的话题
@@ -392,6 +394,26 @@ const getTopicIcon = (topicName) => {
 
 // 移除硬编码的话题帖子数据，完全依赖API
 
+// 直接使用服务器返回的帖子数据，确保状态准确性
+const mergePostsWithLocalState = (newPosts, existingPosts) => {
+  console.log('mergePostsWithLocalState 输入参数:', { newPosts, existingPosts })
+  
+  if (!newPosts || !Array.isArray(newPosts)) {
+    console.warn('newPosts 不是数组:', newPosts)
+    return []
+  }
+  
+  // 直接返回服务器数据，因为后端已经正确设置了所有状态
+  console.log('直接使用服务器返回的状态数据')
+  newPosts.forEach((post, index) => {
+    if (post.author) {
+      console.log(`帖子 ${index + 1} 作者 ${post.author._id} 关注状态: ${post.author.isFollowing}, 点赞状态: ${post.isLiked}`)
+    }
+  })
+  
+  return newPosts
+}
+
 // 获取帖子数据
 const fetchPosts = async (page = 1, forceRefresh = false) => {
   try {
@@ -408,109 +430,102 @@ const fetchPosts = async (page = 1, forceRefresh = false) => {
       params._t = Date.now()
     }
     
-    console.log('fetchPosts 调用参数:', { activeNavTab: activeNavTab.value, page, params })
+    console.log('🔄 开始获取帖子数据，activeNavTab:', activeNavTab.value, 'page:', page, 'forceRefresh:', forceRefresh)
+    console.log('📋 获取帖子参数:', params)
     
-    // 根据当前标签页调整参数
-    switch (activeNavTab.value) {
-      case '推荐':
-        // 获取推荐帖子 - 使用专门的推荐API，失败时回退到普通帖子
-        try {
-          const recommendedResponse = await postService.getRecommendedPosts({
-            limit: params.limit,
-            _t: params._t
-          })
-          if (recommendedResponse && recommendedResponse.posts) {
-            console.log('推荐API响应:', recommendedResponse)
-            posts.value = page === 1 ? recommendedResponse.posts : [...posts.value, ...recommendedResponse.posts]
-            pagination.value = recommendedResponse.pagination
-            console.log('推荐帖子设置完成:', { postsCount: posts.value.length, pagination: pagination.value })
-          } else {
-            console.log('推荐API返回失败:', recommendedResponse)
-            throw new Error('推荐API失败')
-          }
-        } catch (error) {
-          console.warn('推荐API失败，回退到普通帖子:', error)
-          // 回退到普通帖子API
-          const fallbackResponse = await postService.getPosts(params)
-          console.log('回退API响应:', fallbackResponse)
-          if (fallbackResponse && fallbackResponse.posts) {
-            posts.value = page === 1 ? fallbackResponse.posts : [...posts.value, ...fallbackResponse.posts]
-            pagination.value = fallbackResponse.pagination
-            console.log('回退帖子设置完成:', { postsCount: posts.value.length, pagination: pagination.value })
-          } else {
-            console.error('回退API也失败:', fallbackResponse)
-            posts.value = []
-            pagination.value = { current: 1, total: 1, count: 0, totalCount: 0 }
-          }
-        }
-        break
-      case '关注':
-        // 获取关注用户的帖子 - 暂时使用普通帖子列表
-        params.type = 'share'
-        const followingResponse = await postService.getPosts(params)
-        console.log('关注API响应:', followingResponse)
-        if (followingResponse && followingResponse.posts) {
-          posts.value = page === 1 ? followingResponse.posts : [...posts.value, ...followingResponse.posts]
-          pagination.value = followingResponse.pagination
-          console.log('关注帖子设置完成:', { postsCount: posts.value.length, pagination: pagination.value })
-        } else {
-          console.error('获取关注帖子失败:', followingResponse)
-          posts.value = []
-          pagination.value = { current: 1, total: 1, count: 0, totalCount: 0 }
-        }
-        break
-      case '本地':
-        // 获取本地帖子 - 暂时使用普通帖子列表
-        const localResponse = await postService.getPosts(params)
-        console.log('本地API响应:', localResponse)
-        if (localResponse && localResponse.posts) {
-          posts.value = page === 1 ? localResponse.posts : [...posts.value, ...localResponse.posts]
-          pagination.value = localResponse.pagination
-          console.log('本地帖子设置完成:', { postsCount: posts.value.length, pagination: pagination.value })
-        } else {
-          console.error('获取本地帖子失败:', localResponse)
-          posts.value = []
-          pagination.value = { current: 1, total: 1, count: 0, totalCount: 0 }
-        }
-        break
-      case '话题':
-        // 获取话题帖子 - 根据选中的话题筛选
-        if (selectedTopic.value) {
-          // 直接使用话题名称作为标签进行筛选，因为发布帖子时使用的就是话题分类名称
-          params.tags = [selectedTopic.value]
-        }
-        const topicResponse = await postService.getPosts(params)
-        if (topicResponse && topicResponse.posts) {
-          posts.value = page === 1 ? topicResponse.posts : [...posts.value, ...topicResponse.posts]
-          pagination.value = topicResponse.pagination
-        } else {
-          console.error('获取话题帖子失败:', topicResponse)
-          posts.value = []
-          pagination.value = { current: 1, total: 1, count: 0, totalCount: 0 }
-        }
-        break
-      default:
-        const defaultResponse = await postService.getPosts(params)
-        console.log('默认API响应:', defaultResponse)
-        if (defaultResponse && defaultResponse.posts) {
-          posts.value = page === 1 ? defaultResponse.posts : [...posts.value, ...defaultResponse.posts]
-          pagination.value = defaultResponse.pagination
-          console.log('默认帖子设置完成:', { postsCount: posts.value.length, pagination: pagination.value })
-        } else {
-          console.error('获取默认帖子失败:', defaultResponse)
-          posts.value = []
-          pagination.value = { current: 1, total: 1, count: 0, totalCount: 0 }
-        }
+    let response
+    if (activeNavTab.value === '推荐') {
+      const recommendedResponse = await postService.getRecommendedPosts({
+        limit: pagination.value.pageSize,
+        _t: Date.now()
+      })
+      
+      console.log('📡 推荐帖子响应:', recommendedResponse)
+      
+      if (recommendedResponse && recommendedResponse.posts && recommendedResponse.posts.length > 0) {
+        response = recommendedResponse
+      } else {
+        // 如果没有推荐帖子，回退到普通帖子
+        console.log('⚠️ 没有推荐帖子，回退到普通帖子')
+        const fallbackResponse = await postService.getPosts(params)
+        console.log('📡 回退帖子响应:', fallbackResponse)
+        response = fallbackResponse
+      }
+    } else if (activeNavTab.value === '本地') {
+      // 获取本地帖子
+      params.location = '本地' // 或者根据用户位置设置
+      const localResponse = await postService.getPosts(params)
+      console.log('📡 本地帖子响应:', localResponse)
+      response = localResponse
+    } else if (activeNavTab.value === '话题') {
+      // 获取话题帖子
+      if (selectedTopic.value) {
+        params.tags = [selectedTopic.value]
+        console.log('🏷️ 选中话题:', selectedTopic.value)
+      }
+      const topicResponse = await postService.getPosts(params)
+      console.log('📡 话题帖子响应:', topicResponse)
+      response = topicResponse
+    } else {
+      // 默认获取所有帖子
+      const defaultResponse = await postService.getPosts(params)
+      console.log('📡 默认帖子响应:', defaultResponse)
+      response = defaultResponse
     }
-  } catch (error) {
-    console.error('获取帖子失败:', error)
-    ElMessage.error('获取帖子失败，请稍后重试')
-  } finally {
-    loading.value = false
-  }
-}
+     
+     if (response && response.posts) {
+       console.log('📊 API响应数据结构:', {
+         postsCount: response.posts.length,
+         pagination: response.pagination,
+         hasMore: response.pagination?.current < response.pagination?.total
+       })
+       
+       // 详细检查每个帖子的状态
+       response.posts.forEach((post, index) => {
+         console.log(`📝 帖子 ${index + 1}:`, {
+           id: post._id,
+           content: post.content?.substring(0, 50) + '...',
+           isLiked: post.isLiked,
+           likeCount: post.stats?.likeCount || post.likes || 0,
+           author: {
+             id: post.author?._id || post.author?.id,
+             username: post.author?.username || post.author?.profile?.nickname,
+             isFollowing: post.author?.isFollowing
+           }
+         })
+       })
+       
+       const mergedPosts = mergePostsWithLocalState(response.posts, posts.value)
+       posts.value = page === 1 ? mergedPosts : [...posts.value, ...mergedPosts]
+       pagination.value = response.pagination || { current: 1, total: 1, count: 0, totalCount: 0, pageSize: 20 }
+       
+       console.log('📈 更新后的帖子总数:', posts.value.length)
+       console.log('📄 分页信息:', pagination.value)
+       
+       console.log('🔧 开始初始化社交状态...')
+       // 将帖子状态同步到社交状态store
+       socialStore.initializePostsState(posts.value)
+       console.log('✅ 社交状态初始化完成')
+       
+       console.log('📋 最终帖子状态摘要:', posts.value.map(post => ({
+         authorId: post.author?._id,
+         isFollowing: post.author?.isFollowing,
+         isLiked: post.isLiked
+       })))
+     } else {
+       console.error('❌ API响应格式错误:', response)
+       posts.value = []
+       pagination.value = { current: 1, total: 1, count: 0, totalCount: 0, pageSize: 20 }
+     }
+   } catch (error) {
+     console.error('❌ 获取帖子失败:', error)
+     ElMessage.error('获取帖子失败，请稍后重试')
+   } finally {
+     loading.value = false
+   }
+ }
 
-const currentPosts = computed(() => {
+ const currentPosts = computed(() => {
   return posts.value
 })
 
@@ -557,9 +572,35 @@ const loadMore = () => {
   }
 }
 
+// 处理关注状态变化
+const handleFollowStateChanged = (event) => {
+  const { userId, isFollowing } = event.detail
+  
+  // 更新posts中对应作者的关注状态
+  posts.value.forEach(post => {
+    if (post.author && (post.author._id === userId || post.author.id === userId)) {
+      post.author.isFollowing = isFollowing
+      console.log(`更新帖子作者 ${userId} 的关注状态为: ${isFollowing}`)
+    }
+  })
+  
+  // 重新同步到社交状态store
+  socialStore.initializePostsState(posts.value)
+}
+
 // 初始化数据
-onMounted(() => {
-  fetchPosts(1)
-  fetchTopicCategories()
+onMounted(async () => {
+  await Promise.all([
+    fetchTopicCategories(),
+    fetchPosts(1, true)
+  ])
+  
+  // 监听关注状态变化事件
+  window.addEventListener('followStateChanged', handleFollowStateChanged)
+})
+
+// 组件卸载时移除事件监听
+onUnmounted(() => {
+  window.removeEventListener('followStateChanged', handleFollowStateChanged)
 })
 </script>

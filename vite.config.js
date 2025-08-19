@@ -20,7 +20,8 @@ export default defineConfig({
       '0232bbdc2036.ngrok-free.app',
       '3c78d93dbf5d.ngrok-free.app',
       '5f63d143cc61.ngrok-free.app',
-      'b9cd47b5e9a8.ngrok-free.app'
+      'b9cd47b5e9a8.ngrok-free.app',
+      '6c3b98d66e29.ngrok-free.app'
     ],
     proxy: {
       '/api': {

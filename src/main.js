@@ -74,7 +74,13 @@ const router = createRouter({
   routes
 })
 
+import { createPersistedState } from 'pinia-plugin-persistedstate'
+
 const pinia = createPinia()
+pinia.use(createPersistedState({
+  storage: localStorage
+}))
+
 const app = createApp(App)
 
 app.use(pinia)

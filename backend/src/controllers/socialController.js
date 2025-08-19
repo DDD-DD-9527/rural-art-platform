@@ -573,3 +573,38 @@ exports.getRecommendedUsers = async (req, res) => {
     });
   }
 };
+
+// 获取关注统计
+exports.getFollowStats = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // 验证用户权限（只能查看自己的统计）
+    if (userId !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: '无权限查看该用户统计'
+      });
+    }
+    
+    // 获取关注数和粉丝数
+    const [followingCount, followersCount] = await Promise.all([
+      Follow.countDocuments({ follower: userId }),
+      Follow.countDocuments({ following: userId })
+    ]);
+    
+    res.json({
+       success: true,
+       data: {
+         following: followingCount,
+         followers: followersCount
+       }
+     });
+   } catch (error) {
+     console.error('获取关注统计失败:', error);
+     res.status(500).json({
+       success: false,
+       message: '获取关注统计失败'
+     });
+   }
+ };
