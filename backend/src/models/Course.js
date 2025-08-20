@@ -122,6 +122,90 @@ const courseSchema = new mongoose.Schema({
     isPreview: {
       type: Boolean,
       default: false
+    },
+    
+    // 关卡式学习扩展字段
+    pointsReward: {
+      // 基础积分奖励
+      basePoints: {
+        type: Number,
+        default: 10,
+        min: [0, '基础积分不能为负数']
+      },
+      
+      // 奖励条件配置
+      bonusConditions: {
+        // 首次完成奖励
+        firstCompletion: {
+          enabled: { type: Boolean, default: true },
+          points: { type: Number, default: 5 }
+        },
+        
+        // 满分奖励
+        perfectScore: {
+          enabled: { type: Boolean, default: true },
+          points: { type: Number, default: 10 },
+          threshold: { type: Number, default: 100 } // 满分阈值
+        },
+        
+        // 快速完成奖励
+        speedBonus: {
+          enabled: { type: Boolean, default: true },
+          points: { type: Number, default: 8 },
+          timeLimit: { type: Number, default: 300 } // 时间限制（秒）
+        },
+        
+        // 一次通过奖励
+        oneAttempt: {
+          enabled: { type: Boolean, default: true },
+          points: { type: Number, default: 15 }
+        }
+      },
+      
+      // 等级倍数（根据用户等级调整积分）
+      levelMultiplier: {
+        enabled: { type: Boolean, default: false },
+        baseMultiplier: { type: Number, default: 1.0 },
+        levelBonus: { type: Number, default: 0.1 } // 每级增加10%
+      }
+    },
+    
+    // 解锁条件
+    unlockConditions: {
+      // 前置课程要求
+      prerequisiteLessons: [{
+        lessonId: mongoose.Schema.Types.ObjectId,
+        required: { type: Boolean, default: true }
+      }],
+      
+      // 积分要求
+      pointsRequired: {
+        type: Number,
+        default: 0,
+        min: [0, '所需积分不能为负数']
+      },
+      
+      // 等级要求
+      levelRequired: {
+        type: Number,
+        default: 1,
+        min: [1, '所需等级至少为1']
+      },
+      
+      // 技能要求
+      skillsRequired: [{
+        skillType: String,
+        skillName: String,
+        minProgress: { type: Number, default: 0 }
+      }]
+    },
+    
+    // 课程难度系数（影响积分计算）
+    difficultyMultiplier: {
+      type: Number,
+      default: 1.0,
+      min: [0.1, '难度系数至少为0.1'],
+      max: [5.0, '难度系数最大为5.0']
     }
   }],
   
@@ -160,6 +244,10 @@ const courseSchema = new mongoose.Schema({
   // 课程设置
   settings: {
     isPublished: {
+      type: Boolean,
+      default: false
+    },
+    isArchived: {
       type: Boolean,
       default: false
     },
@@ -234,6 +322,7 @@ courseSchema.index({ creator: 1 });
 courseSchema.index({ category: 1 });
 courseSchema.index({ difficulty: 1 });
 courseSchema.index({ 'settings.isPublished': 1 });
+courseSchema.index({ 'settings.isArchived': 1 });
 courseSchema.index({ 'stats.rating.average': -1 });
 courseSchema.index({ 'stats.enrolledCount': -1 });
 courseSchema.index({ createdAt: -1 });
@@ -275,6 +364,7 @@ courseSchema.pre('save', function(next) {
 // 发布课程
 courseSchema.methods.publish = function() {
   this.settings.isPublished = true;
+  this.settings.isArchived = false; // 发布时清除归档状态
   this.publishedAt = new Date();
   return this.save();
 };
@@ -283,6 +373,7 @@ courseSchema.methods.publish = function() {
 courseSchema.methods.unpublish = function() {
   this.settings.isPublished = false;
   this.publishedAt = undefined;
+  // 注意：取消发布不会自动归档，需要单独操作
   return this.save();
 };
 

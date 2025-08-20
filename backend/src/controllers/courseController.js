@@ -14,7 +14,8 @@ const getCourses = async (req, res) => {
       search = '',
       sortBy = 'createdAt',
       sortOrder = 'desc',
-      isPublished = true
+      isPublished,
+      status
     } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -22,8 +23,26 @@ const getCourses = async (req, res) => {
     // 构建查询条件
     let query = {};
     
-    if (isPublished !== 'false') {
-      query['settings.isPublished'] = true;
+    // 处理状态筛选
+    if (status) {
+      if (status === 'published') {
+        query['settings.isPublished'] = true;
+        query['settings.isArchived'] = false;
+      } else if (status === 'draft') {
+        query['settings.isPublished'] = false;
+        query['settings.isArchived'] = false;
+      } else if (status === 'archived') {
+        query['settings.isArchived'] = true;
+      }
+    } else if (isPublished !== undefined) {
+      // 兼容原有的isPublished参数
+      if (isPublished === 'true' || isPublished === true) {
+        query['settings.isPublished'] = true;
+        query['settings.isArchived'] = false;
+      } else if (isPublished === 'false' || isPublished === false) {
+        query['settings.isPublished'] = false;
+        query['settings.isArchived'] = false;
+      }
     }
     
     if (category) {

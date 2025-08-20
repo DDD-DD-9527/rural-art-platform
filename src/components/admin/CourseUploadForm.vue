@@ -336,6 +336,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { 
   BookOpenIcon, 
   ImageIcon, 
@@ -417,7 +418,7 @@ const handleThumbnailUpload = async (event) => {
     courseData.value.thumbnail = response.data
   } catch (error) {
     console.error('上传缩略图失败:', error)
-    alert('上传缩略图失败，请重试')
+    ElMessage.error('上传缩略图失败，请重试')
   } finally {
     uploading.value = false
     event.target.value = ''
@@ -438,7 +439,7 @@ const handleVideoUpload = async (event) => {
     }
   } catch (error) {
     console.error('上传视频失败:', error)
-    alert('上传视频失败，请重试')
+    ElMessage.error('上传视频失败，请重试')
   } finally {
     uploading.value = false
     event.target.value = ''
@@ -459,7 +460,7 @@ const handleMaterialUpload = async (event) => {
     }
   } catch (error) {
     console.error('上传材料失败:', error)
-    alert('上传材料失败，请重试')
+    ElMessage.error('上传材料失败，请重试')
   } finally {
     uploading.value = false
     event.target.value = ''
@@ -558,10 +559,11 @@ const saveDraft = async () => {
     uploading.value = true
     const draftData = mapCourseDataForSubmit({ ...courseData.value, status: 'draft' })
     await courseAPI.createCourse(draftData)
-    alert('草稿保存成功')
+    ElMessage.success('草稿保存成功')
   } catch (error) {
     console.error('保存草稿失败:', error)
-    alert('保存草稿失败，请重试')
+    const errorMessage = error.response?.data?.message || error.message || '保存草稿失败，请重试'
+    ElMessage.error(errorMessage)
   } finally {
     uploading.value = false
   }
@@ -570,7 +572,7 @@ const saveDraft = async () => {
 // 发布课程
 const publishCourse = async () => {
   if (!isFormValid.value) {
-    alert('请填写必填字段')
+    ElMessage.warning('请填写必填字段')
     return
   }
   
@@ -579,13 +581,28 @@ const publishCourse = async () => {
     const publishData = mapCourseDataForSubmit({ ...courseData.value, status: 'published' })
     console.log('发布课程数据:', publishData) // 调试日志
     await courseAPI.createCourse(publishData)
-    alert('课程发布成功')
-    router.push('/admin/courses')
+    
+    // 显示成功消息
+    ElMessage.success({
+      message: '课程发布成功！',
+      duration: 3000,
+      showClose: true
+    })
+    
+    // 延迟跳转，让用户看到成功消息
+    setTimeout(() => {
+      router.push('/admin/courses')
+    }, 1500)
+    
   } catch (error) {
     console.error('发布课程失败:', error)
     // 显示更具体的错误信息
-    const errorMessage = error.message || '发布课程失败，请重试'
-    alert(errorMessage)
+    const errorMessage = error.response?.data?.message || error.message || '发布课程失败，请重试'
+    ElMessage.error({
+      message: errorMessage,
+      duration: 5000,
+      showClose: true
+    })
   } finally {
     uploading.value = false
   }

@@ -27,7 +27,7 @@ const createDefaultAdmin = async () => {
     // 创建管理员账号
     const adminUser = new User({
       userId: 'admin',
-      username: '系统管理员',
+      username: 'admin',
       password: 'admin123',
       role: 'admin',
       profile: {

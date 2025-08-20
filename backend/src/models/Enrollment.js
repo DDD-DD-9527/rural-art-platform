@@ -37,6 +37,62 @@ const enrollmentSchema = new mongoose.Schema({
       timeSpent: {
         type: Number, // 学习时长（分钟）
         default: 0
+      },
+      
+      // 关卡式学习扩展字段
+      performance: {
+        // 完成尝试次数
+        attempts: {
+          type: Number,
+          default: 1,
+          min: [1, '尝试次数至少为1']
+        },
+        
+        // 学习表现分数（0-100）
+        score: {
+          type: Number,
+          min: [0, '分数不能低于0'],
+          max: [100, '分数不能超过100']
+        },
+        
+        // 完成时长（秒）
+        completionTime: {
+          type: Number,
+          min: [0, '完成时长不能为负数']
+        },
+        
+        // 获得的积分
+        pointsEarned: {
+          type: Number,
+          default: 0,
+          min: [0, '获得积分不能为负数']
+        },
+        
+        // 奖励详情
+        bonusDetails: {
+          firstCompletion: { type: Boolean, default: false },
+          perfectScore: { type: Boolean, default: false },
+          speedBonus: { type: Boolean, default: false },
+          oneAttempt: { type: Boolean, default: false }
+        }
+      }
+    }],
+    
+    // 课程解锁状态
+    unlockedLessons: [{
+      lessonId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+      },
+      unlockedAt: {
+        type: Date,
+        default: Date.now
+      },
+      // 解锁方式
+      unlockMethod: {
+        type: String,
+        enum: ['auto', 'points', 'level', 'prerequisite', 'manual'],
+        default: 'auto'
       }
     }],
     
@@ -63,6 +119,52 @@ const enrollmentSchema = new mongoose.Schema({
     // 当前学习的课时
     currentLesson: {
       type: mongoose.Schema.Types.ObjectId
+    },
+    
+    // 关卡式学习统计
+    gamificationStats: {
+      // 总获得积分
+      totalPointsEarned: {
+        type: Number,
+        default: 0,
+        min: [0, '总积分不能为负数']
+      },
+      
+      // 连续学习天数
+      currentStreak: {
+        type: Number,
+        default: 0,
+        min: [0, '连续天数不能为负数']
+      },
+      
+      // 最长连续学习天数
+      longestStreak: {
+        type: Number,
+        default: 0,
+        min: [0, '最长连续天数不能为负数']
+      },
+      
+      // 平均分数
+      averageScore: {
+        type: Number,
+        default: 0,
+        min: [0, '平均分数不能为负数'],
+        max: [100, '平均分数不能超过100']
+      },
+      
+      // 完美完成次数
+      perfectCompletions: {
+        type: Number,
+        default: 0,
+        min: [0, '完美完成次数不能为负数']
+      },
+      
+      // 一次通过次数
+      oneAttemptCompletions: {
+        type: Number,
+        default: 0,
+        min: [0, '一次通过次数不能为负数']
+      }
     }
   },
   

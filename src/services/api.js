@@ -275,6 +275,11 @@ const mapCourseData = (course) => {
     students: course.stats?.enrolledCount || course.students || 0, // 统一学员数字段
     rating: course.stats?.rating?.average || course.rating || 0, // 统一评分字段
     progress: course.progress || 0, // 学习进度字段
+    // 状态字段映射：确保前端能正确获取课程状态
+    settings: {
+      ...course.settings,
+      isPublished: course.settings?.isPublished !== undefined ? course.settings.isPublished : course.isPublished
+    },
     // 创建者信息映射
     creator: course.creator ? {
       id: course.creator._id || course.creator.id,
@@ -318,11 +323,32 @@ export const courseAPI = {
       search = '', 
       sortBy = 'createdAt', 
       sortOrder = 'desc',
-      isPublished = true 
+      status,
+      isPublished
     } = params
     
+    // 处理status参数到isPublished的映射
+    let finalIsPublished = isPublished
+    if (status !== undefined) {
+      if (status === 'published') {
+        finalIsPublished = true
+      } else if (status === 'draft') {
+        finalIsPublished = false
+      } else if (status === 'archived') {
+        // 对于归档状态，我们需要特殊处理
+        finalIsPublished = undefined // 让后端处理归档逻辑
+      } else if (status === '') {
+        finalIsPublished = undefined // 获取所有状态
+      }
+    }
+    
+    const requestParams = { page, limit, category, difficulty, search, sortBy, sortOrder }
+    if (finalIsPublished !== undefined) {
+      requestParams.isPublished = finalIsPublished
+    }
+    
     const response = await api.get('/courses', {
-      params: { page, limit, category, difficulty, search, sortBy, sortOrder, isPublished }
+      params: requestParams
     })
     
     return mapCoursesResponse(response)

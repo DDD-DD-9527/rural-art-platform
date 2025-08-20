@@ -75,48 +75,152 @@ const createCourseSeeds = async (users) => {
       creator: artTeacher._id,
       estimatedDuration: 45,
       tags: ['剪纸', '传统艺术', '手工制作', '文化传承'],
+      videos: [
+        {
+          originalName: '剪纸基础教学.mp4',
+          filename: 'paper-cutting-basic-1234567890.mp4',
+          url: '/uploads/videos/paper-cutting-basic-1234567890.mp4',
+          size: 52428800,
+          mimetype: 'video/mp4',
+          uploadedAt: new Date('2024-01-01')
+        }
+      ],
+      materials: [
+        {
+          originalName: '剪纸图案模板.pdf',
+          filename: 'paper-cutting-templates-1234567890.pdf',
+          url: '/uploads/materials/paper-cutting-templates-1234567890.pdf',
+          size: 2097152,
+          mimetype: 'application/pdf',
+          uploadedAt: new Date('2024-01-01')
+        }
+      ],
       lessons: [
         {
           title: '工具认识与准备',
           description: '了解剪纸所需的基本工具和材料',
+          videoUrl: '/uploads/videos/lesson-1-tools.mp4',
           duration: 5,
           order: 1,
-          isPreview: true
+          isPreview: true,
+          materials: [
+            {
+              name: '剪纸专用剪刀',
+              description: '尖头细剪刀，适合精细剪纸',
+              optional: false
+            },
+            {
+              name: '彩色纸张',
+              description: '各种颜色的薄纸',
+              optional: false
+            }
+          ],
+          steps: [
+            {
+              stepNumber: 1,
+              title: '准备工具',
+              description: '准备剪刀、纸张、铅笔等工具',
+              images: ['/images/step1-tools.jpg'],
+              tips: '选择锋利的小剪刀，便于精细操作'
+            }
+          ]
         },
         {
           title: '基础图案练习',
           description: '学习简单的几何图案剪纸技法',
+          videoUrl: '/uploads/videos/lesson-2-basic.mp4',
           duration: 8,
-          order: 2
+          order: 2,
+          materials: [
+            {
+              name: '练习纸张',
+              description: '用于练习的普通纸张',
+              optional: false
+            }
+          ],
+          steps: [
+            {
+              stepNumber: 1,
+              title: '画出基础图形',
+              description: '在纸上画出简单的几何图形',
+              images: ['/images/step2-draw.jpg'],
+              tips: '先从简单的圆形、三角形开始'
+            },
+            {
+              stepNumber: 2,
+              title: '剪制图形',
+              description: '沿着线条小心剪制',
+              images: ['/images/step2-cut.jpg'],
+              tips: '保持剪刀垂直，动作要稳'
+            }
+          ]
         },
         {
           title: '花鸟图案设计',
           description: '掌握花鸟主题的剪纸设计和制作',
+          videoUrl: '/uploads/videos/lesson-3-flowers.mp4',
           duration: 12,
           order: 3
         },
         {
           title: '复杂构图技巧',
           description: '学习复杂图案的构图和剪制技巧',
+          videoUrl: '/uploads/videos/lesson-4-complex.mp4',
           duration: 15,
           order: 4
         },
         {
           title: '作品创作实践',
           description: '独立完成一幅完整的剪纸作品',
+          videoUrl: '/uploads/videos/lesson-5-practice.mp4',
           duration: 20,
           order: 5
         }
       ],
+      requirements: {
+        prerequisites: ['无特殊要求'],
+        materials: [
+          {
+            name: '剪纸专用剪刀',
+            description: '尖头细剪刀，适合精细剪纸',
+            estimatedCost: 15,
+            optional: false
+          },
+          {
+            name: '彩色纸张',
+            description: '各种颜色的薄纸，A4大小',
+            estimatedCost: 10,
+            optional: false
+          }
+        ],
+        tools: [
+          {
+            name: '铅笔',
+            description: '用于画草图',
+            optional: true
+          }
+        ]
+      },
+      learningObjectives: [
+        '掌握剪纸的基本工具使用方法',
+        '学会简单几何图案的剪制技巧',
+        '了解传统剪纸的文化内涵',
+        '能够独立完成基础剪纸作品'
+      ],
       stats: {
         enrolledCount: 1234,
+        completedCount: 987,
         viewCount: 5678,
+        likeCount: 456,
         rating: { average: 4.8, count: 156 }
       },
       settings: {
         isPublished: true,
+        isArchived: false,
         isFree: true,
-        allowComments: true
+        price: 0,
+        allowComments: true,
+        allowDownload: false
       },
       publishedAt: new Date('2024-01-01')
     },
@@ -389,42 +493,116 @@ const createCourseSeeds = async (users) => {
       creator: digitalTeacher._id,
       estimatedDuration: 60,
       tags: ['摄影', '手机摄影', '构图', '光线'],
+      videos: [
+        {
+          originalName: '手机摄影基础教程.mp4',
+          filename: 'smartphone-photography-basics-1234567890.mp4',
+          url: '/uploads/videos/smartphone-photography-basics-1234567890.mp4',
+          size: 157286400,
+          mimetype: 'video/mp4',
+          uploadedAt: new Date('2024-01-10')
+        }
+      ],
+      materials: [
+        {
+          originalName: '摄影构图指南.pdf',
+          filename: 'photography-composition-guide-1234567890.pdf',
+          url: '/uploads/materials/photography-composition-guide-1234567890.pdf',
+          size: 5242880,
+          mimetype: 'application/pdf',
+          uploadedAt: new Date('2024-01-10')
+        }
+      ],
       lessons: [
         {
           title: '手机摄影基础',
           description: '了解手机摄影的基本原理',
+          videoUrl: '/uploads/videos/lesson-1-basics.mp4',
           duration: 10,
           order: 1,
-          isPreview: true
+          isPreview: true,
+          materials: [
+            {
+              name: '智能手机',
+              description: '具备拍照功能的智能手机',
+              optional: false
+            }
+          ],
+          steps: [
+            {
+              stepNumber: 1,
+              title: '了解手机相机功能',
+              description: '熟悉手机相机的各项功能设置',
+              images: ['/images/phone-camera-settings.jpg'],
+              tips: '不同品牌手机的相机界面可能有所不同'
+            }
+          ]
         },
         {
           title: '构图技巧',
           description: '学习摄影构图的基本法则',
+          videoUrl: '/uploads/videos/lesson-2-composition.mp4',
           duration: 15,
           order: 2
         },
         {
           title: '光线运用',
           description: '掌握自然光的运用技巧',
+          videoUrl: '/uploads/videos/lesson-3-lighting.mp4',
           duration: 15,
           order: 3
         },
         {
           title: '后期处理',
           description: '学习基础的照片后期处理',
+          videoUrl: '/uploads/videos/lesson-4-editing.mp4',
           duration: 20,
           order: 4
         }
       ],
+      requirements: {
+        prerequisites: ['基本的手机操作能力'],
+        materials: [
+          {
+            name: '智能手机',
+            description: '具备拍照功能的智能手机',
+            estimatedCost: 0,
+            optional: false
+          }
+        ],
+        tools: [
+          {
+            name: '手机支架',
+            description: '用于稳定拍摄（可选）',
+            optional: true
+          },
+          {
+            name: '后期处理APP',
+            description: '如VSCO、Snapseed等',
+            optional: true
+          }
+        ]
+      },
+      learningObjectives: [
+        '掌握手机摄影的基本技巧',
+        '学会运用构图原则拍摄',
+        '了解光线对摄影的影响',
+        '能够进行基础的后期处理'
+      ],
       stats: {
         enrolledCount: 856,
+        completedCount: 678,
         viewCount: 2134,
+        likeCount: 345,
         rating: { average: 4.6, count: 98 }
       },
       settings: {
         isPublished: true,
+        isArchived: false,
         isFree: true,
-        allowComments: true
+        price: 0,
+        allowComments: true,
+        allowDownload: true
       },
       publishedAt: new Date('2024-01-10')
     },
@@ -437,42 +615,122 @@ const createCourseSeeds = async (users) => {
       creator: digitalTeacher._id,
       estimatedDuration: 90,
       tags: ['电商', '微信小商店', '运营', '营销'],
+      videos: [
+        {
+          originalName: '微信小商店开通教程.mp4',
+          filename: 'wechat-store-tutorial-1234567890.mp4',
+          url: '/uploads/videos/wechat-store-tutorial-1234567890.mp4',
+          size: 104857600,
+          mimetype: 'video/mp4',
+          uploadedAt: new Date('2024-01-20')
+        }
+      ],
+      materials: [
+        {
+          originalName: '小商店运营手册.pdf',
+          filename: 'wechat-store-manual-1234567890.pdf',
+          url: '/uploads/materials/wechat-store-manual-1234567890.pdf',
+          size: 3145728,
+          mimetype: 'application/pdf',
+          uploadedAt: new Date('2024-01-20')
+        }
+      ],
       lessons: [
         {
           title: '小商店开通流程',
           description: '学习如何开通微信小商店',
+          videoUrl: '/uploads/videos/lesson-1-setup.mp4',
           duration: 15,
           order: 1,
-          isPreview: true
+          isPreview: true,
+          materials: [
+            {
+              name: '营业执照',
+              description: '个体工商户或企业营业执照',
+              optional: false
+            },
+            {
+              name: '银行卡',
+              description: '用于收款的银行卡',
+              optional: false
+            }
+          ],
+          steps: [
+            {
+              stepNumber: 1,
+              title: '注册微信小商店',
+              description: '在微信公众平台注册小商店',
+              images: ['/images/wechat-register.jpg'],
+              tips: '准备好营业执照和身份证照片'
+            }
+          ]
         },
         {
           title: '商品上架技巧',
           description: '掌握商品上架的方法和技巧',
+          videoUrl: '/uploads/videos/lesson-2-products.mp4',
           duration: 20,
           order: 2
         },
         {
           title: '店铺装修设计',
           description: '学习店铺页面的装修设计',
+          videoUrl: '/uploads/videos/lesson-3-design.mp4',
           duration: 25,
           order: 3
         },
         {
           title: '营销推广策略',
           description: '掌握有效的营销推广方法',
+          videoUrl: '/uploads/videos/lesson-4-marketing.mp4',
           duration: 30,
           order: 4
         }
       ],
+      requirements: {
+        prerequisites: ['基础的手机操作能力', '了解微信基本功能'],
+        materials: [
+          {
+            name: '智能手机',
+            description: '支持微信的智能手机',
+            estimatedCost: 0,
+            optional: false
+          },
+          {
+            name: '营业执照',
+            description: '个体工商户或企业营业执照',
+            estimatedCost: 200,
+            optional: false
+          }
+        ],
+        tools: [
+          {
+            name: '电脑',
+            description: '用于后台管理（可选）',
+            optional: true
+          }
+        ]
+      },
+      learningObjectives: [
+        '掌握微信小商店的开通流程',
+        '学会商品上架和管理技巧',
+        '了解店铺装修和营销策略',
+        '能够独立运营微信小商店'
+      ],
       stats: {
         enrolledCount: 2156,
+        completedCount: 1543,
         viewCount: 5432,
+        likeCount: 789,
         rating: { average: 4.9, count: 234 }
       },
       settings: {
         isPublished: true,
+        isArchived: false,
         isFree: true,
-        allowComments: true
+        price: 0,
+        allowComments: true,
+        allowDownload: true
       },
       publishedAt: new Date('2024-01-20')
     },

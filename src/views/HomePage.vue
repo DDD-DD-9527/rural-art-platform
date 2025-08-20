@@ -172,6 +172,32 @@
     </main>
 
     <BottomNavigation :active-tab="activeTab" @tab-change="handleTabChange" />
+    
+    <!-- 广州大学智能体模态窗口 -->
+    <div v-if="showGzhuAgent" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col">
+        <!-- 模态窗口头部 -->
+        <div class="flex items-center justify-between p-4 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">AI智能助教</h3>
+          <button 
+            @click="closeGzhuAgent"
+            class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <XMarkIcon class="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+        
+        <!-- iframe容器 -->
+        <div class="flex-1 p-4">
+          <iframe 
+            src="https://myagent.gzhu.edu.cn/embedChat?unitId=250199&robotId=e072948ce98b47c7bfff0070c3dd257a&groupId=0"
+            class="w-full h-full border-0 rounded-lg"
+            frameborder="0"
+            scrolling="yes"
+          ></iframe>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -180,7 +206,6 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { courseAPI } from '../services/api'
-// 直接使用iframe引入原始HTML文件
 import { 
   PaletteIcon, 
   MicIcon, 
@@ -194,7 +219,8 @@ import {
   UserPlusIcon,
   CogIcon,
   ArrowRightOnRectangleIcon,
-  EyeIcon
+  EyeIcon,
+  XMarkIcon
 } from '@heroicons/vue/24/outline'
 
 import FeatureCard from '../components/FeatureCard.vue'
@@ -204,6 +230,7 @@ import BottomNavigation from '../components/BottomNavigation.vue'
 const router = useRouter()
 const userStore = useUserStore()
 const activeTab = ref('home')
+const showGzhuAgent = ref(false)
 
 // 用户菜单状态
 const showUserMenu = ref(false)
@@ -302,7 +329,12 @@ const recommendedCourses = reactive([])
 // 获取推荐课程
 const fetchRecommendedCourses = async () => {
   try {
-    const response = await courseAPI.getCourses({ limit: 3, sort: 'rating' })
+    const response = await courseAPI.getCourses({ 
+      limit: 3, 
+      sortBy: 'rating', 
+      sortOrder: 'desc',
+      isPublished: true // 只获取已发布的课程
+    })
     recommendedCourses.splice(0, recommendedCourses.length, ...response.data?.courses || [])
   } catch (error) {
     console.error('获取推荐课程失败:', error)
@@ -311,10 +343,21 @@ const fetchRecommendedCourses = async () => {
 
 const navigateToFeature = (route) => {
   if (route === '/ai-tutor') {
-    window.dispatchEvent(new CustomEvent('open-ai-immersive'))
+    // 直接调用广州大学智能体
+    openGzhuAgent()
   } else {
     router.push(route)
   }
+}
+
+// 打开广州大学智能体模态窗口
+const openGzhuAgent = () => {
+  showGzhuAgent.value = true
+}
+
+// 关闭广州大学智能体模态窗口
+const closeGzhuAgent = () => {
+  showGzhuAgent.value = false
 }
 
 const handleTabChange = (tab) => {

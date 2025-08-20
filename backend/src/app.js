@@ -15,6 +15,7 @@ const socialRoutes = require('./routes/socialRoutes');
 const topicRoutes = require('./routes/topicRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const gamificationRoutes = require('./routes/gamificationRoutes');
 
 // 创建Express应用
 const app = express();
@@ -122,7 +123,7 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-// 注册路由
+// 路由配置
 app.use('/api/users', userRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/posts', postRoutes);
@@ -131,6 +132,7 @@ app.use('/api/social', socialRoutes);
 app.use('/api/topics', topicRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/gamification', gamificationRoutes);
 
 // 健康检查端点
 app.get('/health', (req, res) => {

@@ -294,16 +294,22 @@ const fetchCourses = async () => {
     // 获取艺术类课程（传统工艺、绘画、雕塑等）
     const artCategories = ['traditional-crafts', 'painting', 'sculpture', 'textile', 'pottery', 'woodwork', 'paper-art', 'folk-art', 'calligraphy']
     
-    // 分别获取每个艺术分类的课程
+    // 分别获取每个艺术分类的课程，只获取已发布的课程
     const artCoursesData = []
     for (const category of artCategories) {
-      const response = await courseAPI.getCourses({ category })
+      const response = await courseAPI.getCourses({ 
+        category, 
+        isPublished: true // 只获取已发布的课程
+      })
       artCoursesData.push(...(response.data?.courses || []))
     }
     artCourses.splice(0, artCourses.length, ...artCoursesData)
      
-     // 获取数字技能课程（其他类别）
-     const digitalResponse = await courseAPI.getCourses({ category: 'other' })
+     // 获取数字技能课程（其他类别），只获取已发布的课程
+     const digitalResponse = await courseAPI.getCourses({ 
+       category: 'other',
+       isPublished: true // 只获取已发布的课程
+     })
      digitalCourses.splice(0, digitalCourses.length, ...digitalResponse.data?.courses || [])
     
     // 游戏化课程使用前3个课程

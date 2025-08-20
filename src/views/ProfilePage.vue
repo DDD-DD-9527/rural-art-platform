@@ -269,26 +269,6 @@
           </div>
         </div>
 
-        <!-- 管理员入口 -->
-        <div v-if="userStore.isAdmin" class="glass-card rounded-2xl p-6 mb-6">
-          <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-            <ShieldCheckIcon class="w-5 h-5 mr-2 text-purple-600" />
-            管理员功能
-          </h3>
-          <div class="space-y-3">
-            <button 
-              @click="goToAdminCourses"
-              class="w-full flex items-center justify-between p-3 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors"
-            >
-              <span class="text-slate-700 flex items-center">
-                <BookOpenIcon class="w-4 h-4 mr-2 text-purple-600" />
-                课程管理
-              </span>
-              <ChevronRightIcon class="w-4 h-4 text-slate-400" />
-            </button>
-          </div>
-        </div>
-
         <!-- 账户设置 -->
         <div class="glass-card rounded-2xl p-6 mb-6">
           <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
@@ -496,8 +476,7 @@ import {
   ShoppingBag as ShoppingBagIcon,
   Settings as CogIcon,
   ChevronRight as ChevronRightIcon,
-  LogOut as ArrowRightOnRectangleIcon,
-  ShieldCheck as ShieldCheckIcon
+  LogOut as ArrowRightOnRectangleIcon
 } from 'lucide-vue-next'
 import BottomNavigation from '../components/BottomNavigation.vue'
 
@@ -848,10 +827,6 @@ const goToLearningPoints = () => {
 
 const goToLearningDays = () => {
   router.push('/learning-days')
-}
-
-const goToAdminCourses = () => {
-  router.push('/admin/courses')
 }
 
 // 用户认证相关方法

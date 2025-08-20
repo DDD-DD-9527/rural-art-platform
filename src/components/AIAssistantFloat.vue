@@ -199,7 +199,7 @@
     </transition>
 
      <!-- Float Button  -->
-    <button
+    <!-- <button
       @click="togglePanel"
       class="w-16 h-16 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 relative overflow-hidden"
     >
@@ -210,7 +210,7 @@
           <div class="w-full h-full bg-green-400 rounded-full animate-pulse"></div>
         </div>
       </div>
-    </button>
+    </button> -->
   </div>
 </template>
 

@@ -74,14 +74,14 @@
         </div>
         
         <div class="filter-controls">
-          <select v-model="statusFilter" @change="loadCourses" class="filter-select">
+          <select v-model="statusFilter" @change="handleFilterChange" class="filter-select">
             <option value="">全部状态</option>
             <option value="published">已发布</option>
             <option value="draft">草稿</option>
             <option value="archived">已归档</option>
           </select>
           
-          <select v-model="categoryFilter" @change="loadCourses" class="filter-select">
+          <select v-model="categoryFilter" @change="handleFilterChange" class="filter-select">
             <option value="">全部分类</option>
             <option value="painting">绘画</option>
             <option value="calligraphy">书法</option>
@@ -135,8 +135,8 @@
             </div>
             
             <!-- 状态标签 -->
-            <div class="status-badge" :class="getStatusClass(course.status)">
-              {{ getStatusText(course.status) }}
+            <div class="status-badge" :class="getStatusClass(course.settings?.isPublished)">
+              {{ getStatusText(course.settings?.isPublished) }}
             </div>
           </div>
           
@@ -305,10 +305,10 @@ const loadCourses = async () => {
     
     const response = await courseAPI.getCourses(params)
     courses.value = response.data.courses || []
-    totalCourses.value = response.data.total || 0
+    totalCourses.value = response.data.pagination?.total || response.data.total || 0
     
     // 更新统计数据
-    updateStats()
+    await updateStats()
   } catch (error) {
     console.error('加载课程列表失败:', error)
   } finally {
@@ -317,16 +317,41 @@ const loadCourses = async () => {
 }
 
 // 更新统计数据
-const updateStats = () => {
-  stats.totalCourses = totalCourses.value
-  stats.publishedCourses = courses.value.filter(c => c.isPublished || c.status === 'published').length
-  stats.draftCourses = courses.value.filter(c => !c.isPublished || c.status === 'draft').length
-  stats.totalStudents = courses.value.reduce((sum, c) => sum + (c.students || c.enrollmentCount || 0), 0)
+const updateStats = async () => {
+  try {
+    // 获取所有课程统计
+    const allCoursesResponse = await courseAPI.getCourses({ status: '', limit: 1 })
+    if (allCoursesResponse.data) {
+      stats.totalCourses = allCoursesResponse.data.pagination?.total || allCoursesResponse.data.total || 0
+    }
+
+    // 获取已发布课程统计
+    const publishedResponse = await courseAPI.getCourses({ status: 'published', limit: 1 })
+    if (publishedResponse.data) {
+      stats.publishedCourses = publishedResponse.data.pagination?.total || publishedResponse.data.total || 0
+    }
+
+    // 获取草稿课程统计
+    const draftResponse = await courseAPI.getCourses({ status: 'draft', limit: 1 })
+    if (draftResponse.data) {
+      stats.draftCourses = draftResponse.data.pagination?.total || draftResponse.data.total || 0
+    }
+
+    // 计算总学员数（基于当前页面的课程）
+    stats.totalStudents = courses.value.reduce((sum, c) => sum + (c.students || c.enrollmentCount || c.stats?.enrolledCount || 0), 0)
+  } catch (error) {
+    console.error('更新统计数据失败:', error)
+    // 如果API调用失败，使用当前页面数据作为备选
+    stats.totalCourses = totalCourses.value
+    stats.publishedCourses = courses.value.filter(c => c.settings?.isPublished === true).length
+    stats.draftCourses = courses.value.filter(c => c.settings?.isPublished === false || c.settings?.isPublished === undefined).length
+    stats.totalStudents = courses.value.reduce((sum, c) => sum + (c.students || c.enrollmentCount || c.stats?.enrolledCount || 0), 0)
+  }
 }
 
 // 搜索处理
 const handleSearch = () => {
-  currentPage.value = 1
+  currentPage.value = 1 // 重置到第一页
   loadCourses()
 }
 
@@ -382,22 +407,24 @@ const truncateText = (text, maxLength) => {
   return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
 }
 
-const getStatusClass = (status) => {
-  const classes = {
-    published: 'status-published',
-    draft: 'status-draft',
-    archived: 'status-archived'
+const getStatusClass = (isPublished) => {
+  if (isPublished === true) {
+    return 'status-published'
+  } else if (isPublished === false) {
+    return 'status-draft'
+  } else {
+    return 'status-draft'
   }
-  return classes[status] || 'status-draft'
 }
 
-const getStatusText = (status) => {
-  const texts = {
-    published: '已发布',
-    draft: '草稿',
-    archived: '已归档'
+const getStatusText = (isPublished) => {
+  if (isPublished === true) {
+    return '已发布'
+  } else if (isPublished === false) {
+    return '草稿'
+  } else {
+    return '草稿'
   }
-  return texts[status] || '草稿'
 }
 
 const getCategoryText = (category) => {
@@ -412,6 +439,12 @@ const getCategoryText = (category) => {
     other: '其他'
   }
   return categories[category] || category
+}
+
+// 监听筛选条件变化
+const handleFilterChange = () => {
+  currentPage.value = 1 // 重置到第一页
+  loadCourses()
 }
 
 // 组件挂载
