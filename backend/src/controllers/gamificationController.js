@@ -1,9 +1,10 @@
-const Course = require('../models/Course');
-const User = require('../models/User');
-const Enrollment = require('../models/Enrollment');
 const PointsRecord = require('../models/PointsRecord');
+const User = require('../models/User');
+const Course = require('../models/Course');
+const Enrollment = require('../models/Enrollment');
 const PointsService = require('../services/PointsService');
 const UnlockService = require('../services/UnlockService');
+const { POINTS_CONFIG, COURSE_CONFIG, PAGINATION_CONFIG } = require('../config/constants');
 const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 
@@ -140,14 +141,14 @@ const completeLesson = async (req, res) => {
       console.log('✨ 课时未完成，开始积分发放流程');
       // 计算积分奖励
       const user = await User.findById(userId);
-      const userLevel = Math.floor(user.learningStats.totalPoints / 100) + 1;
+      const userLevel = Math.floor(user.learningStats.totalPoints / POINTS_CONFIG.POINTS_PER_LEVEL) + 1;
       
       const completionInfo = {
         score,
         timeSpent,
         attempts,
         isFirstAttempt: attempts === 1,
-        isPerfectScore: score >= 100,
+        isPerfectScore: score >= COURSE_CONFIG.PERFECT_SCORE_THRESHOLD,
         ...completionData
       };
 
@@ -213,7 +214,7 @@ const completeLesson = async (req, res) => {
       }
 
       // 注意：不再直接更新totalPointsEarned，它将通过PointsRecord计算得出
-      if (score >= 100) {
+      if (score >= COURSE_CONFIG.PERFECT_SCORE_THRESHOLD) {
         enrollment.progress.gamificationStats.perfectCompletions += 1;
       }
       if (attempts === 1) {
@@ -245,7 +246,7 @@ const completeLesson = async (req, res) => {
     let courseCompletionReward = 0;
     if (isCompleted && !enrollment.progress.isCompleted) {
       // 课程完成奖励
-      courseCompletionReward = 50; // 基础课程完成奖励
+      courseCompletionReward = COURSE_CONFIG.COMPLETION_REWARD;
       
       const coursePointsData = {
         userId: userId,
@@ -409,7 +410,7 @@ const getPointsHistory = async (req, res) => {
 
     const {
       page = 1,
-      limit = 20,
+      limit = PAGINATION_CONFIG.DEFAULT_PAGE_SIZE,
       type = '',
       startDate = '',
       endDate = ''
@@ -551,7 +552,7 @@ const getUserAchievements = async (req, res) => {
       });
     }
 
-    if (perfectScores >= 10) {
+    if (perfectScores >= POINTS_CONFIG.ACHIEVEMENT_THRESHOLDS.PERFECT_SCORES) {
       achievements.push({
         id: 'perfectionist',
         name: '完美主义者',
@@ -562,7 +563,7 @@ const getUserAchievements = async (req, res) => {
       });
     }
 
-    if (totalPoints >= 1000) {
+    if (totalPoints >= POINTS_CONFIG.ACHIEVEMENT_THRESHOLDS.HIGH_ACHIEVER) {
       achievements.push({
         id: 'point_collector',
         name: '积分收集者',
@@ -633,7 +634,7 @@ const getLeaderboard = async (req, res) => {
         avatar: user.profile?.avatar
       },
       value: user.learningStats?.[sortField.split('.')[1]] || 0,
-      level: Math.floor((user.learningStats?.totalPoints || 0) / 100) + 1
+      level: Math.floor((user.learningStats?.totalPoints || 0) / POINTS_CONFIG.POINTS_PER_LEVEL) + 1
     }));
 
     res.json({

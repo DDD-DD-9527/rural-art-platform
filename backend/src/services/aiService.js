@@ -1,24 +1,13 @@
 const axios = require('axios');
+const { AI_CONFIG } = require('../config/constants');
 
 class AIService {
   constructor() {
     // 广州大学智能体配置
-    this.gzhuConfig = {
-      apiUrl: process.env.GZHU_AGENT_API_URL || 'https://api.gzhu.edu.cn/agent',
-      apiKey: process.env.GZHU_AGENT_KEY || ''
-    };
+    this.gzhuConfig = AI_CONFIG.GZHU_AGENT;
 
     // Coze智能体配置
-    this.cozeConfig = {
-      apiUrl: process.env.COZE_API_URL || 'https://api.coze.com/v1',
-      apiKey: process.env.COZE_API_KEY || '',
-      bots: {
-        imageEnhance: process.env.COZE_IMAGE_ENHANCE_BOT_ID || '',
-        styleTransfer: process.env.COZE_STYLE_TRANSFER_BOT_ID || '',
-        patternGenerate: process.env.COZE_PATTERN_GENERATE_BOT_ID || '',
-        smartRepair: process.env.COZE_SMART_REPAIR_BOT_ID || ''
-      }
-    };
+    this.cozeConfig = AI_CONFIG.COZE;
 
     // 创建HTTP客户端
     this.gzhuClient = axios.create({

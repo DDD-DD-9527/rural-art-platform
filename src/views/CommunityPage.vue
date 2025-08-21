@@ -63,7 +63,7 @@
       <div v-if="activeNavTab === '本地'" class="glass-card rounded-2xl p-6 mb-8">
         <h3 class="text-xl font-bold mb-4 text-slate-800 flex items-center">
           <MapPinIcon class="w-6 h-6 mr-2 text-blue-600" />
-          陕西·延安 社区
+          {{ LOCATION_CONFIG.DEFAULT_REGION }} 社区
         </h3>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div class="text-center p-4 bg-emerald-50 rounded-2xl">
@@ -181,6 +181,7 @@ import { topicAPI, postAPI } from '@/services/api'
 import { useUserStore } from '@/stores/user'
 import { useSocialStore } from '@/stores/social'
 import { ElMessage } from 'element-plus'
+import { LOCATION_CONFIG, COURSE_CONFIG } from '@/config/constants'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -198,7 +199,14 @@ const pagination = ref({
 })
 
 const navTabs = ['推荐', '关注', '本地', '话题']
-const trendingTopics = ['#剪纸作品展示', '#手机摄影技巧', '#乡村生活记录', '#传统文化传承', '#AI创作分享', '#电商运营心得']
+const trendingTopics = ref([
+  '#' + COURSE_CONFIG.CATEGORIES[0] + '展示',
+  '#手机摄影技巧',
+  '#乡村生活记录', 
+  '#传统文化传承',
+  '#AI创作分享',
+  '#电商运营心得'
+])
 
 const topicCategories = reactive([])
 const topicCategoriesLoading = ref(false)
@@ -208,11 +216,11 @@ const fetchTopicCategories = async () => {
   try {
     topicCategoriesLoading.value = true
     
-    // 定义默认话题
+    // 定义默认话题 - 基于配置生成
     const defaultTopics = [
       {
         name: '传统艺术',
-        description: '剪纸、绘画、刺绣等传统手工艺',
+        description: COURSE_CONFIG.CATEGORIES.slice(0, 3).join('、') + '等传统手工艺',
         count: 0,
         icon: PaletteIcon,
         color: '#FF6B6B'

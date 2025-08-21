@@ -3,6 +3,8 @@ const Course = require('../models/Course');
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 const Enrollment = require('../models/Enrollment');
+const PointsRecord = require('../models/PointsRecord');
+const { PAGINATION_CONFIG } = require('../config/constants');
 const { validationResult } = require('express-validator');
 
 // 获取管理员仪表盘统计数据
@@ -191,7 +193,7 @@ const getDashboardStats = async (req, res) => {
       })),
       recentPosts: recentActivities[2].map(post => ({
         id: post._id,
-        content: post.content.substring(0, 50) + (post.content.length > 50 ? '...' : ''),
+        content: post.content.substring(0, PAGINATION_CONFIG.CONTENT_PREVIEW_LENGTH) + (post.content.length > PAGINATION_CONFIG.CONTENT_PREVIEW_LENGTH ? '...' : ''),
         author: post.author?.profile?.nickname || post.author?.username,
         type: post.type,
         action: '发布帖子',

@@ -1,5 +1,6 @@
 const Post = require('../models/Post');
 const { validationResult } = require('express-validator');
+const { PAGINATION_CONFIG } = require('../config/constants');
 
 // 获取话题分类列表
 const getTopicCategories = async (req, res) => {
@@ -13,7 +14,7 @@ const getTopicCategories = async (req, res) => {
       });
     }
 
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || PAGINATION_CONFIG.DEFAULT_PAGE_SIZE;
 
     // 从数据库中获取所有不重复的标签
     const allTags = await Post.distinct('tags', { 
@@ -80,7 +81,7 @@ const getTrendingTopics = async (req, res) => {
       });
     }
 
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || PAGINATION_CONFIG.SMALL_PAGE_SIZE;
     const days = parseInt(req.query.days) || 7;
     
     // 计算时间范围

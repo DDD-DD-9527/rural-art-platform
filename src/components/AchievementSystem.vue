@@ -449,7 +449,7 @@ const loadAchievements = async () => {
     const response = await gamificationApi.getAchievements(props.userId)
     
     if (response.success) {
-      achievements.value = response.achievements.map(achievement => ({
+      achievements.value = (response.data?.achievements || []).map(achievement => ({
         ...achievement,
         progress: achievement.current && achievement.target 
           ? (achievement.current / achievement.target) * 100 
@@ -458,6 +458,8 @@ const loadAchievements = async () => {
     }
   } catch (error) {
     console.error('加载成就失败:', error)
+    // 如果API调用失败，使用空数组避免页面崩溃
+    achievements.value = []
   } finally {
     loading.value = false
   }

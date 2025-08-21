@@ -120,7 +120,6 @@
       <!-- 游戏化学习路径 -->
       <GamifiedLearningPath 
         v-if="currentUserId"
-        :course-id="'default'"
         :user-id="currentUserId"
         class="mb-8"
         @lesson-start="navigateToCourse"
@@ -260,8 +259,37 @@ const goBack = () => {
   router.back()
 }
 
-const navigateToCourse = (courseId) => {
-  router.push(`/course/${courseId}`)
+const navigateToCourse = async (courseId) => {
+  try {
+    // 检查用户是否已经报名该课程
+    const isEnrolled = enrolledCourses.some(course => 
+      (course.id === courseId || course._id === courseId || course.course?.id === courseId || course.course?._id === courseId)
+    )
+    
+    if (!isEnrolled && currentUserId.value) {
+      // 用户未报名，先进行报名
+      const response = await courseAPI.enrollCourse(courseId)
+      if (response.success) {
+        console.log('课程报名成功:', response.message)
+        // 刷新已报名课程列表
+        await fetchEnrolledCourses()
+      } else {
+        console.error('课程报名失败:', response.message)
+        alert(response.message || '课程报名失败，请重试')
+        return
+      }
+    }
+    
+    // 导航到课程详情页面
+    router.push(`/course/${courseId}`)
+  } catch (error) {
+    console.error('处理课程访问失败:', error)
+    if (error.response?.data?.message) {
+      alert(error.response.data.message)
+    } else {
+      alert('操作失败，请重试')
+    }
+  }
 }
 
 // 导航到瑶绣制作专门课程页面
@@ -302,16 +330,24 @@ const handleCertificateClaim = async (certificate) => {
 const fetchEnrolledCourses = async () => {
   try {
     if (currentUserId.value) {
+      console.log('正在获取用户已报名课程，用户ID:', currentUserId.value)
       const response = await courseAPI.getUserEnrolledCourses(currentUserId.value)
+      console.log('获取已报名课程响应:', response)
       if (response.success && response.data) {
         enrolledCourses.splice(0, enrolledCourses.length, ...response.data)
+        console.log('已报名课程更新完成，课程数量:', response.data.length)
+      } else {
+        console.log('响应格式不正确或无数据')
+        enrolledCourses.splice(0, enrolledCourses.length)
       }
+    } else {
+      console.log('用户未登录，清空已报名课程列表')
+      enrolledCourses.splice(0, enrolledCourses.length)
     }
   } catch (error) {
     console.error('获取已注册课程失败:', error)
     // 初始化为空数组，没有正在学习的课程
-    const mockEnrolledCourses = []
-    enrolledCourses.splice(0, enrolledCourses.length, ...mockEnrolledCourses)
+    enrolledCourses.splice(0, enrolledCourses.length)
   }
 }
 
@@ -343,8 +379,18 @@ const fetchCourses = async () => {
   }
 }
 
-onMounted(() => {
-  fetchEnrolledCourses()
-  fetchCourses()
+onMounted(async () => {
+  // 先检查用户认证状态
+  if (userStore.token && !userStore.user.id) {
+    try {
+      await userStore.checkAuth()
+    } catch (error) {
+      console.error('认证检查失败:', error)
+    }
+  }
+  
+  // 然后获取课程数据
+  await fetchEnrolledCourses()
+  await fetchCourses()
 })
 </script>

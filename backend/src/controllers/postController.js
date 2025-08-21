@@ -4,11 +4,12 @@ const User = require('../models/User');
 const Like = require('../models/Like');
 const Follow = require('../models/Follow');
 const { validationResult } = require('express-validator');
+const { PAGINATION_CONFIG } = require('../config/constants');
 
 // 获取帖子列表
 exports.getPosts = async (req, res) => {
   try {
-    const { page = 1, limit = 20, sortBy = 'createdAt', sortOrder = 'desc', type, location, author, search } = req.query;
+    const { page = 1, limit = PAGINATION_CONFIG.DEFAULT_PAGE_SIZE, sortBy = 'createdAt', sortOrder = 'desc', type, location, author, search } = req.query;
     // 处理数组格式的tags参数 (tags[] 或 tags)
     const tags = req.query['tags[]'] || req.query.tags;
 
@@ -375,7 +376,7 @@ exports.toggleLikePost = async (req, res) => {
 // 获取热门帖子
 exports.getHotPosts = async (req, res) => {
   try {
-    const { limit = 10, days = 7 } = req.query;
+    const { limit = PAGINATION_CONFIG.SMALL_PAGE_SIZE, days = 7 } = req.query;
     const dateThreshold = new Date();
     dateThreshold.setDate(dateThreshold.getDate() - days);
 
@@ -425,7 +426,7 @@ exports.getHotPosts = async (req, res) => {
 // 获取推荐帖子
 exports.getRecommendedPosts = async (req, res) => {
   try {
-    const { limit = 10 } = req.query;
+    const { limit = PAGINATION_CONFIG.SMALL_PAGE_SIZE } = req.query;
     const userId = req.user?.id;
 
     let posts;
@@ -546,7 +547,7 @@ exports.reportPost = async (req, res) => {
 exports.getUserPosts = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { page = 1, limit = 20, status = 'published' } = req.query;
+    const { page = 1, limit = PAGINATION_CONFIG.DEFAULT_PAGE_SIZE, status = 'published' } = req.query;
     const currentUserId = req.user?.id;
 
     const skip = (page - 1) * limit;
@@ -594,7 +595,7 @@ exports.getUserPosts = async (req, res) => {
 // 获取关注用户的帖子
 exports.getFollowingPosts = async (req, res) => {
   try {
-    const { page = 1, limit = 20, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+    const { page = 1, limit = PAGINATION_CONFIG.DEFAULT_PAGE_SIZE, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     const userId = req.user._id;
     const skip = (page - 1) * limit;
 

@@ -1,9 +1,9 @@
 const Comment = require('../models/Comment');
 const Post = require('../models/Post');
-const Course = require('../models/Course');
 const User = require('../models/User');
 const Like = require('../models/Like');
 const { validationResult } = require('express-validator');
+const { PAGINATION_CONFIG } = require('../config/constants');
 
 // 获取评论列表
 exports.getComments = async (req, res) => {
@@ -12,7 +12,7 @@ exports.getComments = async (req, res) => {
       targetType,
       targetId,
       page = 1,
-      limit = 20,
+      limit = PAGINATION_CONFIG.DEFAULT_PAGE_SIZE,
       sortBy = 'createdAt',
       sortOrder = 'desc',
       parentComment
@@ -538,7 +538,7 @@ exports.reportComment = async (req, res) => {
 exports.getUserComments = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { page = 1, limit = 20, status = 'published' } = req.query;
+    const { page = 1, limit = PAGINATION_CONFIG.DEFAULT_PAGE_SIZE, status = 'published' } = req.query;
     const currentUserId = req.user?.id;
 
     const skip = (page - 1) * limit;
@@ -586,7 +586,7 @@ exports.getUserComments = async (req, res) => {
 // 获取我的评论
 exports.getMyComments = async (req, res) => {
   try {
-    const { page = 1, limit = 20, type, search, sort = 'recent' } = req.query;
+    const { page = 1, limit = PAGINATION_CONFIG.DEFAULT_PAGE_SIZE, type, search, sort = 'recent' } = req.query;
     const userId = req.user.id;
     const skip = (page - 1) * limit;
 

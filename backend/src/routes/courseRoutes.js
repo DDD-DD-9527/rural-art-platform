@@ -14,7 +14,14 @@ const {
   updateProgress,
   getProgress,
   getUserEnrollments,
-  getCourseEnrollments
+  getCourseEnrollments,
+  getUnlockableLessons,
+  unlockLesson,
+  getCourseStats,
+  checkCourseUnlock,
+  getRecommendedPath,
+  getUserSkillTree,
+  getCourseAnalytics
 } = require('../controllers/courseController');
 const { authenticate, authorize } = require('../middleware/auth');
 
@@ -204,5 +211,22 @@ router.put('/:courseId/progress', updateProgress); // 更新学习进度
 router.get('/:courseId/progress', getProgress); // 获取学习进度
 router.get('/enrollments/my', getUserEnrollments); // 获取我的课程报名列表
 router.get('/:courseId/enrollments', getCourseEnrollments); // 获取课程报名学员列表（需要权限）
+
+// 关卡式学习相关路由
+router.get('/:courseId/unlockable-lessons', getUnlockableLessons); // 获取可解锁的课时列表
+router.post('/:courseId/lessons/:lessonId/unlock', unlockLesson); // 手动解锁课时
+router.get('/:courseId/stats', getCourseStats); // 获取课程学习统计
+
+// 检查课程解锁条件
+router.get('/:courseId/unlock-check', authenticate, checkCourseUnlock);
+
+// 获取推荐学习路径
+router.get('/recommended-path', authenticate, getRecommendedPath);
+
+// 获取用户技能树
+router.get('/skill-tree', authenticate, getUserSkillTree);
+
+// 获取课程分析数据（管理员）
+router.get('/:courseId/analytics', authenticate, getCourseAnalytics);
 
 module.exports = router;

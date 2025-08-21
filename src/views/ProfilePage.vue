@@ -183,12 +183,7 @@
         </div>
       </div>
 
-      <!-- 完整成就系统展示 -->
-      <div class="mb-6">
-        <AchievementSystem 
-          :user-id="currentUserId"
-        />
-      </div>
+
 
       <!-- 瑶绣制作专项职业能力补贴 -->
       <div class="glass-card rounded-2xl p-6 mb-6">
@@ -497,7 +492,7 @@ import {
   LogOut as ArrowRightOnRectangleIcon
 } from 'lucide-vue-next'
 import BottomNavigation from '../components/BottomNavigation.vue'
-import AchievementSystem from '../components/AchievementSystem.vue'
+import { DEFAULT_ASSETS } from '@/config/constants'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -873,7 +868,8 @@ const handleLogout = () => {
 
 // 处理图片加载错误
 const handleImageError = (event) => {
-  // 图片加载失败时隐藏图片，显示默认头像
-  event.target.style.display = 'none'
+  // 图片加载失败时显示默认头像
+  event.target.src = DEFAULT_ASSETS.AVATAR
+  event.target.onerror = null // 防止无限循环
 }
 </script>

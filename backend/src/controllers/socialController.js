@@ -1,8 +1,9 @@
+const User = require('../models/User');
 const Follow = require('../models/Follow');
 const Like = require('../models/Like');
-const User = require('../models/User');
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
+const { PAGINATION_CONFIG, POINTS_CONFIG } = require('../config/constants');
 const { validationResult } = require('express-validator');
 
 // 关注用户
@@ -149,7 +150,7 @@ exports.unfollowUser = async (req, res) => {
 exports.getFollowingList = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { page = 1, limit = 10, search = '' } = req.query;
+    const { page = 1, limit = PAGINATION_CONFIG.SMALL_PAGE_SIZE, search = '' } = req.query;
     
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -179,7 +180,7 @@ exports.getFollowingList = async (req, res) => {
       followers: item.following.socialStats.followersCount,
       works: item.following.creatorStats?.worksCount || 0,
       isVip: false, // 可以根据实际业务逻辑设置
-      level: Math.floor((item.following.learningStats?.totalPoints || 0) / 100) + 1
+      level: Math.floor((item.following.learningStats?.totalPoints || 0) / POINTS_CONFIG.POINTS_PER_LEVEL) + 1
     }));
     
     res.json({
@@ -208,7 +209,7 @@ exports.getFollowingList = async (req, res) => {
 exports.getFollowersList = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { page = 1, limit = 10, search = '' } = req.query;
+    const { page = 1, limit = PAGINATION_CONFIG.SMALL_PAGE_SIZE, search = '' } = req.query;
     
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -252,7 +253,7 @@ exports.getFollowersList = async (req, res) => {
       comments: 0, // 可以根据实际需求计算
       isFollowing: !!followingMap[item.follower._id.toString()],
       isVip: false,
-      level: Math.floor((item.follower.learningStats?.totalPoints || 0) / 100) + 1
+      level: Math.floor((item.follower.learningStats?.totalPoints || 0) / POINTS_CONFIG.POINTS_PER_LEVEL) + 1
     }));
     
     res.json({
@@ -431,7 +432,7 @@ exports.getMutualFollows = async (req, res) => {
 exports.getUserLikes = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { page = 1, limit = 10, type = 'all', search = '', sort = 'recent' } = req.query;
+    const { page = 1, limit = PAGINATION_CONFIG.SMALL_PAGE_SIZE, type = 'all', search = '', sort = 'recent' } = req.query;
     
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);

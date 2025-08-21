@@ -193,7 +193,7 @@ import { gamificationApi } from '../services/api.js'
 const props = defineProps({
   courseId: {
     type: String,
-    required: true
+    required: false
   },
   userId: {
     type: String,
@@ -330,15 +330,15 @@ const loadLearningPath = async () => {
     // 获取学习路径
     const pathResponse = await gamificationApi.getLearningPath(props.courseId)
     if (pathResponse.success) {
-      lessons.value = pathResponse.lessons
-      pathData.value = { ...pathData.value, ...pathResponse.pathInfo }
+      lessons.value = pathResponse.data?.lessons || []
+      pathData.value = { ...pathData.value, ...pathResponse.data?.course }
     }
     
-    // 获取用户统计
+    // 获取用户统计信息
     if (props.userId) {
       const statsResponse = await gamificationApi.getPointsStats(props.userId)
       if (statsResponse.success) {
-        userStats.value = statsResponse.stats
+        userStats.value = statsResponse.data?.stats || {}
       }
     }
     

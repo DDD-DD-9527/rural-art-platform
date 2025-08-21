@@ -16,41 +16,25 @@ const topicRoutes = require('./routes/topicRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const gamificationRoutes = require('./routes/gamification');
+const pointsRoutes = require('./routes/pointsRoutes');
 
 // 创建Express应用
 const app = express();
+
+// 导入配置
+const { CORS_CONFIG, RATE_LIMIT_CONFIG, SECURITY_CONFIG, SERVER_CONFIG } = require('./config/constants');
 
 // 信任代理（如果使用反向代理）
 app.set('trust proxy', 1);
 
 // 安全中间件
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" },
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:", "http://localhost:3000", "http://127.0.0.1:3000"],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
-    },
-  },
-}));
+app.use(helmet(SECURITY_CONFIG.HELMET_OPTIONS));
 
 // CORS配置
 const corsOptions = {
   origin: function (origin, callback) {
     // 允许的域名列表
-    const allowedOrigins = [
-      'http://localhost:5173', // Vite开发服务器
-      'http://localhost:3000', // 可能的前端端口
-      'http://127.0.0.1:5173',
-      'http://127.0.0.1:3000'
-    ];
+    const allowedOrigins = CORS_CONFIG.ALLOWED_ORIGINS;
     
     // 在开发环境中允许所有来源
     if (process.env.NODE_ENV === 'development') {
@@ -79,8 +63,8 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // 请求体解析
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: SERVER_CONFIG.REQUEST_SIZE_LIMIT }));
+app.use(express.urlencoded({ extended: true, limit: SERVER_CONFIG.REQUEST_SIZE_LIMIT }));
 
 // 静态文件服务
 app.use('/uploads', (req, res, next) => {
@@ -110,16 +94,7 @@ app.use('/uploads', (req, res, next) => {
 }, express.static(path.join(__dirname, '../uploads')));
 
 // 速率限制
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15分钟
-  max: process.env.NODE_ENV === 'development' ? 1000 : 100, // 开发环境放宽限制
-  message: {
-    success: false,
-    message: '请求过于频繁，请稍后再试'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+const limiter = rateLimit(RATE_LIMIT_CONFIG.DEFAULT_LIMITER);
 
 app.use(limiter);
 
@@ -133,6 +108,7 @@ app.use('/api/topics', topicRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/gamification', gamificationRoutes);
+app.use('/api/points', pointsRoutes);
 
 // 健康检查端点
 app.get('/health', (req, res) => {

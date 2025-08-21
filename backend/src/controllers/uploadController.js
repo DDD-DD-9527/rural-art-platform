@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
 const { promisify } = require('util');
+const { SERVER_CONFIG } = require('../config/constants');
 const unlinkAsync = promisify(fs.unlink);
 
 // 图片压缩和优化
@@ -29,7 +30,7 @@ const optimizeImage = async (filePath, options = {}) => {
 
 // 生成文件URL
 const generateFileUrl = (filename, type = 'temp') => {
-  const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+  const baseUrl = SERVER_CONFIG.BASE_URL;
   return `${baseUrl}/uploads/${type}/${filename}`;
 };
 

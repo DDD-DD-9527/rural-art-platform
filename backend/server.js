@@ -1,5 +1,6 @@
 const app = require('./src/app');
 const database = require('./src/config/database');
+const { SERVER_CONFIG } = require('./src/config/constants');
 const path = require('path');
 const fs = require('fs');
 
@@ -10,8 +11,8 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 // 服务器配置
-const PORT = process.env.PORT || 3000;
-const NODE_ENV = process.env.NODE_ENV || 'development';
+const PORT = SERVER_CONFIG.PORT;
+const NODE_ENV = SERVER_CONFIG.NODE_ENV;
 
 // 启动服务器
 const startServer = async () => {

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { JWT_CONFIG } = require('../config/constants');
 
 // JWT认证中间件
 const authenticate = async (req, res, next) => {
@@ -17,7 +18,7 @@ const authenticate = async (req, res, next) => {
     const token = authHeader.substring(7); // 移除 'Bearer ' 前缀
 
     // 验证token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_CONFIG.SECRET);
     
     // 查找用户
     const user = await User.findById(decoded.userId).select('-password');
@@ -74,7 +75,7 @@ const optionalAuth = async (req, res, next) => {
     }
 
     const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_CONFIG.SECRET);
     const user = await User.findById(decoded.userId).select('-password');
     
     if (user && user.status === 'active') {
@@ -163,16 +164,16 @@ const checkOwnership = (resourceModel, resourceIdParam = 'id', ownerField = 'cre
 // 生成JWT token
 const generateToken = (userId) => {
   return jwt.sign(
-    { userId },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-  );
+      { userId },
+      JWT_CONFIG.SECRET,
+      { expiresIn: JWT_CONFIG.EXPIRES_IN }
+    );
 };
 
 // 验证token（不通过中间件）
 const verifyToken = (token) => {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET);
+    return jwt.verify(token, JWT_CONFIG.SECRET);
   } catch (error) {
     return null;
   }

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { DATABASE_CONFIG } = require('./constants');
 
 class Database {
   constructor() {
@@ -7,16 +8,10 @@ class Database {
 
   async connect() {
     try {
-      const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/rural-art-platform';
+      const mongoUri = DATABASE_CONFIG.MONGODB_URI;
       
       // MongoDB连接选项
-      const options = {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        maxPoolSize: 10,
-        serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 45000,
-      };
+      const options = DATABASE_CONFIG.CONNECTION_OPTIONS;
 
       this.connection = await mongoose.connect(mongoUri, options);
       

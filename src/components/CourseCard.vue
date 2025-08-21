@@ -59,7 +59,7 @@
       </div>
 
       <button class="w-full py-4 gradient-primary hover:shadow-lg text-white rounded-2xl font-bold transition-all duration-300 transform hover:scale-105">
-        {{ course.progress > 0 ? '继续学习' : '开始学习' }}
+        {{ course.progress > 0 ? '继续学习' : '立即报名' }}
       </button>
     </div>
   </div>

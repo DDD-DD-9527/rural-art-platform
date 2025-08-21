@@ -1,11 +1,12 @@
 // API服务文件 - 统一管理后端接口调用
 import axios from 'axios'
 import { useUserStore } from '../stores/user'
+import { API_CONFIG } from '@/config/constants'
 
 // 创建axios实例
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
-  timeout: 10000,
+  baseURL: API_CONFIG.BASE_URL,
+  timeout: API_CONFIG.TIMEOUT,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -607,8 +608,14 @@ export const adminAPI = {
 // 游戏化系统API
 export const gamificationApi = {
   // 获取学习路径
-  getLearningPath: (userId) => {
-    return api.get(`/gamification/learning-path/${userId || ''}`)
+  getLearningPath: (courseId) => {
+    // 检查courseId是否是有效的MongoDB ObjectId格式（24位十六进制字符串）
+    const isValidObjectId = courseId && /^[0-9a-fA-F]{24}$/.test(courseId)
+    if (isValidObjectId) {
+      return api.get(`/gamification/learning-path/${courseId}`)
+    } else {
+      return api.get('/gamification/learning-path')
+    }
   },
   
   // 解锁课程
@@ -647,7 +654,13 @@ export const gamificationApi = {
   
   // 获取成就列表
   getAchievements: (userId) => {
-    return api.get(`/gamification/achievements/${userId || ''}`)
+    // 检查userId是否是有效的MongoDB ObjectId格式（24位十六进制字符串）
+    const isValidObjectId = userId && /^[0-9a-fA-F]{24}$/.test(userId)
+    if (isValidObjectId) {
+      return api.get(`/gamification/achievements/${userId}`)
+    } else {
+      return api.get('/gamification/achievements')
+    }
   },
   
   // 解锁成就

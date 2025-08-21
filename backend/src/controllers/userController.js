@@ -2,6 +2,7 @@ const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
+const { PAGINATION_CONFIG } = require('../config/constants');
 
 // 用户注册
 const register = async (req, res) => {
@@ -301,7 +302,7 @@ const getUserList = async (req, res) => {
   try {
     const {
       page = 1,
-      limit = 20,
+      limit = PAGINATION_CONFIG.DEFAULT_PAGE_SIZE,
       search = '',
       role = '',
       status = '',
