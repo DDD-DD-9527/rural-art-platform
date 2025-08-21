@@ -4,17 +4,39 @@ const User = require('../models/User');
 const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
 
+
+
 /**
  * 积分系统服务类
  * 负责积分计算、奖励发放和积分管理
  */
 class PointsService {
   /**
-   * 计算课时完成积分
-   * @param {Object} lesson - 课时对象
+   * 检查MongoDB是否支持事务
+   * @returns {Boolean} 是否支持事务
+   */
+  static async checkTransactionSupport() {
+    try {
+      const admin = mongoose.connection.db.admin();
+      const result = await admin.command({ isMaster: 1 });
+      
+      // 检查是否为副本集或分片集群
+      const isReplicaSet = result.setName !== undefined;
+      const isSharded = result.msg === 'isdbgrid';
+      
+      return isReplicaSet || isSharded;
+    } catch (error) {
+      console.warn('⚠️ 无法检查事务支持，默认不使用事务', error.message);
+      return false;
+    }
+  }
+
+  /**
+   * 计算课时积分
+   * @param {Object} lesson - 课时信息
    * @param {Number} userLevel - 用户等级
    * @param {Object} completionInfo - 完成信息
-   * @returns {Number} 计算得出的积分
+   * @returns {Number} 积分数量
    */
   static async calculateLessonPoints(lesson, userLevel, completionInfo = {}) {
     const {
@@ -64,7 +86,7 @@ class PointsService {
       
       return Math.max(totalPoints, 1); // 至少获得1积分
     } catch (error) {
-      console.error('计算课时积分失败:', error);
+      console.error('计算课时积分失败', error.message, lesson.title);
       return 10; // 返回默认积分
     }
   }
@@ -129,7 +151,7 @@ class PointsService {
         }
       };
     } catch (error) {
-      console.error('完成课时并奖励积分失败:', error);
+      console.error('完成课时并奖励积分失败', error.message, params);
       throw error;
     }
   }
@@ -150,9 +172,18 @@ class PointsService {
    * @returns {Object} 发放结果
    */
   static async awardPoints(params) {
+    const startTime = Date.now();
+    
+    // 检查是否支持事务（副本集或分片集群）
+    const useTransactions = await this.checkTransactionSupport();
+    let session = null;
+    
+    if (useTransactions) {
+      session = await mongoose.startSession();
+    }
+    
     try {
-      console.log('🎯 开始发放积分:', params);
-      console.log('🎯 DEBUG: awardPoints方法被调用，参数:', JSON.stringify(params, null, 2));
+      console.log('🎯 开始发放积分', { params, useTransactions });
       
       const {
         userId,
@@ -175,15 +206,22 @@ class PointsService {
         throw new Error('积分数量不能为0');
       }
 
+      // 开始事务（如果支持）
+      if (useTransactions && session) {
+        await session.startTransaction();
+      }
+
       // 检查用户是否存在
-      const user = await User.findById(userId);
+      const user = useTransactions && session 
+        ? await User.findById(userId).session(session)
+        : await User.findById(userId);
       if (!user) {
         throw new Error('用户不存在');
       }
-      console.log('👤 用户验证成功:', user.username || user._id);
+      console.log('👤 用户验证成功', { userId: user._id, username: user.username });
 
       // 创建积分记录
-      console.log('🔍 创建积分记录:', { userId, type, source, points, description });
+      console.log('🔍 创建积分记录', { userId, type, source, points, description, resourceId, resourceType });
       const pointsRecord = new PointsRecord({
         user: userId,
         type,
@@ -197,45 +235,52 @@ class PointsService {
         status: 'active'
       });
 
-      const savedRecord = await pointsRecord.save();
-      console.log('✅ 积分记录保存成功:', savedRecord._id);
+      const savedRecord = useTransactions && session
+        ? await pointsRecord.save({ session })
+        : await pointsRecord.save();
+      
+
+      console.log('✅ 积分记录保存成功', { recordId: savedRecord._id, points });
 
       // 更新用户总积分
       const currentPoints = user.learningStats?.totalPoints || 0;
       const newTotalPoints = currentPoints + points;
       
-      await User.findByIdAndUpdate(
-        userId,
-        {
-          'learningStats.totalPoints': newTotalPoints,
-          'learningStats.lastPointsUpdate': new Date()
-        },
-        { new: true }
-      );
-
       // 检查是否需要升级
       const levelInfo = this.calculateLevel(newTotalPoints);
       const currentLevel = user.learningStats?.level || 1;
       
+      const updateData = {
+        'learningStats.totalPoints': newTotalPoints,
+        'learningStats.lastPointsUpdate': new Date()
+      };
+      
       if (levelInfo.level > currentLevel) {
-        await User.findByIdAndUpdate(
-          userId,
-          { 'learningStats.level': levelInfo.level }
-        );
-        
-        // 可以在这里触发升级奖励
-        // await this.awardLevelUpBonus(userId, levelInfo.level);
+        updateData['learningStats.level'] = levelInfo.level;
+      }
+      
+      const updateOptions = useTransactions && session 
+        ? { new: true, session }
+        : { new: true };
+      
+      await User.findByIdAndUpdate(
+        userId,
+        updateData,
+        updateOptions
+      );
+
+      // 提交事务（如果支持）
+      if (useTransactions && session) {
+        await session.commitTransaction();
       }
 
-      console.log('✅ 积分发放完成:', {
-        recordId: savedRecord._id,
-        newTotalPoints,
-        levelInfo: levelInfo.level
-      });
+
+
+
 
       return {
         success: true,
-        pointsRecord: pointsRecord.toJSON(),
+        pointsRecord: savedRecord.toJSON(),
         newTotalPoints,
         levelInfo: {
           currentLevel: levelInfo.level,
@@ -245,11 +290,23 @@ class PointsService {
         }
       };
     } catch (error) {
-      console.error('❌ 发放积分失败:', error);
+      // 回滚事务（如果支持且在事务中）
+      if (session && session.inTransaction()) {
+        await session.abortTransaction();
+      }
+      console.error('❌ 发放积分失败', error.message, params);
+      
+
+      
       return {
         success: false,
         error: error.message
       };
+    } finally {
+      // 确保session被关闭（如果存在）
+      if (session) {
+        await session.endSession();
+      }
     }
   }
 
@@ -316,7 +373,7 @@ class PointsService {
         results
       };
     } catch (error) {
-      console.error('批量发放积分失败:', error);
+      console.error('批量发放积分失败', error.message, awards.length);
       return {
         success: false,
         error: error.message
@@ -401,7 +458,7 @@ class PointsService {
         }
       };
     } catch (error) {
-      console.error('获取用户积分统计失败:', error);
+      console.error('获取用户积分统计失败', error.message, userId, period);
       return {
         success: false,
         error: error.message
@@ -455,7 +512,7 @@ class PointsService {
       };
     } catch (error) {
       await session.abortTransaction();
-      console.error('撤销积分记录失败:', error);
+      console.error('撤销积分记录失败', error.message, recordId, reason);
       return {
         success: false,
         error: error.message
@@ -494,7 +551,7 @@ class PointsService {
         usersUpdated: expiredRecords.length
       };
     } catch (error) {
-      console.error('清理过期积分失败:', error);
+      console.error('清理过期积分失败', error.message);
       return {
         success: false,
         error: error.message

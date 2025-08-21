@@ -287,19 +287,19 @@ const generatePattern = () => {
     generatedPatterns.length = 0
     generatedPatterns.push(
       {
-        title: '传统对称图案',
-        description: '融合选中元素的对称设计',
-        image: '/traditional-paper-cutting.png'
+        title: '精美传统图案',
+        description: '基于传统工艺的精美设计',
+        image: '/2025_08_20_22_31_56.jpg'
       },
       {
-        title: '现代简约版本',
-        description: '简化线条的现代演绎',
-        image: '/paper-cutting-flower-bird.png'
+        title: '经典艺术作品',
+        description: '传承经典的艺术表现',
+        image: '/2025_08_20_22_31_56.jpg'
       },
       {
-        title: '装饰边框图案',
-        description: '适合用作边框装饰',
-        image: '/traditional-chinese-painting.png'
+        title: '文化精品图案',
+        description: '体现深厚文化底蕴',
+        image: '/2025_08_20_22_31_56.jpg'
       }
     )
     isGenerating.value = false
@@ -308,7 +308,7 @@ const generatePattern = () => {
       traditionalElements.find(el => el.id === id)?.name
     ).join('、')
     
-    aiSuggestion.value = `很棒！我为你生成了融合${elementNames}元素的图案。这些图案既保持了传统文化的精髓，又具有现代设计感。你可以进一步编辑或尝试不同的元素组合。`
+    aiSuggestion.value = `很棒！我为你生成了精美的传统图案设计。这些图案融合了传统文化的精髓，具有很高的艺术价值。你可以进一步编辑或尝试不同的元素组合。`
   }, 3000)
 }
 

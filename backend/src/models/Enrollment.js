@@ -321,6 +321,47 @@ enrollmentSchema.methods.issueCertificate = function() {
   return Promise.resolve(this);
 };
 
+// 实例方法：从PointsRecord计算课程总积分
+enrollmentSchema.methods.calculateCoursePoints = async function() {
+  const PointsRecord = require('./PointsRecord');
+  const mongoose = require('mongoose');
+  
+  try {
+    // 确保ID是ObjectId类型
+    const userId = mongoose.Types.ObjectId.isValid(this.student) ? 
+      new mongoose.Types.ObjectId(this.student) : this.student;
+    const courseId = mongoose.Types.ObjectId.isValid(this.course) ? 
+      new mongoose.Types.ObjectId(this.course) : this.course;
+    
+    const result = await PointsRecord.aggregate([
+      {
+        $match: {
+          user: userId,
+          resourceId: courseId,
+          resourceType: 'Course',
+          status: 'active'
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalPoints: { $sum: '$points' }
+        }
+      }
+    ]);
+    
+    return result.length > 0 ? result[0].totalPoints : 0;
+  } catch (error) {
+    console.error('计算课程积分失败', error.message, this.student, this.course);
+    return 0;
+  }
+};
+
+// 虚拟字段：动态计算总积分
+enrollmentSchema.virtual('calculatedTotalPoints').get(async function() {
+  return await this.calculateCoursePoints();
+});
+
 // 静态方法：获取用户的课程报名
 enrollmentSchema.statics.getUserEnrollments = function(userId, options = {}) {
   const {

@@ -39,6 +39,7 @@ import LearningDaysPage from './views/LearningDaysPage.vue'
 // 导入后台管理页面
 import AdminDashboard from './views/admin/AdminDashboard.vue'
 import AdminCoursesPage from './views/admin/AdminCoursesPage.vue'
+import YaoEmbroideryCoursePage from './views/YaoEmbroideryCoursePage.vue'
 
 // 路由配置
 const routes = [
@@ -73,7 +74,9 @@ const routes = [
   { path: '/login', component: () => import('./views/LoginPage.vue') },
   // 管理员路由
   { path: '/admin', component: AdminDashboard },
-  { path: '/admin/courses', component: AdminCoursesPage }
+  { path: '/admin/courses', component: AdminCoursesPage },
+  // 瑶绣制作课程专门页面
+  { path: '/yao-embroidery', component: YaoEmbroideryCoursePage }
 ]
 
 const router = createRouter({

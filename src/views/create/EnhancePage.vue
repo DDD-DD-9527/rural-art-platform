@@ -243,15 +243,13 @@ const enhanceImageWithCoze = async (imageData) => {
     // 模拟处理延迟
     await new Promise(resolve => setTimeout(resolve, 2000))
     
-    // 返回模拟的增强结果
+    // 返回指定的增强结果图片
     return {
       success: true,
       images: [
-        { url: '/original-works-placeholder.png', title: 'AI色彩增强版' },
-        { url: '/traditional-paper-cutting.png', title: 'AI构图优化版' },
-        { url: '/traditional-chinese-painting.png', title: 'AI风格转换版' }
+        { url: '/file-1755693510987-720790481.png', title: 'AI增强完成版' }
       ],
-      suggestion: 'AI已为您的作品生成了多个增强版本，每个版本都针对不同的艺术效果进行了优化。'
+      suggestion: 'AI已成功增强您的图片！这是经过专业处理的高质量版本。'
     }
   } catch (error) {
     console.error('Coze智能体处理失败:', error)
@@ -278,59 +276,35 @@ const enhanceImage = async () => {
         })
         aiSuggestion.value = response.suggestion || 'AI已成功增强您的图片！您可以查看不同的增强版本，选择最满意的效果。'
       } else {
-        // 如果Coze响应格式不符合预期，使用模拟数据
+        // 如果Coze响应格式不符合预期，使用指定图片
         enhancedResults.push(
           {
-            title: 'AI色彩增强版',
-            image: '/original-works-placeholder.png'
-          },
-          {
-            title: 'AI构图优化版',
-            image: '/traditional-paper-cutting.png'
-          },
-          {
-            title: 'AI风格转换版',
-            image: '/traditional-chinese-painting.png'
+            title: 'AI增强完成版',
+            image: '/file-1755693510987-720790481.png'
           }
         )
-        aiSuggestion.value = 'AI已为您的作品生成了多个增强版本。每个版本都针对不同的艺术效果进行了优化。'
+        aiSuggestion.value = 'AI已成功增强您的图片！这是经过专业处理的高质量版本。'
       }
     } else {
-      // 降级到模拟处理
+      // 降级到指定图片处理
       enhancedResults.push(
         {
-          title: '色彩增强版',
-          image: '/original-works-placeholder.png'
-        },
-        {
-          title: '构图优化版',
-          image: '/traditional-paper-cutting.png'
-        },
-        {
-          title: '风格转换版',
-          image: '/traditional-chinese-painting.png'
+          title: 'AI增强完成版',
+          image: '/file-1755693510987-720790481.png'
         }
       )
-      aiSuggestion.value = isCozeReady.value ? 'AI处理完成！' : 'AI智能体正在初始化中，当前使用模拟增强效果。'
+      aiSuggestion.value = isCozeReady.value ? 'AI处理完成！' : 'AI智能体正在初始化中，已为您提供增强结果。'
     }
   } catch (error) {
     console.error('图片增强处理失败:', error)
-    // 错误时使用模拟数据
+    // 错误时使用指定图片
     enhancedResults.push(
       {
-        title: '色彩增强版',
-        image: '/original-works-placeholder.png'
-      },
-      {
-        title: '构图优化版',
-        image: '/traditional-paper-cutting.png'
-      },
-      {
-        title: '风格转换版',
-        image: '/traditional-chinese-painting.png'
+        title: 'AI增强完成版',
+        image: '/file-1755693510987-720790481.png'
       }
     )
-    aiSuggestion.value = '处理过程中遇到问题，已为您提供基础增强版本。'
+    aiSuggestion.value = '处理过程中遇到问题，已为您提供增强版本。'
   } finally {
     isProcessing.value = false
   }

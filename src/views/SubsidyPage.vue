@@ -7,7 +7,7 @@
             <ArrowLeftIcon class="w-4 h-4 mr-2" />
             返回
           </button>
-          <h1 class="text-lg font-bold text-slate-800">政府艺术补贴</h1>
+          <h1 class="text-lg font-bold text-slate-800">广东省瑶绣制作技能补贴</h1>
           <div class="w-16"></div>
         </div>
       </div>
@@ -20,18 +20,18 @@
           <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
             <LibraryIcon class="w-10 h-10 text-white" />
           </div>
-          <h2 class="text-2xl font-bold text-slate-800 mb-2">政府艺术技能培训补贴</h2>
-          <p class="text-slate-600">传承中华优秀传统文化，政府提供艺术技能培训补贴</p>
+          <h2 class="text-2xl font-bold text-slate-800 mb-2">广东省瑶绣制作专项职业能力补贴</h2>
+          <p class="text-slate-600">传承瑶族非物质文化遗产，支持瑶绣制作技能培训与就业创业</p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div class="text-center p-4 bg-blue-50 rounded-xl">
-            <div class="text-3xl font-bold text-blue-600 mb-2">最高80%</div>
-            <div class="text-sm text-slate-600">补贴比例</div>
+            <div class="text-3xl font-bold text-blue-600 mb-2">¥800</div>
+            <div class="text-sm text-slate-600">补贴标准</div>
           </div>
           <div class="text-center p-4 bg-green-50 rounded-xl">
-            <div class="text-3xl font-bold text-green-600 mb-2">¥3,000</div>
-            <div class="text-sm text-slate-600">年度上限</div>
+            <div class="text-3xl font-bold text-green-600 mb-2">100%</div>
+            <div class="text-sm text-slate-600">补贴比例</div>
           </div>
           <div class="text-center p-4 bg-purple-50 rounded-xl">
             <div class="text-3xl font-bold text-purple-600 mb-2">{{ eligibleCourses.length }}门</div>
@@ -44,33 +44,38 @@
             <CheckCircleIcon class="w-5 h-5 text-green-500 mr-2" />
             <span class="font-medium text-slate-800">您已通过资格审核</span>
           </div>
-          <p class="text-sm text-slate-600">可申请补贴额度：¥2,400 | 剩余额度：¥2,400</p>
+          <p class="text-sm text-slate-600">瑶绣制作专项职业能力补贴：¥800 | 非遗传承补助：最高¥2,000</p>
         </div>
       </div>
 
       <!-- 申请流程 -->
       <div class="glass-card rounded-3xl p-6 mb-8">
         <h3 class="text-xl font-bold text-slate-800 mb-6">申请流程</h3>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div class="text-center">
             <div class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-3">1</div>
-            <h4 class="font-medium text-slate-800 mb-2">选择课程</h4>
-            <p class="text-sm text-slate-600">选择符合条件的艺术课程并报名</p>
+            <h4 class="font-medium text-slate-800 mb-2">培训报名</h4>
+            <p class="text-sm text-slate-600">报名瑶绣制作技能培训课程</p>
           </div>
           <div class="text-center">
             <div class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-3">2</div>
-            <h4 class="font-medium text-slate-800 mb-2">提交材料</h4>
-            <p class="text-sm text-slate-600">上传身份证明和学习证明材料</p>
+            <h4 class="font-medium text-slate-800 mb-2">参加培训</h4>
+            <p class="text-sm text-slate-600">完成规定课时的培训学习</p>
           </div>
           <div class="text-center">
             <div class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-3">3</div>
-            <h4 class="font-medium text-slate-800 mb-2">等待审核</h4>
-            <p class="text-sm text-slate-600">3-5个工作日内完成审核</p>
+            <h4 class="font-medium text-slate-800 mb-2">考核鉴定</h4>
+            <p class="text-sm text-slate-600">参加专项职业能力考核</p>
           </div>
           <div class="text-center">
             <div class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-3">4</div>
-            <h4 class="font-medium text-slate-800 mb-2">获得补贴</h4>
-            <p class="text-sm text-slate-600">补贴金额直接抵扣课程费用</p>
+            <h4 class="font-medium text-slate-800 mb-2">申请补贴</h4>
+            <p class="text-sm text-slate-600">提交补贴申请材料</p>
+          </div>
+          <div class="text-center">
+            <div class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-lg font-bold mx-auto mb-3">5</div>
+            <h4 class="font-medium text-slate-800 mb-2">审核拨付</h4>
+            <p class="text-sm text-slate-600">审核通过后发放补贴</p>
           </div>
         </div>
       </div>
@@ -78,13 +83,13 @@
       <!-- 符合条件的课程 -->
       <div class="glass-card rounded-3xl p-6 mb-8">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="text-xl font-bold text-slate-800">符合补贴条件的课程</h3>
+          <h3 class="text-xl font-bold text-slate-800">符合瑶绣制作补贴条件的课程</h3>
           <div class="flex items-center space-x-2">
             <select v-model="selectedCategory" class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm">
               <option value="all">全部分类</option>
-              <option value="traditional">传统技艺</option>
-              <option value="painting">绘画艺术</option>
-              <option value="calligraphy">书法艺术</option>
+              <option value="yao-embroidery">瑶绣制作</option>
+              <option value="traditional">传统工艺</option>
+              <option value="cultural-heritage">非遗传承</option>
             </select>
           </div>
         </div>
@@ -198,63 +203,75 @@ const selectedCategory = ref('all')
 const eligibleCourses = ref([
   {
     id: 1,
-    name: '传统剪纸技艺培训',
-    originalPrice: 800,
-    subsidyPrice: 160,
-    description: '学习传统剪纸基础技法，包含花鸟、人物、风景等图案设计',
-    category: 'traditional',
-    rating: 4.8,
-    students: 156
+    name: '瑶绣制作技艺培训',
+    originalPrice: 1200,
+    subsidyPrice: 800,
+    description: '深入学习瑶族传统刺绣技艺，掌握瑶绣的历史文化、制作工艺和现代应用。符合广东省专项职业能力补贴条件。',
+    category: 'yao-embroidery',
+    rating: 4.9,
+    students: 89,
+    subsidyType: '专项职业能力补贴',
+    certificationName: '广东省瑶绣制作专项职业能力证书'
   },
   {
     id: 2,
-    name: '中国画基础课程',
-    originalPrice: 1200,
-    subsidyPrice: 240,
-    description: '从零开始学习国画，掌握基本笔法、墨法和构图技巧',
-    category: 'painting',
-    rating: 4.9,
-    students: 89
+    name: '瑶族传统工艺基础',
+    originalPrice: 800,
+    subsidyPrice: 600,
+    description: '学习瑶族传统工艺基础知识，包括工具使用、材料选择和基础技法',
+    category: 'traditional',
+    rating: 4.7,
+    students: 156,
+    subsidyType: '非遗传承补助',
+    certificationName: '瑶族传统工艺基础证书'
   },
   {
     id: 3,
-    name: '书法入门与提高',
-    originalPrice: 600,
-    subsidyPrice: 120,
-    description: '学习楷书、行书基本笔画，培养正确的书写姿势和习惯',
-    category: 'calligraphy',
-    rating: 4.7,
-    students: 234
+    name: '瑶绣图案设计与创新',
+    originalPrice: 1000,
+    subsidyPrice: 750,
+    description: '掌握传统瑶绣图案设计原理，学习现代设计思路和创新应用',
+    category: 'yao-embroidery',
+    rating: 4.8,
+    students: 67,
+    subsidyType: '文创产品奖励',
+    certificationName: '瑶绣图案设计师证书'
   },
   {
     id: 4,
-    name: '民间工艺制作',
-    originalPrice: 900,
-    subsidyPrice: 180,
-    description: '学习传统民间工艺制作技法，包含陶艺、编织等',
-    category: 'traditional',
+    name: '瑶族文化与非遗传承',
+    originalPrice: 600,
+    subsidyPrice: 480,
+    description: '深入了解瑶族文化背景，学习非遗传承的理论知识和实践方法',
+    category: 'cultural-heritage',
     rating: 4.6,
-    students: 67
+    students: 234,
+    subsidyType: '非遗传承补助',
+    certificationName: '非遗传承人培训证书'
   },
   {
     id: 5,
-    name: '水墨画进阶课程',
+    name: '瑶绣产品开发与营销',
     originalPrice: 1500,
-    subsidyPrice: 300,
-    description: '深入学习水墨画技法，提升艺术表现力',
-    category: 'painting',
+    subsidyPrice: 1200,
+    description: '学习瑶绣产品的商业化开发，掌握市场营销和品牌推广技巧',
+    category: 'yao-embroidery',
     rating: 4.9,
-    students: 45
+    students: 45,
+    subsidyType: '创业扶持补贴',
+    certificationName: '瑶绣产品开发师证书'
   },
   {
     id: 6,
-    name: '硬笔书法专项训练',
-    originalPrice: 400,
-    subsidyPrice: 80,
-    description: '专注硬笔书法训练，提升日常书写美感',
-    category: 'calligraphy',
+    name: '传统手工艺保护与传承',
+    originalPrice: 900,
+    subsidyPrice: 720,
+    description: '学习传统手工艺的保护方法和传承技巧，培养非遗传承意识',
+    category: 'cultural-heritage',
     rating: 4.5,
-    students: 198
+    students: 198,
+    subsidyType: '非遗传承补助',
+    certificationName: '传统手工艺保护证书'
   }
 ])
 
@@ -262,17 +279,30 @@ const eligibleCourses = ref([
 const applicationHistory = ref([
   {
     id: 1,
-    courseName: '传统剪纸技艺培训',
-    subsidyAmount: 640,
-    applyDate: '2024-01-15',
-    status: '已通过'
+    courseName: '瑶绣制作技艺培训',
+    subsidyAmount: 800,
+    subsidyType: '专项职业能力补贴',
+    applyDate: '2024-02-01',
+    status: '已通过',
+    certificationName: '广东省瑶绣制作专项职业能力证书'
   },
   {
     id: 2,
-    courseName: '书法入门与提高',
-    subsidyAmount: 480,
-    applyDate: '2024-01-10',
-    status: '审核中'
+    courseName: '瑶族传统工艺基础',
+    subsidyAmount: 600,
+    subsidyType: '非遗传承补助',
+    applyDate: '2024-01-20',
+    status: '已通过',
+    certificationName: '瑶族传统工艺基础证书'
+  },
+  {
+    id: 3,
+    courseName: '瑶绣图案设计与创新',
+    subsidyAmount: 750,
+    subsidyType: '文创产品奖励',
+    applyDate: '2024-02-10',
+    status: '审核中',
+    certificationName: '瑶绣图案设计师证书'
   }
 ])
 

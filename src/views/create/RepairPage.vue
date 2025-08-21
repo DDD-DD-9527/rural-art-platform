@@ -359,7 +359,7 @@ const completeRepair = () => {
     }
     
     repairResult.value = {
-      image: '/traditional-chinese-painting.png', // 使用示例图片
+      image: '/ddddd.png', // 使用指定图片
       report: selectedRepairs.map(key => `${repairNames[key]}：已成功修复`)
     }
     

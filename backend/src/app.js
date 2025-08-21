@@ -15,7 +15,7 @@ const socialRoutes = require('./routes/socialRoutes');
 const topicRoutes = require('./routes/topicRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-const gamificationRoutes = require('./routes/gamificationRoutes');
+const gamificationRoutes = require('./routes/gamification');
 
 // 创建Express应用
 const app = express();

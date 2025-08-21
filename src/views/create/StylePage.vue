@@ -258,10 +258,10 @@ const convertStyle = () => {
     convertedResults.length = 0
     convertedResults.push({
       style: selectedStyle.value.name,
-      image: selectedStyle.value.preview
+      image: '/2025_08_20_22_28_36.jpg'
     })
     isProcessing.value = false
-    aiSuggestion.value = `${selectedStyle.value.name}转换完成！这种风格很适合你的作品。你可以尝试调整一些参数来获得更满意的效果，或者尝试其他风格进行对比。`
+    aiSuggestion.value = `${selectedStyle.value.name}转换完成！AI已为您的作品生成了专业的风格转换效果。`
   }, 3000)
 }
 

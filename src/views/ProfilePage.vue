@@ -135,12 +135,17 @@
           </div>
         </div>
 
-        <!-- 成就徽章 -->
+        <!-- 成就系统 -->
         <div class="glass-card rounded-2xl p-6">
-          <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-            <AwardIcon class="w-5 h-5 mr-2 text-amber-600" />
-            成就徽章
-          </h3>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-slate-800 flex items-center">
+              <AwardIcon class="w-5 h-5 mr-2 text-amber-600" />
+              我的成就
+            </h3>
+            <button @click="goToAchievements" class="text-amber-600 hover:text-amber-700 text-sm font-medium">
+              查看全部
+            </button>
+          </div>
           <div class="grid grid-cols-3 gap-2">
             <div class="aspect-square bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl flex items-center justify-center">
               <AwardIcon class="w-6 h-6 text-amber-600" />
@@ -178,31 +183,44 @@
         </div>
       </div>
 
-      <!-- 政府艺术课程补贴 -->
+      <!-- 完整成就系统展示 -->
+      <div class="mb-6">
+        <AchievementSystem 
+          :user-id="currentUserId"
+        />
+      </div>
+
+      <!-- 瑶绣制作专项职业能力补贴 -->
       <div class="glass-card rounded-2xl p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-semibold text-slate-800 flex items-center">
-            <LibraryIcon class="w-5 h-5 mr-2 text-blue-500" />
-            政府艺术补贴
+            <LibraryIcon class="w-5 h-5 mr-2 text-emerald-500" />
+            瑶绣制作技能补贴
           </h3>
-          <button @click="goToSubsidy" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+          <button @click="goToSubsidy" class="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
             查看详情
           </button>
         </div>
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4">
+        <div class="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4">
           <div class="flex items-center justify-between mb-3">
             <div>
-              <div class="text-lg font-bold text-blue-600">¥2,400</div>
-              <div class="text-sm text-slate-600">可申请补贴额度</div>
+              <div class="text-lg font-bold text-emerald-600">¥800</div>
+              <div class="text-sm text-slate-600">专项职业能力补贴</div>
             </div>
             <div class="text-right">
-              <div class="text-lg font-bold text-green-600">3门</div>
-              <div class="text-sm text-slate-600">符合条件课程</div>
+              <div class="text-lg font-bold text-green-600">5门</div>
+              <div class="text-sm text-slate-600">瑶绣相关课程</div>
             </div>
           </div>
-          <div class="flex items-center text-sm text-slate-600">
-            <CheckCircleIcon class="w-4 h-4 mr-1 text-green-500" />
-            已通过资格审核，可申请补贴
+          <div class="space-y-2">
+            <div class="flex items-center text-sm text-slate-600">
+              <CheckCircleIcon class="w-4 h-4 mr-1 text-green-500" />
+              符合广东省瑶绣制作专项职业能力补贴条件
+            </div>
+            <div class="flex items-center text-sm text-slate-600">
+              <CheckCircleIcon class="w-4 h-4 mr-1 text-green-500" />
+              已完成瑶绣制作技艺培训课程
+            </div>
           </div>
         </div>
       </div>
@@ -479,10 +497,14 @@ import {
   LogOut as ArrowRightOnRectangleIcon
 } from 'lucide-vue-next'
 import BottomNavigation from '../components/BottomNavigation.vue'
+import AchievementSystem from '../components/AchievementSystem.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
 const activeTab = ref('profile')
+
+// 当前用户ID
+const currentUserId = computed(() => userStore.user?.id || userStore.user?._id)
 
 // 模态框状态
 const showFollowingModal = ref(false)

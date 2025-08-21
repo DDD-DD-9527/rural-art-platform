@@ -4,6 +4,8 @@ const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
 const PointsService = require('./PointsService');
 
+
+
 /**
  * 解锁服务类
  * 负责课程解锁逻辑和条件验证
@@ -17,6 +19,8 @@ class UnlockService {
    * @returns {Object} 解锁检查结果
    */
   static async checkLessonUnlock(userId, courseId, lessonId) {
+    const startTime = Date.now();
+    
     try {
       // 获取用户信息
       const user = await User.findById(userId);
@@ -87,15 +91,22 @@ class UnlockService {
         course
       );
       
-      return {
+      const result = {
         success: true,
         unlocked: checkResult.canUnlock,
         conditions: checkResult.conditions,
         message: checkResult.message,
         requirements: checkResult.requirements
       };
+      
+
+      
+      return result;
     } catch (error) {
-      console.error('检查课时解锁失败:', error);
+      console.error('检查课时解锁失败', error.message, userId, courseId, lessonId);
+      
+
+      
       return {
         success: false,
         unlocked: false,
@@ -261,7 +272,7 @@ class UnlockService {
       // 如果是手动解锁，记录管理员操作日志
       if (unlockMethod === 'manual') {
         // 这里可以添加管理员操作日志
-        console.log(`管理员手动解锁课程: 用户${userId}, 课程${courseId}, 课程${lessonId}`);
+        console.log('管理员手动解锁课程', { userId, courseId, lessonId });
       }
       
       await session.commitTransaction();
@@ -274,7 +285,7 @@ class UnlockService {
       };
     } catch (error) {
       await session.abortTransaction();
-      console.error('解锁课程失败:', error);
+      console.error('解锁课程失败', error.message, userId, courseId, lessonId);
       return {
         success: false,
         error: error.message
@@ -346,7 +357,7 @@ class UnlockService {
         results
       };
     } catch (error) {
-      console.error('批量解锁课程失败:', error);
+      console.error('批量解锁课程失败', error.message, userId, courseId);
       return {
         success: false,
         error: error.message
@@ -435,7 +446,7 @@ class UnlockService {
         lessons: lessonStatus
       };
     } catch (error) {
-      console.error('获取课程解锁状态失败:', error);
+      console.error('获取课程解锁状态失败', error.message, userId, courseId);
       return {
         success: false,
         error: error.message
@@ -573,7 +584,7 @@ class UnlockService {
         unlockResult
       };
     } catch (error) {
-      console.error('自动解锁下一课程失败:', error);
+      console.error('自动解锁下一课程失败', error.message, userId, courseId, completedLessonId);
       return {
         success: false,
         error: error.message

@@ -6,19 +6,7 @@ const PointsService = require('../services/PointsService');
 const UnlockService = require('../services/UnlockService');
 const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
-const winston = require('winston');
 
-// 配置日志
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.simple()
-  ),
-  transports: [
-    new winston.transports.Console()
-  ]
-});
 
 // 检查课时解锁状态
 const checkLessonUnlock = async (req, res) => {
@@ -70,7 +58,7 @@ const checkLessonUnlock = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('检查解锁状态错误:', error);
+    console.error('checkLessonUnlock error:', error);
     res.status(500).json({ 
       success: false, 
       message: '检查解锁状态失败' 
@@ -81,12 +69,11 @@ const checkLessonUnlock = async (req, res) => {
 // 完成课时并获得积分
 const completeLesson = async (req, res) => {
   try {
-    console.log('\n\n🔥🔥🔥 CRITICAL DEBUG: completeLesson方法被调用！！！ 🔥🔥🔥');
-    console.log('请求参数:', req.params);
-    console.log('请求体:', req.body);
-    console.log('用户信息:', req.user ? req.user._id : 'NO USER');
-    console.log('=== GAMIFICATION DEBUG: completeLesson方法被调用 ===');
-    logger.info('🚀 completeLesson方法被调用');
+    console.log('🚀 completeLesson方法被调用', {
+      userId: req.user._id,
+      courseId: req.params.courseId,
+      lessonId: req.params.lessonId
+    });
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -140,7 +127,7 @@ const completeLesson = async (req, res) => {
       cl => cl.lessonId.toString() === lessonId
     );
     
-    logger.info('🔍 课时完成状态检查:', {
+    console.log('🔍 课时完成状态检查', {
       lessonId,
       completedLessons: enrollment.progress.completedLessons.map(cl => cl.lessonId.toString()),
       isAlreadyCompleted
@@ -150,7 +137,7 @@ const completeLesson = async (req, res) => {
     let bonusDetails = {};
 
     if (!isAlreadyCompleted) {
-      logger.info('✨ 课时未完成，开始积分发放流程');
+      console.log('✨ 课时未完成，开始积分发放流程');
       // 计算积分奖励
       const user = await User.findById(userId);
       const userLevel = Math.floor(user.learningStats.totalPoints / 100) + 1;
@@ -171,7 +158,7 @@ const completeLesson = async (req, res) => {
       );
 
       // 发放积分
-      logger.info('🎯 准备发放积分:', { userId, pointsEarned, lessonTitle: lesson.title });
+
       const pointsData = {
         userId: userId,
         type: 'lesson_complete',
@@ -192,10 +179,9 @@ const completeLesson = async (req, res) => {
         }
       };
 
-      console.log('🔥 DEBUG: 准备调用PointsService.awardPoints');
+      console.log('🔥 准备调用PointsService.awardPoints');
       const awardResult = await PointsService.awardPoints(pointsData);
-      console.log('🔥 DEBUG: PointsService.awardPoints返回结果:', JSON.stringify(awardResult, null, 2));
-      logger.info('💰 积分发放结果:', awardResult.success);
+
 
       // 更新学习进度
       const completionRecord = {
@@ -214,10 +200,10 @@ const completeLesson = async (req, res) => {
       enrollment.progress.completedLessons.push(completionRecord);
       enrollment.progress.totalTimeSpent += timeSpent;
       
-      // 更新游戏化统计
+      // 初始化游戏化统计数据（如果不存在）
       if (!enrollment.progress.gamificationStats) {
         enrollment.progress.gamificationStats = {
-          totalPointsEarned: 0,
+          totalPointsEarned: 0, // 这个字段将通过PointsRecord计算得出，不再直接更新
           currentStreak: 0,
           longestStreak: 0,
           averageScore: 0,
@@ -226,7 +212,7 @@ const completeLesson = async (req, res) => {
         };
       }
 
-      enrollment.progress.gamificationStats.totalPointsEarned += pointsEarned;
+      // 注意：不再直接更新totalPointsEarned，它将通过PointsRecord计算得出
       if (score >= 100) {
         enrollment.progress.gamificationStats.perfectCompletions += 1;
       }
@@ -262,22 +248,22 @@ const completeLesson = async (req, res) => {
       courseCompletionReward = 50; // 基础课程完成奖励
       
       const coursePointsData = {
-        type: 'course_complete',
-        source: {
-          sourceType: 'course',
-          sourceId: courseId,
-          sourceName: enrollment.course.title
-        },
+        userId: userId,
+        type: 'course_completion',
+        source: 'course',
         points: courseCompletionReward,
         description: `完成课程：${enrollment.course.title}`,
+        resourceId: courseId,
+        resourceType: 'Course',
         metadata: {
           courseId: courseId,
+          courseTitle: enrollment.course.title,
           totalLessons: totalLessons,
           totalTimeSpent: enrollment.progress.totalTimeSpent
         }
       };
 
-      await PointsService.awardPoints(userId, coursePointsData);
+      await PointsService.awardPoints(coursePointsData);
       enrollment.progress.isCompleted = true;
       enrollment.progress.completedAt = new Date();
       await enrollment.save();
@@ -300,7 +286,7 @@ const completeLesson = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('完成课时错误:', error);
+    console.error('completeLesson error:', error);
     res.status(500).json({ 
       success: false, 
       message: '完成课时失败' 
@@ -314,9 +300,25 @@ const getLearningPath = async (req, res) => {
     const { courseId } = req.params;
     const userId = req.user._id;
 
+    // 如果没有提供courseId，获取用户的第一个课程
+    let targetCourseId = courseId;
+    if (!courseId) {
+      const firstEnrollment = await Enrollment.findOne({
+        student: userId
+      }).populate('course');
+      
+      if (!firstEnrollment) {
+        return res.status(404).json({ 
+          success: false, 
+          message: '未报名任何课程' 
+        });
+      }
+      targetCourseId = firstEnrollment.course._id;
+    }
+
     const enrollment = await Enrollment.findOne({
       student: userId,
-      course: courseId
+      course: targetCourseId
     }).populate('course');
 
     if (!enrollment) {
@@ -332,7 +334,7 @@ const getLearningPath = async (req, res) => {
     for (const lesson of course.lessons) {
       const unlockResult = await UnlockService.checkLessonUnlock(
         userId, 
-        courseId, 
+        targetCourseId, 
         lesson._id
       );
 
@@ -383,7 +385,7 @@ const getLearningPath = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('获取学习路径错误:', error);
+    console.error('getLearningPath error:', error);
     res.status(500).json({ 
       success: false, 
       message: '获取学习路径失败' 
@@ -452,7 +454,7 @@ const getPointsHistory = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('获取积分历史错误:', error);
+    console.error('getPointsHistory error:', error);
     res.status(500).json({ 
       success: false, 
       message: '获取积分历史失败' 
@@ -463,9 +465,18 @@ const getPointsHistory = async (req, res) => {
 // 获取积分统计
 const getPointsStats = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const { userId } = req.params;
+    const targetUserId = userId || req.user._id;
     
-    const result = await PointsService.getUserPointsStats(userId);
+    // 检查权限：只能查看自己的积分统计，除非是管理员
+    if (userId && userId !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ 
+        success: false, 
+        message: '无权限查看其他用户的积分统计' 
+      });
+    }
+    
+    const result = await PointsService.getUserPointsStats(targetUserId);
     
     if (result.success) {
       res.json({
@@ -479,7 +490,7 @@ const getPointsStats = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('获取积分统计错误:', error);
+    console.error('getPointsStats error:', error);
     res.status(500).json({ 
       success: false, 
       message: '获取积分统计失败' 
@@ -506,7 +517,9 @@ const getUserAchievements = async (req, res) => {
 
     for (const enrollment of enrollments) {
       if (enrollment.progress.gamificationStats) {
-        totalPoints += enrollment.progress.gamificationStats.totalPointsEarned || 0;
+        // 使用新的计算方法获取课程积分
+        const coursePoints = await enrollment.calculateCoursePoints();
+        totalPoints += coursePoints;
         perfectScores += enrollment.progress.gamificationStats.perfectCompletions || 0;
         
         if (enrollment.progress.isCompleted) {
@@ -573,7 +586,7 @@ const getUserAchievements = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('获取用户成就错误:', error);
+    console.error('getUserAchievements error:', error);
     res.status(500).json({ 
       success: false, 
       message: '获取用户成就失败' 
@@ -632,7 +645,7 @@ const getLeaderboard = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('获取排行榜错误:', error);
+    console.error('getLeaderboard error:', error);
     res.status(500).json({ 
       success: false, 
       message: '获取排行榜失败' 
@@ -677,7 +690,7 @@ const revokePoints = async (req, res) => {
       message: '积分记录撤销成功'
     });
   } catch (error) {
-    console.error('撤销积分记录错误:', error);
+    console.error('revokePoints error:', error);
     res.status(500).json({ 
       success: false, 
       message: '撤销积分记录失败' 
@@ -688,26 +701,160 @@ const revokePoints = async (req, res) => {
 // 批量解锁课时（管理员功能）
 const batchUnlockLessons = async (req, res) => {
   try {
-    const { courseId } = req.params;
+    const { courseId, lessonIds } = req.body;
     const userId = req.user._id;
 
-    const unlockedLessons = await UnlockService.batchUnlockLessons(
-      userId, 
-      courseId
-    );
+    // 验证输入
+    if (!courseId || !lessonIds || !Array.isArray(lessonIds)) {
+      return res.status(400).json({
+        success: false,
+        message: '缺少必要参数：courseId 和 lessonIds'
+      });
+    }
+
+    const result = await UnlockService.batchUnlockLessons(userId, courseId, lessonIds);
+    
+    if (result.success) {
+      res.json({
+        success: true,
+        data: result.data,
+        message: `成功解锁 ${result.data.unlockedCount} 个课程`
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: result.error
+      });
+    }
+  } catch (error) {
+    console.error('batchUnlockLessons error:', error);
+    res.status(500).json({
+      success: false,
+      message: '批量解锁课程失败'
+    });
+  }
+};
+
+// 获取学习统计
+const getLearningStats = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { period = 'week' } = req.query;
+    const targetUserId = userId || req.user._id;
+    
+    // 检查权限：只能查看自己的学习统计，除非是管理员
+    if (userId && userId !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ 
+        success: false, 
+        message: '无权限查看其他用户的学习统计' 
+      });
+    }
+
+    // 计算时间范围
+    const now = new Date();
+    let startDate;
+    
+    switch (period) {
+      case 'day':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case 'week':
+        const dayOfWeek = now.getDay();
+        startDate = new Date(now.getTime() - dayOfWeek * 24 * 60 * 60 * 1000);
+        startDate.setHours(0, 0, 0, 0);
+        break;
+      case 'month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      case 'year':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        break;
+      default:
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    }
+
+    // 获取用户的报名记录
+    const enrollments = await Enrollment.find({
+      student: targetUserId,
+      enrolledAt: { $gte: startDate }
+    }).populate('course', 'title category');
+
+    // 获取积分记录
+    const pointsRecords = await PointsRecord.find({
+      user: targetUserId,
+      createdAt: { $gte: startDate }
+    });
+
+    // 计算统计数据
+    const stats = {
+      period,
+      totalLessonsCompleted: 0,
+      totalPointsEarned: pointsRecords.reduce((sum, record) => sum + record.points, 0),
+      coursesStarted: enrollments.length,
+      coursesCompleted: 0,
+      averageScore: 0,
+      studyDays: new Set(),
+      dailyProgress: []
+    };
+
+    let totalScores = 0;
+    let scoreCount = 0;
+
+    for (const enrollment of enrollments) {
+      if (enrollment.progress.isCompleted) {
+        stats.coursesCompleted++;
+      }
+      
+      if (enrollment.progress.gamificationStats) {
+        stats.totalLessonsCompleted += enrollment.progress.gamificationStats.lessonsCompleted || 0;
+        
+        // 计算平均分
+        const scores = enrollment.progress.gamificationStats.scores || [];
+        if (scores.length > 0) {
+          totalScores += scores.reduce((sum, score) => sum + score, 0);
+          scoreCount += scores.length;
+        }
+      }
+      
+      // 记录学习日期
+      if (enrollment.lastAccessedAt && enrollment.lastAccessedAt >= startDate) {
+        const dayKey = enrollment.lastAccessedAt.toISOString().split('T')[0];
+        stats.studyDays.add(dayKey);
+      }
+    }
+
+    stats.averageScore = scoreCount > 0 ? Math.round(totalScores / scoreCount) : 0;
+    stats.studyDaysCount = stats.studyDays.size;
+    
+    // 生成每日进度数据
+    const days = Math.min(30, Math.ceil((now - startDate) / (24 * 60 * 60 * 1000)));
+    for (let i = 0; i < days; i++) {
+      const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+      const dayKey = date.toISOString().split('T')[0];
+      
+      const dayPoints = pointsRecords
+        .filter(record => record.createdAt.toISOString().split('T')[0] === dayKey)
+        .reduce((sum, record) => sum + record.points, 0);
+      
+      stats.dailyProgress.push({
+        date: dayKey,
+        points: dayPoints,
+        hasActivity: stats.studyDays.has(dayKey)
+      });
+    }
+
+    // 清理临时数据
+    delete stats.studyDays;
 
     res.json({
       success: true,
-      data: {
-        unlockedLessons,
-        message: `成功解锁 ${unlockedLessons.length} 个课时`
-      }
+      data: stats
     });
   } catch (error) {
-    console.error('批量解锁课时错误:', error);
+    console.error('getLearningStats error:', error);
     res.status(500).json({ 
       success: false, 
-      message: '批量解锁课时失败' 
+      message: '获取学习统计失败' 
     });
   }
 };
@@ -718,8 +865,9 @@ module.exports = {
   getLearningPath,
   getPointsHistory,
   getPointsStats,
-  getUserAchievements,
+  getAchievements: getUserAchievements,
   getLeaderboard,
   revokePoints,
-  batchUnlockLessons
+  batchUnlockLessons,
+  getLearningStats
 };

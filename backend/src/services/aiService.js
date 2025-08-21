@@ -1,23 +1,4 @@
 const axios = require('axios');
-const winston = require('winston');
-
-// 配置日志
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.errors({ stack: true }),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      )
-    })
-  ]
-});
 
 class AIService {
   constructor() {
@@ -66,7 +47,7 @@ class AIService {
     // 广州大学智能体请求拦截器
     this.gzhuClient.interceptors.request.use(
       (config) => {
-        logger.info('GZHU AI请求:', {
+        console.log('GZHU AI请求:', {
           url: config.url,
           method: config.method,
           timestamp: new Date().toISOString()
@@ -74,21 +55,21 @@ class AIService {
         return config;
       },
       (error) => {
-        logger.error('GZHU AI请求错误:', error);
+        console.error('GZHU AI请求错误:', error);
         return Promise.reject(error);
       }
     );
 
     this.gzhuClient.interceptors.response.use(
       (response) => {
-        logger.info('GZHU AI响应成功:', {
+        console.log('GZHU AI响应成功:', {
           status: response.status,
           url: response.config.url
         });
         return response;
       },
       (error) => {
-        logger.error('GZHU AI响应错误:', {
+        console.error('GZHU AI响应错误:', {
           status: error.response?.status,
           message: error.message,
           url: error.config?.url
@@ -100,7 +81,7 @@ class AIService {
     // Coze智能体请求拦截器
     this.cozeClient.interceptors.request.use(
       (config) => {
-        logger.info('Coze AI请求:', {
+        console.log('Coze AI请求:', {
           url: config.url,
           method: config.method,
           timestamp: new Date().toISOString()
@@ -108,21 +89,21 @@ class AIService {
         return config;
       },
       (error) => {
-        logger.error('Coze AI请求错误:', error);
+        console.error('Coze AI请求错误:', error);
         return Promise.reject(error);
       }
     );
 
     this.cozeClient.interceptors.response.use(
       (response) => {
-        logger.info('Coze AI响应成功:', {
+        console.log('Coze AI响应成功:', {
           status: response.status,
           url: response.config.url
         });
         return response;
       },
       (error) => {
-        logger.error('Coze AI响应错误:', {
+        console.error('Coze AI响应错误:', {
           status: error.response?.status,
           message: error.message,
           url: error.config?.url
@@ -162,7 +143,7 @@ class AIService {
         }
       };
     } catch (error) {
-      logger.error('AI助手对话失败:', error);
+      console.error('AI助手对话失败:', error);
       return {
         success: false,
         message: 'AI助手暂时不可用，请稍后重试',
@@ -194,7 +175,7 @@ class AIService {
         }
       };
     } catch (error) {
-      logger.error('获取学习建议失败:', error);
+      console.error('获取学习建议失败:', error);
       return {
         success: false,
         message: '获取学习建议失败',
@@ -226,7 +207,7 @@ class AIService {
         data: response.data
       };
     } catch (error) {
-      logger.error('Coze智能体调用失败:', error);
+      console.error('Coze智能体调用失败:', error);
       return {
         success: false,
         message: 'AI工具暂时不可用，请稍后重试',
@@ -267,7 +248,7 @@ class AIService {
 
       return result;
     } catch (error) {
-      logger.error('图片增强失败:', error);
+      console.error('图片增强失败:', error);
       return {
         success: false,
         message: '图片增强失败',
@@ -309,7 +290,7 @@ class AIService {
 
       return result;
     } catch (error) {
-      logger.error('风格转换失败:', error);
+      console.error('风格转换失败:', error);
       return {
         success: false,
         message: '风格转换失败',
@@ -351,7 +332,7 @@ class AIService {
 
       return result;
     } catch (error) {
-      logger.error('图案生成失败:', error);
+      console.error('图案生成失败:', error);
       return {
         success: false,
         message: '图案生成失败',
@@ -392,7 +373,7 @@ class AIService {
 
       return result;
     } catch (error) {
-      logger.error('智能修复失败:', error);
+      console.error('智能修复失败:', error);
       return {
         success: false,
         message: '智能修复失败',
@@ -420,7 +401,7 @@ class AIService {
       status.gzhu.available = true;
       status.gzhu.latency = Date.now() - start;
     } catch (error) {
-      logger.warn('GZHU智能体不可用:', error.message);
+      console.warn('GZHU智能体不可用:', error.message);
     }
 
     // 检查Coze智能体
@@ -430,7 +411,7 @@ class AIService {
       status.coze.available = true;
       status.coze.latency = Date.now() - start;
     } catch (error) {
-      logger.warn('Coze智能体不可用:', error.message);
+      console.warn('Coze智能体不可用:', error.message);
     }
 
     return status;

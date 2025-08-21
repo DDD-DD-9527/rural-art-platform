@@ -467,6 +467,24 @@ export const courseAPI = {
         total: response.data?.total || 0
       }
     }
+  },
+
+  // 获取用户已注册的课程（别名方法）
+  getUserEnrolledCourses: async (userId, params = {}) => {
+    // 使用getMyEnrollments方法，但返回课程列表格式
+    const response = await courseAPI.getMyEnrollments(params)
+    if (response.success && response.data) {
+      return {
+        ...response,
+        data: response.data.enrollments?.map(enrollment => ({
+          ...enrollment.course,
+          progress: enrollment.progress?.percentage || 0,
+          enrolledAt: enrollment.enrolledAt,
+          status: enrollment.status
+        })) || []
+      }
+    }
+    return response
   }
 }
 
@@ -582,6 +600,125 @@ export const adminAPI = {
     const { timeRange = '7d' } = params
     return api.get('/admin/dashboard/overview', {
       params: { timeRange }
+    })
+  }
+}
+
+// 游戏化系统API
+export const gamificationApi = {
+  // 获取学习路径
+  getLearningPath: (userId) => {
+    return api.get(`/gamification/learning-path/${userId || ''}`)
+  },
+  
+  // 解锁课程
+  unlockCourse: (courseId, userId) => {
+    return api.post('/gamification/unlock-course', {
+      courseId,
+      userId
+    })
+  },
+  
+  // 完成课时
+  completeLessonTime: (data) => {
+    return api.post('/gamification/complete-lesson-time', data)
+  },
+  
+  // 获取积分统计
+  getPointsStats: (userId) => {
+    return api.get(`/gamification/points/stats/${userId || ''}`)
+  },
+  
+  // 获取积分历史
+  getPointsHistory: (params = {}) => {
+    const { userId, page = 1, limit = 20, period } = params
+    return api.get(`/gamification/points/history/${userId || ''}`, {
+      params: { page, limit, period }
+    })
+  },
+  
+  // 获取排行榜
+  getLeaderboard: (params = {}) => {
+    const { type = 'points', period = 'week', limit = 10 } = params
+    return api.get('/gamification/leaderboard', {
+      params: { type, period, limit }
+    })
+  },
+  
+  // 获取成就列表
+  getAchievements: (userId) => {
+    return api.get(`/gamification/achievements/${userId || ''}`)
+  },
+  
+  // 解锁成就
+  unlockAchievement: (achievementId, userId) => {
+    return api.post('/gamification/unlock-achievement', {
+      achievementId,
+      userId
+    })
+  },
+  
+  // 撤销积分
+  revokePoints: (data) => {
+    return api.post('/gamification/revoke-points', data)
+  },
+  
+  // 获取用户等级信息
+  getUserLevel: (userId) => {
+    return api.get(`/gamification/level/${userId || ''}`)
+  },
+  
+  // 获取课程解锁状态
+  getCourseUnlockStatus: (courseId, userId) => {
+    return api.get(`/gamification/course-unlock-status/${courseId}`, {
+      params: { userId }
+    })
+  },
+  
+  // 检查课程解锁条件
+  checkUnlockRequirements: (courseId, userId) => {
+    return api.get(`/gamification/check-unlock/${courseId}`, {
+      params: { userId }
+    })
+  },
+  
+  // 获取学习统计
+  getLearningStats: (userId, period = 'week') => {
+    return api.get(`/gamification/learning-stats/${userId || ''}`, {
+      params: { period }
+    })
+  },
+  
+  // 获取积分获取方式
+  getPointsSources: () => {
+    return api.get('/gamification/points/sources')
+  },
+  
+  // 获取成就分类
+  getAchievementCategories: () => {
+    return api.get('/gamification/achievements/categories')
+  },
+  
+  // 获取用户进度概览
+  getUserProgress: (userId) => {
+    return api.get(`/gamification/progress/${userId || ''}`)
+  },
+  
+  // 更新学习进度
+  updateLearningProgress: (data) => {
+    return api.post('/gamification/update-progress', data)
+  },
+  
+  // 获取证书信息
+  getCertificates: (userId) => {
+    return api.get(`/gamification/certificates/${userId || ''}`)
+  },
+  
+  // 领取证书
+  claimCertificate: (certificateId, userId) => {
+    return api.post('/gamification/claim-certificate', {
+      certificateId,
+      userId
     })
   }
 }

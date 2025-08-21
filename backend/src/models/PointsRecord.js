@@ -287,7 +287,7 @@ pointsRecordSchema.post('save', async function(doc) {
       'learningStats.totalPoints': totalPoints
     });
   } catch (error) {
-    console.error('更新用户总积分失败:', error);
+    console.error('更新用户总积分失败', error.message, this.user);
   }
 });
 

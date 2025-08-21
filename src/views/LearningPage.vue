@@ -48,79 +48,85 @@
         </div>
       </div>
 
-      <!-- Progress Overview -->
+
+
+      <!-- 我正在学习的课程 -->
       <div class="glass-card rounded-3xl p-8 mb-8 shadow-xl">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="text-2xl font-bold mb-3 text-slate-800">本周学习进度</h3>
-            <div class="flex items-center space-x-6 text-lg text-slate-600">
-              <span><strong class="text-emerald-600 text-xl">{{ weeklyStats.courses }}</strong> 门课程</span>
-              <span><strong class="text-blue-600 text-xl">{{ weeklyStats.minutes }}</strong> 分钟</span>
+        <h3 class="text-2xl font-bold mb-6 text-slate-800 flex items-center">
+          <BookOpenIcon class="w-6 h-6 mr-3 text-emerald-600" />
+          我正在学习的课程
+        </h3>
+        <div v-if="false" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- 瑶绣制作特色课程卡片 -->
+          <div 
+            @click="navigateToYaoEmbroidery"
+            class="relative glass-card rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-emerald-50 to-blue-50 border-2 border-emerald-200"
+          >
+            <div class="absolute top-2 right-2 bg-gradient-to-r from-emerald-500 to-blue-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+              特色课程
+            </div>
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-bold text-lg text-slate-800 truncate">瑶绣制作艺术之旅</h4>
+              <span class="text-sm text-emerald-600 font-medium">0%</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-2 mb-4">
+              <div 
+                class="bg-gradient-to-r from-emerald-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+                style="width: 0%"
+              ></div>
+            </div>
+            <p class="text-slate-600 text-sm line-clamp-2">传承千年瑶族文化，掌握传统刺绣技艺，获得政府补贴支持</p>
+            <div class="flex items-center justify-between mt-4">
+              <span class="text-xs text-slate-500 bg-emerald-100 px-2 py-1 rounded-full">传统工艺</span>
+              <button class="text-emerald-600 text-sm font-medium hover:text-emerald-700">
+                继续学习 →
+              </button>
             </div>
           </div>
-          <div class="relative">
-            <CircularProgress :progress="weeklyStats.progress" :size="80" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Gamified Course Section - 陕北剪纸艺术之旅 -->
-      <div class="gradient-primary rounded-3xl p-8 mb-8 text-white shadow-2xl">
-        <div class="flex items-center justify-between mb-8">
-          <div>
-            <h2 class="text-3xl font-bold mb-3">{{ currentPath.title }}</h2>
-            <p class="text-xl opacity-90">{{ currentPath.description }}</p>
-          </div>
-          <div class="relative">
-            <CircularProgress :progress="currentPath.progress" :size="80" color="white" />
-          </div>
-        </div>
-
-        <!-- Duolingo-style Learning Path -->
-        <div class="relative">
-          <!-- Path Line -->
-          <div class="absolute top-12 left-12 right-12 h-2 bg-gradient-to-r from-emerald-400 via-emerald-400 to-white/30 rounded-full"></div>
           
-          <!-- Lessons in Path -->
-          <div class="flex justify-between items-start relative z-10 overflow-x-auto pb-6">
-            <LessonNode
-              v-for="(lesson, index) in gamifiedLessons"
-              :key="lesson.id"
-              :lesson="lesson"
-              :index="index"
-              @start-lesson="startLesson"
-            />
-            
-            <!-- Certificate Reward -->
-            <div class="flex flex-col items-center min-w-0 flex-shrink-0">
-              <div class="relative w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mb-4 shadow-xl shadow-yellow-400/50">
-                <GiftIcon class="w-10 h-10 text-white" />
-                <div class="absolute -inset-2 rounded-full bg-yellow-400/30 animate-pulse"></div>
-              </div>
-              <div class="text-center min-w-[120px]">
-                <h4 class="font-bold text-lg mb-2">技能证书</h4>
-                <div class="text-sm opacity-80">
-                  <div class="bg-white/20 px-3 py-1 rounded-full inline-block mb-1">奖励</div>
-                </div>
-                <div class="text-sm text-yellow-300 mt-2">🏆 剪纸入门证书</div>
-              </div>
+          <!-- 原有课程卡片 -->
+          <div 
+            v-for="course in enrolledCourses" 
+            :key="course.id"
+            @click="navigateToCourse(course.id)"
+            class="glass-card rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-bold text-lg text-slate-800 truncate">{{ course.title }}</h4>
+              <span class="text-sm text-emerald-600 font-medium">{{ course.progress || 0 }}%</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-2 mb-4">
+              <div 
+                class="bg-gradient-to-r from-emerald-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+                :style="{ width: (course.progress || 0) + '%' }"
+              ></div>
+            </div>
+            <p class="text-slate-600 text-sm line-clamp-2">{{ course.description }}</p>
+            <div class="flex items-center justify-between mt-4">
+              <span class="text-xs text-slate-500">{{ course.category }}</span>
+              <button class="text-emerald-600 text-sm font-medium hover:text-emerald-700">
+                继续学习 →
+              </button>
             </div>
           </div>
         </div>
-
-        <!-- Learning Stats -->
-        <div class="flex justify-center space-x-12 mt-8 pt-8 border-t border-white/20">
-          <div v-for="stat in learningStats" :key="stat.label" class="flex items-center space-x-4">
-            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-              <component :is="stat.icon" class="w-6 h-6" />
-            </div>
-            <div>
-              <div class="text-2xl font-bold">{{ stat.number }}</div>
-              <div class="text-sm opacity-80">{{ stat.label }}</div>
-            </div>
-          </div>
+        <div v-else class="text-center py-12">
+          <BookOpenIcon class="w-16 h-16 mx-auto text-slate-300 mb-4" />
+          <p class="text-slate-500 text-lg mb-4">还没有正在学习的课程</p>
+          <p class="text-slate-400">从下方课程中选择一门开始学习吧！</p>
         </div>
       </div>
+
+      <!-- 游戏化学习路径 -->
+      <GamifiedLearningPath 
+        v-if="currentUserId"
+        :course-id="'default'"
+        :user-id="currentUserId"
+        class="mb-8"
+        @lesson-start="navigateToCourse"
+        @lesson-complete="handleLessonCompleted"
+        @certificate-claim="handleCertificateClaim"
+      />
 
       <!-- Course Categories -->
       <div v-if="activeFilter === '全部'" class="space-y-12">
@@ -182,25 +188,23 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { courseAPI } from '../services/api'
+import { useUserStore } from '../stores/user'
+import { courseAPI, gamificationApi } from '../services/api'
 import { 
   ArrowLeftIcon, 
   SearchIcon, 
   MicIcon,
-  GiftIcon,
-  ZapIcon,
-  StarIcon,
-  TargetIcon,
   PaletteIcon,
-  SmartphoneIcon
+  SmartphoneIcon,
+  BookOpenIcon
 } from 'lucide-vue-next'
 
-import CircularProgress from '../components/CircularProgress.vue'
-import LessonNode from '../components/LessonNode.vue'
 import CourseCard from '../components/CourseCard.vue'
 import BottomNavigation from '../components/BottomNavigation.vue'
+import GamifiedLearningPath from '../components/GamifiedLearningPath.vue'
 
 const router = useRouter()
+const userStore = useUserStore()
 const activeTab = ref('learning')
 const searchQuery = ref('')
 const activeFilter = ref('全部')
@@ -208,37 +212,13 @@ const activeFilter = ref('全部')
 // 筛选标签
 const filterTabs = ['全部', '艺术教育', '数字技能']
 
-const weeklyStats = reactive({
-  courses: 3,
-  minutes: 120,
-  progress: 65
-})
+// 当前用户ID
+const currentUserId = computed(() => userStore.user?.id || userStore.user?._id)
 
-const currentPath = reactive({
-  title: '陕北剪纸艺术之旅',
-  description: '传承千年文化，掌握传统技艺',
-  progress: 30
-})
 
-const gamifiedLessons = reactive([])
 
-const learningStats = reactive([
-  {
-    icon: ZapIcon,
-    number: "7",
-    label: "连续学习天数"
-  },
-  {
-    icon: StarIcon,
-    number: "1,250",
-    label: "总经验值"
-  },
-  {
-    icon: TargetIcon,
-    number: "2/5",
-    label: "完成关卡"
-  }
-])
+// 我正在学习的课程
+const enrolledCourses = reactive([])
 
 // 艺术教育课程
 const artCourses = reactive([])
@@ -272,10 +252,6 @@ const filteredCourses = computed(() => {
   return courses
 })
 
-const startLesson = (lessonId) => {
-  router.push(`/lesson/${lessonId}`)
-}
-
 const handleTabChange = (tab) => {
   activeTab.value = tab
 }
@@ -286,6 +262,57 @@ const goBack = () => {
 
 const navigateToCourse = (courseId) => {
   router.push(`/course/${courseId}`)
+}
+
+// 导航到瑶绣制作专门课程页面
+const navigateToYaoEmbroidery = () => {
+  router.push('/yao-embroidery')
+}
+
+// 游戏化相关方法
+const handleLessonCompleted = async (lessonData) => {
+  try {
+    // 调用后端API记录课程完成
+    await gamificationApi.completeLessonTime({
+      userId: currentUserId.value,
+      courseId: lessonData.courseId,
+      lessonId: lessonData.lessonId,
+      completedAt: new Date().toISOString()
+    })
+    
+    // 刷新学习统计
+    await loadWeeklyStats()
+  } catch (error) {
+    console.error('记录课程完成失败:', error)
+  }
+}
+
+const handleCertificateClaim = async (certificate) => {
+  try {
+    console.log('领取证书:', certificate)
+    // 这里可以添加证书领取的API调用
+  } catch (error) {
+    console.error('领取证书失败:', error)
+  }
+}
+
+
+
+// 获取用户已注册的课程
+const fetchEnrolledCourses = async () => {
+  try {
+    if (currentUserId.value) {
+      const response = await courseAPI.getUserEnrolledCourses(currentUserId.value)
+      if (response.success && response.data) {
+        enrolledCourses.splice(0, enrolledCourses.length, ...response.data)
+      }
+    }
+  } catch (error) {
+    console.error('获取已注册课程失败:', error)
+    // 初始化为空数组，没有正在学习的课程
+    const mockEnrolledCourses = []
+    enrolledCourses.splice(0, enrolledCourses.length, ...mockEnrolledCourses)
+  }
 }
 
 // API 获取数据的函数
@@ -311,16 +338,13 @@ const fetchCourses = async () => {
        isPublished: true // 只获取已发布的课程
      })
      digitalCourses.splice(0, digitalCourses.length, ...digitalResponse.data?.courses || [])
-    
-    // 游戏化课程使用前3个课程
-     const allCourses = [...artCoursesData, ...(digitalResponse.data?.courses || [])]
-     gamifiedLessons.splice(0, gamifiedLessons.length, ...allCourses.slice(0, 3))
   } catch (error) {
     console.error('获取课程数据失败:', error)
   }
 }
 
 onMounted(() => {
+  fetchEnrolledCourses()
   fetchCourses()
 })
 </script>
