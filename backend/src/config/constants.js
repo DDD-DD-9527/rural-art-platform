@@ -40,7 +40,11 @@ const CORS_CONFIG = {
         'http://localhost:8080', // 可能的前端端口
         'http://127.0.0.1:5173',
         'http://127.0.0.1:3000',
-        'http://127.0.0.1:8080'
+        'http://127.0.0.1:8080',
+        'https://cuddly-spork-seven.vercel.app', // Vercel部署的前端
+        'https://ai-future-rural-art.top',
+        'http://ai-future-rural-art.top', // 用户自定义域名
+        'https://*.vercel.app' // 允许所有Vercel子域名
       ],
   CREDENTIALS: process.env.CORS_CREDENTIALS === 'true' || true,
   METHODS: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
