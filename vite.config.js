@@ -20,8 +20,7 @@ export default defineConfig(({ mode }) => {
       allowedHosts: [
         'localhost',
         '127.0.0.1',
-        'kl9dmjgx-3000.asse.devtunnels.ms',
-        ...(env.VITE_ALLOWED_HOSTS ? env.VITE_ALLOWED_HOSTS.split(',') : [])
+        '58tm1vpk-3000.asse.devtunnels.ms'
       ],
       proxy: {
         '/api': {
