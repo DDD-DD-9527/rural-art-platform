@@ -1,5 +1,5 @@
 
--qianduan
+-注册页面的打印信息
 contentScript.bundle.js:1 Must reload extension for ,content js work
 contentScript.bundle.js:1 Must reload extension for ,content js work
 contentScript.bundle.js:1 Received message from parent window: {type: 'preview-origin', previewOrigin: 'https://ai-future-rural-art.top', path: '/'}

@@ -6,7 +6,11 @@ const Post = require('./src/models/Post');
 const Comment = require('./src/models/Comment');
 const Enrollment = require('./src/models/Enrollment');
 const PointsRecord = require('./src/models/PointsRecord');
-require('dotenv').config();
+// 根据NODE_ENV加载对应的环境配置
+const envFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env';
+require('dotenv').config({ path: envFile });
+console.log(`🔧 加载环境配置: ${envFile}`);
+console.log(`🔗 数据库连接: ${process.env.MONGODB_URI}`);
 
 // 连接数据库
 const connectDB = async () => {
@@ -35,7 +39,7 @@ const clearDatabase = async () => {
 const createUsers = async () => {
   console.log('👥 创建用户数据...');
   // 使用明文密码，让User模型的pre-save钩子来处理哈希
-  const adminPassword = 'admin123456';
+  const adminPassword = 'admin123';
   const teacherPassword = 'teacher789';
   const studentPassword = 'student123';
   const  testPassword = 'zhangshan123'; // zhangshan用户密码
@@ -2390,7 +2394,7 @@ const seedDatabase = async () => {
     console.log(`   - 积分记录: ${pointsRecords.length} 个`);
     
     console.log('\n🔑 测试账号信息:');
-    console.log('   管理员: admin / admin123456');
+    console.log('   管理员: admin / admin123');
     console.log('   艺术导师: teacher_art / teacher789');
     console.log('   数字专家: teacher_digital / teacher789');
     console.log('   学员1: student1 / student123');

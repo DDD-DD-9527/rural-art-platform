@@ -9,11 +9,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "http://119.23.46.172:3001/$1"
+      "destination": "https://kl9dmjgx-3000.asse.devtunnels.ms/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  ],
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/.*", "dest": "/index.html" }
   ]
 }

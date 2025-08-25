@@ -78,8 +78,10 @@ const register = async (req, res) => {
 // 用户登录
 const login = async (req, res) => {
   try {
+    console.log('Login attempt - Request body:', req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: '输入验证失败',
@@ -88,6 +90,7 @@ const login = async (req, res) => {
     }
 
     const { identifier, password } = req.body; // identifier可以是注册号、邮箱或用户名
+    console.log('Login attempt for identifier:', identifier);
 
     // 查找用户
     const user = await User.findByIdentifier(identifier);

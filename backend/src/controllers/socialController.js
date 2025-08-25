@@ -58,7 +58,7 @@ exports.followUser = async (req, res) => {
     
     res.json({
       success: true,
-      message: '关注成功',
+      message: '关注成功！',
       data: {
         isFollowing: true,
         followDate: follow.createdAt

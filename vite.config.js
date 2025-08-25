@@ -20,19 +20,12 @@ export default defineConfig(({ mode }) => {
       allowedHosts: [
         'localhost',
         '127.0.0.1',
-        ...(env.VITE_ALLOWED_HOSTS ? env.VITE_ALLOWED_HOSTS.split(',') : [
-          'cfa03a312188.ngrok-free.app',
-          '0232bbdc2036.ngrok-free.app',
-          '3c78d93dbf5d.ngrok-free.app',
-          '5f63d143cc61.ngrok-free.app',
-          'b9cd47b5e9a8.ngrok-free.app',
-          '6c3b98d66e29.ngrok-free.app',
-          '3690cade7f42.ngrok-free.app'
-        ])
+        'kl9dmjgx-3000.asse.devtunnels.ms',
+        ...(env.VITE_ALLOWED_HOSTS ? env.VITE_ALLOWED_HOSTS.split(',') : [])
       ],
       proxy: {
         '/api': {
-          target: env.VITE_PROXY_TARGET || 'http://localhost:3001',
+          target: env.VITE_PROXY_TARGET || 'http://localhost:3000',
           changeOrigin: true,
           secure: false
         }
