@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
       allowedHosts: [
         'localhost',
         '127.0.0.1',
-        '58tm1vpk-3000.asse.devtunnels.ms'
+        'indication-spider-offers-cia.trycloudflare.com'
       ],
       proxy: {
         '/api': {
