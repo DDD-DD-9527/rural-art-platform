@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
       allowedHosts: [
         'localhost',
         '127.0.0.1',
-        'indication-spider-offers-cia.trycloudflare.com'
+        'api.ai-future-rural-art.top'
       ],
       proxy: {
         '/api': {

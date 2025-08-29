@@ -9,7 +9,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://58tm1vpk-3000.asse.devtunnels.ms/api/$1"
+      "destination": "https://api.ai-future-rural-art.top/api/$1"
     },
     {
       "source": "/(.*)",
