@@ -2,6 +2,7 @@ const express = require('express');
 const { body, query, param } = require('express-validator');
 const postController = require('../controllers/postController');
 const { authenticate, authorize, optionalAuth } = require('../middleware/auth');
+const validate = require('../middleware/validate');
 
 const router = express.Router();
 
@@ -22,18 +23,18 @@ router.get('/', optionalAuth, [
   query('location').optional().isString().withMessage('位置必须是字符串'),
   query('author').optional().isMongoId().withMessage('作者ID格式无效'),
   query('search').optional().isString().withMessage('搜索关键词必须是字符串')
-], postController.getPosts);
+], validate, postController.getPosts);
 
 // 获取热门帖子
 router.get('/hot/list', optionalAuth, [
   query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('数量限制必须在1-50之间'),
   query('days').optional().isInt({ min: 1, max: 30 }).withMessage('天数必须在1-30之间')
-], postController.getHotPosts);
+], validate, postController.getHotPosts);
 
 // 获取推荐帖子
 router.get('/recommended/list', optionalAuth, [
   query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('数量限制必须在1-50之间')
-], postController.getRecommendedPosts);
+], validate, postController.getRecommendedPosts);
 
 // 获取用户的帖子
 router.get('/user/:userId', [
@@ -41,12 +42,20 @@ router.get('/user/:userId', [
   query('page').optional().isInt({ min: 1 }).withMessage('页码必须是正整数'),
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('每页数量必须在1-100之间'),
   query('status').optional().isIn(['published', 'draft', 'hidden']).withMessage('状态无效')
-], postController.getUserPosts);
+], validate, postController.getUserPosts);
+
+// 获取关注用户的帖子
+router.get('/following', authenticate, [
+  query('page').optional().isInt({ min: 1 }).withMessage('页码必须是正整数'),
+  query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('每页数量必须在1-50之间'),
+  query('sortBy').optional().isIn(['createdAt', 'updatedAt', 'likeCount', 'commentCount', 'viewCount']).withMessage('排序字段无效'),
+  query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('排序方向无效')
+], validate, postController.getFollowingPosts);
 
 // 获取帖子详情
 router.get('/:id', [
   param('id').isMongoId().withMessage('帖子ID格式无效')
-], postController.getPostById);
+], validate, postController.getPostById);
 
 // 创建帖子
 router.post('/', authenticate, [
@@ -86,7 +95,7 @@ router.post('/', authenticate, [
   body('relatedCourse').optional().isMongoId().withMessage('相关课程ID格式无效'),
   body('visibility').optional().isIn(['public', 'private']).withMessage('可见性设置无效'),
   body('allowComments').optional().isBoolean().withMessage('评论设置必须是布尔值')
-], postController.createPost);
+], validate, postController.createPost);
 
 // 更新帖子
 router.put('/:id', authenticate, [
@@ -127,31 +136,23 @@ router.put('/:id', authenticate, [
   body('relatedCourse').optional().isMongoId().withMessage('相关课程ID格式无效'),
   body('visibility').optional().isIn(['public', 'private']).withMessage('可见性设置无效'),
   body('allowComments').optional().isBoolean().withMessage('评论设置必须是布尔值')
-], postController.updatePost);
+], validate, postController.updatePost);
 
 // 删除帖子
 router.delete('/:id', authenticate, [
   param('id').isMongoId().withMessage('帖子ID格式无效')
-], postController.deletePost);
+], validate, postController.deletePost);
 
 // 点赞/取消点赞帖子
 router.post('/:id/like', authenticate, [
   param('id').isMongoId().withMessage('帖子ID格式无效')
-], postController.toggleLikePost);
+], validate, postController.toggleLikePost);
 
 // 举报帖子
 router.post('/:id/report', authenticate, [
   param('id').isMongoId().withMessage('帖子ID格式无效'),
   body('reason').isIn(['spam', 'inappropriate', 'harassment', 'copyright', 'misinformation', 'other']).withMessage('举报原因无效'),
   body('description').optional().isString().isLength({ max: 500 }).withMessage('举报描述不能超过500个字符')
-], postController.reportPost);
-
-// 获取关注用户的帖子
-router.get('/following', authenticate, [
-  query('page').optional().isInt({ min: 1 }).withMessage('页码必须是正整数'),
-  query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('每页数量必须在1-50之间'),
-  query('sortBy').optional().isIn(['createdAt', 'updatedAt', 'likeCount', 'commentCount', 'viewCount']).withMessage('排序字段无效'),
-  query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('排序方向无效')
-], postController.getFollowingPosts);
+], validate, postController.reportPost);
 
 module.exports = router;

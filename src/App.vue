@@ -1,23 +1,26 @@
 <template>
-  <div id="app" class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-blue-50">
+  <div
+    id="app"
+    class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-blue-50"
+  >
     <router-view />
     <AIAssistantFloat />
   </div>
 </template>
 
 <script setup>
-import { provide } from 'vue'
-import { useUserStore } from './stores/user'
-import AIAssistantFloat from './components/AIAssistantFloat.vue'
+import { provide } from "vue";
+import { useUserStore } from "./stores/user";
+import AIAssistantFloat from "./components/AIAssistantFloat.vue";
 
-const userStore = useUserStore()
-provide('userStore', userStore)
+const userStore = useUserStore();
+provide("userStore", userStore);
 </script>
 
 <style>
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 :root {
   --primary-emerald: #059669;
@@ -60,15 +63,18 @@ provide('userStore', userStore)
 }
 
 /* 动画效果 */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
   transform: translateY(10px);
 }
 
-.slide-up-enter-active, .slide-up-leave-active {
+.slide-up-enter-active,
+.slide-up-leave-active {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .slide-up-enter-from {

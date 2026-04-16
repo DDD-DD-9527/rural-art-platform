@@ -1,0 +1,13 @@
+**/node_modules
+dist
+backend/uploads
+backend/logs
+mongodb-backup
+.git
+.vscode
+*.log
+.env
+.env.*
+backend/.env
+backend/.env.*
+

@@ -14,6 +14,7 @@ const {
   addAchievement
 } = require('../controllers/userController');
 const { authenticate, authorize } = require('../middleware/auth');
+const validate = require('../middleware/validate');
 
 const router = express.Router();
 
@@ -99,8 +100,8 @@ const changePasswordValidation = [
 ];
 
 // 公开路由
-router.post('/register', registerValidation, register);
-router.post('/login', loginValidation, login);
+router.post('/login', loginValidation, validate, login);
+router.post('/register', registerValidation, validate, register);
 router.get('/profile/:userId', getUserById);
 
 // 需要认证的路由
@@ -108,8 +109,8 @@ router.use(authenticate);
 
 // 用户个人操作
 router.get('/profile', getCurrentUser);
-router.put('/profile', updateProfileValidation, updateProfile);
-router.put('/password', changePasswordValidation, changePassword);
+router.put('/profile', updateProfileValidation, validate, updateProfile);
+router.put('/password', changePasswordValidation, validate, changePassword);
 
 // 用户数据更新
 router.put('/learning-stats', updateLearningStats);

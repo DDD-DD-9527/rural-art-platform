@@ -27,7 +27,7 @@
           <p class="stat-value">{{ stats.totalCourses }}</p>
         </div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-icon bg-green-100 text-green-600">
           <CheckCircleIcon class="w-6 h-6" />
@@ -37,7 +37,7 @@
           <p class="stat-value">{{ stats.publishedCourses }}</p>
         </div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-icon bg-yellow-100 text-yellow-600">
           <ClockIcon class="w-6 h-6" />
@@ -47,7 +47,7 @@
           <p class="stat-value">{{ stats.draftCourses }}</p>
         </div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-icon bg-purple-100 text-purple-600">
           <UsersIcon class="w-6 h-6" />
@@ -64,24 +64,32 @@
       <div class="filters-row">
         <div class="search-box">
           <SearchIcon class="search-icon" />
-          <input 
+          <input
             v-model="searchQuery"
-            type="text" 
+            type="text"
             placeholder="搜索课程标题、分类..."
             class="search-input"
             @input="handleSearch"
           />
         </div>
-        
+
         <div class="filter-controls">
-          <select v-model="statusFilter" @change="handleFilterChange" class="filter-select">
+          <select
+            v-model="statusFilter"
+            @change="handleFilterChange"
+            class="filter-select"
+          >
             <option value="">全部状态</option>
             <option value="published">已发布</option>
             <option value="draft">草稿</option>
             <option value="archived">已归档</option>
           </select>
-          
-          <select v-model="categoryFilter" @change="handleFilterChange" class="filter-select">
+
+          <select
+            v-model="categoryFilter"
+            @change="handleFilterChange"
+            class="filter-select"
+          >
             <option value="">全部分类</option>
             <option value="painting">绘画</option>
             <option value="calligraphy">书法</option>
@@ -92,7 +100,7 @@
             <option value="dance">舞蹈</option>
             <option value="other">其他</option>
           </select>
-          
+
           <select v-model="sortBy" @change="loadCourses" class="filter-select">
             <option value="createdAt">创建时间</option>
             <option value="updatedAt">更新时间</option>
@@ -109,7 +117,7 @@
         <div class="loading-spinner"></div>
         <p>加载课程列表...</p>
       </div>
-      
+
       <div v-else-if="courses.length === 0" class="empty-state">
         <BookOpenIcon class="w-16 h-16 text-gray-300" />
         <h3 class="empty-title">暂无课程</h3>
@@ -119,32 +127,37 @@
           新建课程
         </button>
       </div>
-      
+
       <div v-else class="courses-grid">
         <div v-for="course in courses" :key="course._id" class="course-card">
           <!-- 课程封面 -->
           <div class="course-thumbnail">
-            <img 
-              v-if="course.thumbnail" 
-              :src="course.thumbnail.url" 
+            <img
+              v-if="course.thumbnail"
+              :src="course.thumbnail.url"
               :alt="course.title"
               class="thumbnail-image"
             />
             <div v-else class="thumbnail-placeholder">
               <ImageIcon class="w-8 h-8 text-gray-400" />
             </div>
-            
+
             <!-- 状态标签 -->
-            <div class="status-badge" :class="getStatusClass(course.settings?.isPublished)">
+            <div
+              class="status-badge"
+              :class="getStatusClass(course.settings?.isPublished)"
+            >
               {{ getStatusText(course.settings?.isPublished) }}
             </div>
           </div>
-          
+
           <!-- 课程信息 -->
           <div class="course-content">
             <h3 class="course-title">{{ course.title }}</h3>
-            <p class="course-description">{{ truncateText(course.description, 100) }}</p>
-            
+            <p class="course-description">
+              {{ truncateText(course.description, 100) }}
+            </p>
+
             <div class="course-meta">
               <div class="meta-item">
                 <TagIcon class="w-4 h-4" />
@@ -159,9 +172,13 @@
                 <span>{{ course.enrollmentCount || 0 }}人报名</span>
               </div>
             </div>
-            
+
             <div class="course-tags">
-              <span v-for="tag in course.tags?.slice(0, 3)" :key="tag" class="tag">
+              <span
+                v-for="tag in course.tags?.slice(0, 3)"
+                :key="tag"
+                class="tag"
+              >
                 {{ tag }}
               </span>
               <span v-if="course.tags?.length > 3" class="tag-more">
@@ -169,7 +186,7 @@
               </span>
             </div>
           </div>
-          
+
           <!-- 操作按钮 -->
           <div class="course-actions">
             <button @click="editCourse(course)" class="action-btn edit-btn">
@@ -187,10 +204,10 @@
           </div>
         </div>
       </div>
-      
+
       <!-- 分页 -->
       <div v-if="totalPages > 1" class="pagination">
-        <button 
+        <button
           @click="changePage(currentPage - 1)"
           :disabled="currentPage === 1"
           class="pagination-btn"
@@ -198,12 +215,12 @@
           <ChevronLeftIcon class="w-4 h-4" />
           上一页
         </button>
-        
+
         <div class="pagination-info">
           第 {{ currentPage }} 页，共 {{ totalPages }} 页
         </div>
-        
-        <button 
+
+        <button
           @click="changePage(currentPage + 1)"
           :disabled="currentPage === totalPages"
           class="pagination-btn"
@@ -218,13 +235,15 @@
     <div v-if="showUploadForm" class="modal-overlay" @click="closeUploadForm">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h2 class="modal-title">{{ editingCourse ? '编辑课程' : '新建课程' }}</h2>
+          <h2 class="modal-title">
+            {{ editingCourse ? "编辑课程" : "新建课程" }}
+          </h2>
           <button @click="closeUploadForm" class="modal-close">
             <XIcon class="w-5 h-5" />
           </button>
         </div>
         <div class="modal-body">
-          <CourseUploadForm 
+          <CourseUploadForm
             :course="editingCourse"
             @success="handleUploadSuccess"
             @cancel="closeUploadForm"
@@ -236,8 +255,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import {
   PlusIcon,
   BookOpenIcon,
@@ -252,47 +271,47 @@ import {
   TrashIcon,
   XIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
-} from 'lucide-vue-next'
-import CourseUploadForm from '../../components/admin/CourseUploadForm.vue'
-import { courseAPI } from '../../services/api'
+  ChevronRightIcon,
+} from "lucide-vue-next";
+import CourseUploadForm from "../../components/admin/CourseUploadForm.vue";
+import { courseAPI } from "../../services/api";
 
-const router = useRouter()
+const router = useRouter();
 
 // 响应式数据
-const loading = ref(false)
-const courses = ref([])
-const showUploadForm = ref(false)
-const editingCourse = ref(null)
+const loading = ref(false);
+const courses = ref([]);
+const showUploadForm = ref(false);
+const editingCourse = ref(null);
 
 // 搜索和筛选
-const searchQuery = ref('')
-const statusFilter = ref('')
-const categoryFilter = ref('')
-const sortBy = ref('createdAt')
+const searchQuery = ref("");
+const statusFilter = ref("");
+const categoryFilter = ref("");
+const sortBy = ref("createdAt");
 
 // 分页
-const currentPage = ref(1)
-const pageSize = ref(12)
-const totalCourses = ref(0)
+const currentPage = ref(1);
+const pageSize = ref(12);
+const totalCourses = ref(0);
 
 // 统计数据
 const stats = reactive({
   totalCourses: 0,
   publishedCourses: 0,
   draftCourses: 0,
-  totalStudents: 0
-})
+  totalStudents: 0,
+});
 
 // 计算属性
 const totalPages = computed(() => {
-  return Math.ceil(totalCourses.value / pageSize.value)
-})
+  return Math.ceil(totalCourses.value / pageSize.value);
+});
 
 // 加载课程列表
 const loadCourses = async () => {
   try {
-    loading.value = true
+    loading.value = true;
     const params = {
       page: currentPage.value,
       limit: pageSize.value,
@@ -300,157 +319,188 @@ const loadCourses = async () => {
       status: statusFilter.value,
       category: categoryFilter.value,
       sortBy: sortBy.value,
-      sortOrder: 'desc'
-    }
-    
-    const response = await courseAPI.getCourses(params)
-    courses.value = response.data.courses || []
-    totalCourses.value = response.data.pagination?.total || response.data.total || 0
-    
+      sortOrder: "desc",
+    };
+
+    const response = await courseAPI.getCourses(params);
+    courses.value = response.data.courses || [];
+    totalCourses.value =
+      response.data.pagination?.total || response.data.total || 0;
+
     // 更新统计数据
-    await updateStats()
+    await updateStats();
   } catch (error) {
-    console.error('加载课程列表失败:', error)
+    console.error("加载课程列表失败:", error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 更新统计数据
 const updateStats = async () => {
   try {
     // 获取所有课程统计
-    const allCoursesResponse = await courseAPI.getCourses({ status: '', limit: 1 })
+    const allCoursesResponse = await courseAPI.getCourses({
+      status: "",
+      limit: 1,
+    });
     if (allCoursesResponse.data) {
-      stats.totalCourses = allCoursesResponse.data.pagination?.total || allCoursesResponse.data.total || 0
+      stats.totalCourses =
+        allCoursesResponse.data.pagination?.total ||
+        allCoursesResponse.data.total ||
+        0;
     }
 
     // 获取已发布课程统计
-    const publishedResponse = await courseAPI.getCourses({ status: 'published', limit: 1 })
+    const publishedResponse = await courseAPI.getCourses({
+      status: "published",
+      limit: 1,
+    });
     if (publishedResponse.data) {
-      stats.publishedCourses = publishedResponse.data.pagination?.total || publishedResponse.data.total || 0
+      stats.publishedCourses =
+        publishedResponse.data.pagination?.total ||
+        publishedResponse.data.total ||
+        0;
     }
 
     // 获取草稿课程统计
-    const draftResponse = await courseAPI.getCourses({ status: 'draft', limit: 1 })
+    const draftResponse = await courseAPI.getCourses({
+      status: "draft",
+      limit: 1,
+    });
     if (draftResponse.data) {
-      stats.draftCourses = draftResponse.data.pagination?.total || draftResponse.data.total || 0
+      stats.draftCourses =
+        draftResponse.data.pagination?.total || draftResponse.data.total || 0;
     }
 
     // 计算总学员数（基于当前页面的课程）
-    stats.totalStudents = courses.value.reduce((sum, c) => sum + (c.students || c.enrollmentCount || c.stats?.enrolledCount || 0), 0)
+    stats.totalStudents = courses.value.reduce(
+      (sum, c) =>
+        sum + (c.students || c.enrollmentCount || c.stats?.enrolledCount || 0),
+      0,
+    );
   } catch (error) {
-    console.error('更新统计数据失败:', error)
+    console.error("更新统计数据失败:", error);
     // 如果API调用失败，使用当前页面数据作为备选
-    stats.totalCourses = totalCourses.value
-    stats.publishedCourses = courses.value.filter(c => c.settings?.isPublished === true).length
-    stats.draftCourses = courses.value.filter(c => c.settings?.isPublished === false || c.settings?.isPublished === undefined).length
-    stats.totalStudents = courses.value.reduce((sum, c) => sum + (c.students || c.enrollmentCount || c.stats?.enrolledCount || 0), 0)
+    stats.totalCourses = totalCourses.value;
+    stats.publishedCourses = courses.value.filter(
+      (c) => c.settings?.isPublished === true,
+    ).length;
+    stats.draftCourses = courses.value.filter(
+      (c) =>
+        c.settings?.isPublished === false ||
+        c.settings?.isPublished === undefined,
+    ).length;
+    stats.totalStudents = courses.value.reduce(
+      (sum, c) =>
+        sum + (c.students || c.enrollmentCount || c.stats?.enrolledCount || 0),
+      0,
+    );
   }
-}
+};
 
 // 搜索处理
 const handleSearch = () => {
-  currentPage.value = 1 // 重置到第一页
-  loadCourses()
-}
+  currentPage.value = 1; // 重置到第一页
+  loadCourses();
+};
 
 // 分页处理
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page
-    loadCourses()
+    currentPage.value = page;
+    loadCourses();
   }
-}
+};
 
 // 课程操作
 const editCourse = (course) => {
-  editingCourse.value = course
-  showUploadForm.value = true
-}
+  editingCourse.value = course;
+  showUploadForm.value = true;
+};
 
 const viewCourse = (course) => {
-  const courseId = course.id || course._id
-  router.push(`/courses/${courseId}`)
-}
+  const courseId = course.id || course._id;
+  router.push(`/courses/${courseId}`);
+};
 
 const deleteCourse = async (course) => {
   if (!confirm(`确定要删除课程「${course.title}」吗？此操作不可恢复。`)) {
-    return
+    return;
   }
-  
+
   try {
-    const courseId = course.id || course._id
-    await courseAPI.deleteCourse(courseId)
-    loadCourses()
-    alert('课程删除成功')
+    const courseId = course.id || course._id;
+    await courseAPI.deleteCourse(courseId);
+    loadCourses();
+    alert("课程删除成功");
   } catch (error) {
-    console.error('删除课程失败:', error)
-    alert('删除课程失败，请重试')
+    console.error("删除课程失败:", error);
+    alert("删除课程失败，请重试");
   }
-}
+};
 
 // 表单处理
 const closeUploadForm = () => {
-  showUploadForm.value = false
-  editingCourse.value = null
-}
+  showUploadForm.value = false;
+  editingCourse.value = null;
+};
 
 const handleUploadSuccess = () => {
-  closeUploadForm()
-  loadCourses()
-}
+  closeUploadForm();
+  loadCourses();
+};
 
 // 工具函数
 const truncateText = (text, maxLength) => {
-  if (!text) return ''
-  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
-}
+  if (!text) return "";
+  return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+};
 
 const getStatusClass = (isPublished) => {
   if (isPublished === true) {
-    return 'status-published'
+    return "status-published";
   } else if (isPublished === false) {
-    return 'status-draft'
+    return "status-draft";
   } else {
-    return 'status-draft'
+    return "status-draft";
   }
-}
+};
 
 const getStatusText = (isPublished) => {
   if (isPublished === true) {
-    return '已发布'
+    return "已发布";
   } else if (isPublished === false) {
-    return '草稿'
+    return "草稿";
   } else {
-    return '草稿'
+    return "草稿";
   }
-}
+};
 
 const getCategoryText = (category) => {
   const categories = {
-    painting: '绘画',
-    calligraphy: '书法',
-    handicraft: '手工艺',
-    sculpture: '雕塑',
-    photography: '摄影',
-    music: '音乐',
-    dance: '舞蹈',
-    other: '其他'
-  }
-  return categories[category] || category
-}
+    painting: "绘画",
+    calligraphy: "书法",
+    handicraft: "手工艺",
+    sculpture: "雕塑",
+    photography: "摄影",
+    music: "音乐",
+    dance: "舞蹈",
+    other: "其他",
+  };
+  return categories[category] || category;
+};
 
 // 监听筛选条件变化
 const handleFilterChange = () => {
-  currentPage.value = 1 // 重置到第一页
-  loadCourses()
-}
+  currentPage.value = 1; // 重置到第一页
+  loadCourses();
+};
 
 // 组件挂载
 onMounted(() => {
-  loadCourses()
-})
+  loadCourses();
+});
 </script>
 
 <style scoped>

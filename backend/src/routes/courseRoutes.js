@@ -24,6 +24,7 @@ const {
   getCourseAnalytics
 } = require('../controllers/courseController');
 const { authenticate, authorize } = require('../middleware/auth');
+const validate = require('../middleware/validate');
 
 const router = express.Router();
 
@@ -197,10 +198,10 @@ router.get('/:courseId', getCourseById); // 获取课程详情
 router.use(authenticate);
 
 // 创作者和管理员可以创建课程
-router.post('/', courseValidation, createCourse);
+router.post('/', courseValidation, validate, createCourse);
 
 // 课程管理路由（需要是课程创作者或管理员）
-router.put('/:courseId', courseValidation, updateCourse);
+router.put('/:courseId', courseValidation, validate, updateCourse);
 router.delete('/:courseId', deleteCourse);
 router.patch('/:courseId/publish', publishCourse);
 router.patch('/:courseId/unpublish', unpublishCourse);

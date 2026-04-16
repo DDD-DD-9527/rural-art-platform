@@ -31,37 +31,39 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed } from "vue";
 
 const props = defineProps({
   progress: {
     type: Number,
-    default: 0
+    default: 0,
   },
   size: {
     type: Number,
-    default: 64
+    default: 64,
   },
   color: {
     type: String,
-    default: 'green'
-  }
-})
+    default: "green",
+  },
+});
 
-const center = computed(() => props.size / 2)
-const radius = computed(() => (props.size - 8) / 2)
-const circumference = computed(() => 2 * Math.PI * radius.value)
-const strokeDashoffset = computed(() => circumference.value * (1 - props.progress / 100))
+const center = computed(() => props.size / 2);
+const radius = computed(() => (props.size - 8) / 2);
+const circumference = computed(() => 2 * Math.PI * radius.value);
+const strokeDashoffset = computed(
+  () => circumference.value * (1 - props.progress / 100),
+);
 
 const trackColor = computed(() => {
-  return props.color === 'white' ? 'text-white/20' : 'text-gray-200'
-})
+  return props.color === "white" ? "text-white/20" : "text-gray-200";
+});
 
 const progressColor = computed(() => {
-  return props.color === 'white' ? 'text-white' : 'text-green-500'
-})
+  return props.color === "white" ? "text-white" : "text-green-500";
+});
 
 const textColor = computed(() => {
-  return props.color === 'white' ? 'text-white' : 'text-green-600'
-})
+  return props.color === "white" ? "text-white" : "text-green-600";
+});
 </script>

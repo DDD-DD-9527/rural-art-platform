@@ -54,7 +54,7 @@ cloudflared-windows-amd64.exel --config config.yml run rural-art-backend
 
 1. 打开终端，运行登录命令：
 ```bash
-.\cloudflared.exe login
+.\cloudflared-windows-amd64.exe login
 ```
 
 2. 浏览器会自动打开Cloudflare登录页面
@@ -152,7 +152,7 @@ cloudflared-windows-amd64.exe tunnel --config config.yml run
 @echo off
 cd /d "f:\5_item\rural-art-platform"
 echo Starting Cloudflare Tunnel...
-.\cloudflared.exe tunnel --config config.yml run rural-art-backend
+.\cloudflared-windows-amd64.exe cloudflared.exe tunnel --config config.yml run rural-art-backend
 pause
 ```
 
@@ -160,7 +160,7 @@ pause
 
 ```bash
 # 安装为Windows服务
-.\cloudflared.exe service install --config config.yml
+.\cloudflared-windows-amd64.exe service install --config config.yml
 ```
 
 启动服务：
@@ -242,25 +242,25 @@ export default defineConfig({
 ### 查看隧道状态
 ```bash
 # 列出所有隧道
-.\cloudflared.exe tunnel list
+.\cloudflared-windows-amd64.exe tunnel list
 
 # 查看隧道信息
-.\cloudflared.exe tunnel info rural-art-backend
+.\cloudflared-windows-amd64.exe tunnel info rural-art-backend
 ```
 
 ### 更新隧道配置
 ```bash
 # 修改config.yml后重启隧道
-.\cloudflared.exe tunnel --config config.yml run rural-art-backend
+.\cloudflared-windows-amd64.exe tunnel --config config.yml run rural-art-backend
 ```
 
 ### 删除隧道
 ```bash
 # 删除DNS记录
-.\cloudflared.exe tunnel route dns --overwrite-dns rural-art-backend your-subdomain.your-domain.com
+.\cloudflared-windows-amd64.exe tunnel route dns --overwrite-dns rural-art-backend your-subdomain.your-domain.com
 
 # 删除隧道
-.\cloudflared.exe tunnel delete rural-art-backend
+.\cloudflared-windows-amd64.exe tunnel delete rural-art-backend
 ```
 
 ## 🔒 安全配置
@@ -290,7 +290,7 @@ ingress:
 ### 查看隧道日志
 ```bash
 # 查看实时日志
-.\cloudflared.exe tunnel --config config.yml --loglevel debug run rural-art-backend
+.\cloudflared-windows-amd64.exe tunnel --config config.yml --loglevel debug run rural-art-backend
 ```
 
 ### 日志文件位置

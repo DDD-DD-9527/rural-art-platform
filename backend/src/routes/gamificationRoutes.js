@@ -13,6 +13,7 @@ const {
   getLearningStats
 } = require('../controllers/gamificationController');
 const { authenticate, authorize } = require('../middleware/auth');
+const validate = require('../middleware/validate');
 
 
 
@@ -55,7 +56,7 @@ router.use(authenticate);
 
 // 课程相关路由
 router.get('/courses/:courseId/lessons/:lessonId/unlock', checkLessonUnlock);
-router.post('/courses/:courseId/lessons/:lessonId/complete', lessonCompletionValidation, completeLesson);
+router.post('/courses/:courseId/lessons/:lessonId/complete', lessonCompletionValidation, validate, completeLesson);
 router.get('/courses/:courseId/path', getLearningPath);
 router.post('/courses/:courseId/batch-unlock', batchUnlockLessons);
 
@@ -67,7 +68,7 @@ router.get('/learning-path/', getLearningPath); // 无courseId时获取默认路
 router.get('/points/history', getPointsHistory);
 router.get('/stats', getPointsStats);
 router.get('/users/:userId/points/history', getPointsHistory); // 管理员查看其他用户积分
-router.delete('/points/:recordId', authorize(['admin']), pointsRevokeValidation, revokePoints);
+router.delete('/points/:recordId', authorize(['admin']), pointsRevokeValidation, validate, revokePoints);
 
 // 积分相关路由
 router.get('/points/stats/:userId', authenticate, getPointsStats);

@@ -1,14 +1,14 @@
-import api from './api';
+import api from "./api";
 
 // 帖子相关API服务
 export const postService = {
   // 获取帖子列表
   async getPosts(params = {}) {
     try {
-      const response = await api.get('/posts', { params });
+      const response = await api.get("/posts", { params });
       return response.data;
     } catch (error) {
-      console.error('获取帖子列表失败:', error);
+      console.error("获取帖子列表失败:", error);
       throw error;
     }
   },
@@ -19,7 +19,7 @@ export const postService = {
       const response = await api.get(`/posts/${id}`);
       return response.data;
     } catch (error) {
-      console.error('获取帖子详情失败:', error);
+      console.error("获取帖子详情失败:", error);
       throw error;
     }
   },
@@ -27,10 +27,10 @@ export const postService = {
   // 创建帖子
   async createPost(postData) {
     try {
-      const response = await api.post('/posts', postData);
+      const response = await api.post("/posts", postData);
       return response.data;
     } catch (error) {
-      console.error('创建帖子失败:', error);
+      console.error("创建帖子失败:", error);
       throw error;
     }
   },
@@ -41,7 +41,7 @@ export const postService = {
       const response = await api.put(`/posts/${id}`, postData);
       return response.data;
     } catch (error) {
-      console.error('更新帖子失败:', error);
+      console.error("更新帖子失败:", error);
       throw error;
     }
   },
@@ -52,7 +52,7 @@ export const postService = {
       const response = await api.delete(`/posts/${id}`);
       return response.data;
     } catch (error) {
-      console.error('删除帖子失败:', error);
+      console.error("删除帖子失败:", error);
       throw error;
     }
   },
@@ -63,7 +63,7 @@ export const postService = {
       const response = await api.post(`/posts/${id}/like`);
       return response.data;
     } catch (error) {
-      console.error('点赞操作失败:', error);
+      console.error("点赞操作失败:", error);
       throw error;
     }
   },
@@ -71,10 +71,10 @@ export const postService = {
   // 获取热门帖子
   async getHotPosts(params = {}) {
     try {
-      const response = await api.get('/posts/hot/list', { params });
+      const response = await api.get("/posts/hot/list", { params });
       return response.data;
     } catch (error) {
-      console.error('获取热门帖子失败:', error);
+      console.error("获取热门帖子失败:", error);
       throw error;
     }
   },
@@ -82,10 +82,10 @@ export const postService = {
   // 获取推荐帖子
   async getRecommendedPosts(params = {}) {
     try {
-      const response = await api.get('/posts/recommended/list', { params });
+      const response = await api.get("/posts/recommended/list", { params });
       return response.data;
     } catch (error) {
-      console.error('获取推荐帖子失败:', error);
+      console.error("获取推荐帖子失败:", error);
       throw error;
     }
   },
@@ -96,7 +96,7 @@ export const postService = {
       const response = await api.get(`/posts/user/${userId}`, { params });
       return response.data;
     } catch (error) {
-      console.error('获取用户帖子失败:', error);
+      console.error("获取用户帖子失败:", error);
       throw error;
     }
   },
@@ -107,10 +107,10 @@ export const postService = {
       const response = await api.post(`/posts/${id}/report`, reportData);
       return response.data;
     } catch (error) {
-      console.error('举报帖子失败:', error);
+      console.error("举报帖子失败:", error);
       throw error;
     }
-  }
+  },
 };
 
 export default postService;

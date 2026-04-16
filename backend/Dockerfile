@@ -30,7 +30,7 @@ RUN chown -R nodejs:nodejs /app
 USER nodejs
 
 # 暴露端口
-EXPOSE 3001
+EXPOSE 3000
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

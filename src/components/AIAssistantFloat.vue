@@ -1,20 +1,24 @@
 <template>
   <div class="fixed bottom-24 right-4 z-50">
-     <!-- Immersive AI Panel  -->
+    <!-- Immersive AI Panel  -->
     <transition name="slide-up">
-      <div 
+      <div
         v-if="isImmersive"
         class="fixed inset-0 bg-black/50 backdrop-blur-sm z-60 flex items-center justify-center p-4"
         @click="closeImmersive"
       >
-        <div 
+        <div
           class="glass-effect rounded-3xl w-full max-w-4xl h-[80vh] flex flex-col shadow-2xl"
           @click.stop
         >
-           <!-- Immersive Header  -->
-          <div class="flex items-center justify-between p-6 border-b border-indigo-200/60">
+          <!-- Immersive Header  -->
+          <div
+            class="flex items-center justify-between p-6 border-b border-indigo-200/60"
+          >
             <div class="flex items-center space-x-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center">
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center"
+              >
                 <BotIcon class="w-6 h-6 text-white" />
               </div>
               <div>
@@ -30,32 +34,34 @@
             </button>
           </div>
 
-           <!-- Immersive Content  -->
+          <!-- Immersive Content  -->
           <div class="flex-1 flex">
-             <!-- Chat Area  -->
+            <!-- Chat Area  -->
             <div class="flex-1 flex flex-col">
-               <!-- Messages  -->
+              <!-- Messages  -->
               <div class="flex-1 overflow-y-auto p-6 space-y-4">
-                <div 
-                  v-for="message in messages" 
+                <div
+                  v-for="message in messages"
                   :key="message.id"
                   :class="[
                     'flex',
-                    message.type === 'user' ? 'justify-end' : 'justify-start'
+                    message.type === 'user' ? 'justify-end' : 'justify-start',
                   ]"
                 >
-                  <div :class="[
-                    'max-w-xs lg:max-w-md px-4 py-3 rounded-2xl',
-                    message.type === 'user' 
-                      ? 'bg-gradient-to-r from-emerald-500 to-blue-600 text-white' 
-                      : 'bg-slate-100 text-slate-800'
-                  ]">
+                  <div
+                    :class="[
+                      'max-w-xs lg:max-w-md px-4 py-3 rounded-2xl',
+                      message.type === 'user'
+                        ? 'bg-gradient-to-r from-emerald-500 to-blue-600 text-white'
+                        : 'bg-slate-100 text-slate-800',
+                    ]"
+                  >
                     {{ message.content }}
                   </div>
                 </div>
               </div>
 
-               <!-- Input Area  -->
+              <!-- Input Area  -->
               <div class="p-6 border-t border-indigo-200/60">
                 <div class="flex space-x-3">
                   <input
@@ -74,7 +80,7 @@
               </div>
             </div>
 
-             <!-- Quick Actions Sidebar  -->
+            <!-- Quick Actions Sidebar  -->
             <div class="w-80 border-l border-indigo-200/60 p-6">
               <h3 class="font-semibold text-slate-800 mb-4">快速帮助</h3>
               <div class="space-y-3">
@@ -84,25 +90,44 @@
                   @click="handleQuickAction(action.action)"
                   class="w-full flex items-center p-3 bg-indigo-50 hover:bg-indigo-100 rounded-2xl transition-colors text-left"
                 >
-                  <component :is="action.icon" class="w-5 h-5 mr-3 text-slate-600" />
+                  <component
+                    :is="action.icon"
+                    class="w-5 h-5 mr-3 text-slate-600"
+                  />
                   <div>
-                    <div class="font-medium text-slate-800">{{ action.label }}</div>
-                    <div class="text-sm text-slate-600">{{ action.description }}</div>
+                    <div class="font-medium text-slate-800">
+                      {{ action.label }}
+                    </div>
+                    <div class="text-sm text-slate-600">
+                      {{ action.description }}
+                    </div>
                   </div>
                 </button>
               </div>
 
-               <!-- Learning Suggestions  -->
+              <!-- Learning Suggestions  -->
               <div class="mt-8">
                 <h3 class="font-semibold text-slate-800 mb-4">学习建议</h3>
                 <div class="space-y-3">
-                  <div class="p-3 bg-gradient-to-r from-emerald-100 to-blue-100 rounded-2xl">
-                    <div class="font-medium text-slate-800 mb-1">继续学习剪纸</div>
-                    <div class="text-sm text-slate-600">你的剪纸课程还有3个关卡未完成</div>
+                  <div
+                    class="p-3 bg-gradient-to-r from-emerald-100 to-blue-100 rounded-2xl"
+                  >
+                    <div class="font-medium text-slate-800 mb-1">
+                      继续学习剪纸
+                    </div>
+                    <div class="text-sm text-slate-600">
+                      你的剪纸课程还有3个关卡未完成
+                    </div>
                   </div>
-                  <div class="p-3 bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl">
-                    <div class="font-medium text-slate-800 mb-1">尝试AI创作</div>
-                    <div class="text-sm text-slate-600">用AI工具增强你的手绘作品</div>
+                  <div
+                    class="p-3 bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl"
+                  >
+                    <div class="font-medium text-slate-800 mb-1">
+                      尝试AI创作
+                    </div>
+                    <div class="text-sm text-slate-600">
+                      用AI工具增强你的手绘作品
+                    </div>
                   </div>
                 </div>
               </div>
@@ -112,16 +137,20 @@
       </div>
     </transition>
 
-     <!-- Regular AI Panel  -->
+    <!-- Regular AI Panel  -->
     <transition name="slide-up">
-      <div 
+      <div
         v-if="isOpen && !isImmersive"
         class="absolute bottom-20 right-0 w-80 h-96 border-0 glass-effect shadow-2xl rounded-3xl flex flex-col"
       >
-         <!-- Header  -->
-        <div class="flex items-center justify-between p-4 bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-t-3xl">
+        <!-- Header  -->
+        <div
+          class="flex items-center justify-between p-4 bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-t-3xl"
+        >
           <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+            <div
+              class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center"
+            >
               <BotIcon class="w-5 h-5" />
             </div>
             <div>
@@ -146,10 +175,12 @@
           </div>
         </div>
 
-         <!-- Content  -->
+        <!-- Content  -->
         <div class="flex-1 p-4 flex flex-col">
           <div class="mb-4">
-            <h5 class="font-semibold text-sm mb-3 text-slate-800">我可以帮你：</h5>
+            <h5 class="font-semibold text-sm mb-3 text-slate-800">
+              我可以帮你：
+            </h5>
             <div class="space-y-2">
               <button
                 v-for="item in quickHelp"
@@ -157,29 +188,32 @@
                 @click="handleQuickHelp(item.action)"
                 class="w-full flex items-center justify-start px-3 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors text-sm"
               >
-                <component :is="item.icon" class="w-4 h-4 mr-2 text-slate-600" />
+                <component
+                  :is="item.icon"
+                  class="w-4 h-4 mr-2 text-slate-600"
+                />
                 {{ item.label }}
               </button>
             </div>
           </div>
 
-           <!-- Chat Messages  -->
+          <!-- Chat Messages  -->
           <div class="flex-1 overflow-y-auto mb-4 space-y-3">
-            <div 
-              v-for="message in messages.slice(-3)" 
+            <div
+              v-for="message in messages.slice(-3)"
               :key="message.id"
               :class="[
                 'p-3 rounded-xl text-sm',
-                message.type === 'user' 
-                  ? 'bg-emerald-100 text-emerald-800 ml-4' 
-                  : 'bg-slate-100 text-slate-800 mr-4'
+                message.type === 'user'
+                  ? 'bg-emerald-100 text-emerald-800 ml-4'
+                  : 'bg-slate-100 text-slate-800 mr-4',
               ]"
             >
               {{ message.content }}
             </div>
           </div>
 
-           <!-- Chat Input  -->
+          <!-- Chat Input  -->
           <div class="flex space-x-2">
             <input
               v-model="inputMessage"
@@ -198,7 +232,7 @@
       </div>
     </transition>
 
-     <!-- Float Button  -->
+    <!-- Float Button  -->
     <!-- <button
       @click="togglePanel"
       class="w-16 h-16 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 relative overflow-hidden"
@@ -215,140 +249,139 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue'
-import { 
-  BotIcon, 
-  XIcon, 
-  SendIcon, 
+import { ref, reactive, onMounted, nextTick } from "vue";
+import {
+  BotIcon,
+  XIcon,
+  SendIcon,
   MaximizeIcon,
-  HelpCircleIcon, 
-  LightbulbIcon, 
+  HelpCircleIcon,
+  LightbulbIcon,
   TargetIcon,
   BookOpenIcon,
   PaletteIcon,
-  UsersIcon
-} from 'lucide-vue-next'
+  UsersIcon,
+} from "lucide-vue-next";
 
-const isOpen = ref(false)
-const isImmersive = ref(false)
-const inputMessage = ref('')
-const isGzhuAgentReady = ref(false)
+const isOpen = ref(false);
+const isImmersive = ref(false);
+const inputMessage = ref("");
+const isGzhuAgentReady = ref(false);
 const messages = reactive([
   {
     id: 1,
-    type: 'ai',
-    content: '你好！我是小艺老师，你的专属AI学习助手。有什么问题可以随时问我哦！'
-  }
-])
-
-
+    type: "ai",
+    content:
+      "你好！我是小艺老师，你的专属AI学习助手。有什么问题可以随时问我哦！",
+  },
+]);
 
 const quickHelp = [
-  { icon: HelpCircleIcon, label: '答疑解惑', action: 'help' },
-  { icon: LightbulbIcon, label: '学习建议', action: 'advice' },
-  { icon: TargetIcon, label: '制定计划', action: 'plan' }
-]
+  { icon: HelpCircleIcon, label: "答疑解惑", action: "help" },
+  { icon: LightbulbIcon, label: "学习建议", action: "advice" },
+  { icon: TargetIcon, label: "制定计划", action: "plan" },
+];
 
 const quickActions = [
-  { 
-    icon: BookOpenIcon, 
-    label: '学习指导', 
-    description: '获取个性化学习建议',
-    action: 'learning'
+  {
+    icon: BookOpenIcon,
+    label: "学习指导",
+    description: "获取个性化学习建议",
+    action: "learning",
   },
-  { 
-    icon: PaletteIcon, 
-    label: '创作帮助', 
-    description: '艺术创作技巧指导',
-    action: 'creation'
+  {
+    icon: PaletteIcon,
+    label: "创作帮助",
+    description: "艺术创作技巧指导",
+    action: "creation",
   },
-  { 
-    icon: UsersIcon, 
-    label: '社区互动', 
-    description: '如何更好地参与社区',
-    action: 'community'
-  }
-]
+  {
+    icon: UsersIcon,
+    label: "社区互动",
+    description: "如何更好地参与社区",
+    action: "community",
+  },
+];
 
 const togglePanel = () => {
-  isOpen.value = !isOpen.value
-}
+  isOpen.value = !isOpen.value;
+};
 
 const openImmersive = () => {
-  isImmersive.value = true
-  isOpen.value = false
-}
+  isImmersive.value = true;
+  isOpen.value = false;
+};
 
 const closeImmersive = () => {
-  isImmersive.value = false
-}
+  isImmersive.value = false;
+};
 
 const sendMessage = async () => {
-  if (!inputMessage.value || !inputMessage.value.trim()) return
-  
-  const userMessage = inputMessage.value
+  if (!inputMessage.value || !inputMessage.value.trim()) return;
+
+  const userMessage = inputMessage.value;
   messages.push({
     id: Date.now(),
-    type: 'user',
-    content: userMessage
-  })
-  
-  inputMessage.value = ''
-  
+    type: "user",
+    content: userMessage,
+  });
+
+  inputMessage.value = "";
+
   // 如果广州大学智能体已准备好，使用真实智能体
   if (isGzhuAgentReady.value && window.CxRobotSdkJs) {
     try {
       // 调用广州大学智能体API
-      const response = await sendToGzhuAgent(userMessage)
+      const response = await sendToGzhuAgent(userMessage);
       messages.push({
         id: Date.now() + 1,
-        type: 'ai',
-        content: response
-      })
+        type: "ai",
+        content: response,
+      });
     } catch (error) {
-      console.error('智能体调用失败:', error)
+      console.error("智能体调用失败:", error);
       // 降级到模拟响应
       messages.push({
         id: Date.now() + 1,
-        type: 'ai',
-        content: '抱歉，我现在遇到了一些技术问题，请稍后再试。'
-      })
+        type: "ai",
+        content: "抱歉，我现在遇到了一些技术问题，请稍后再试。",
+      });
     }
   } else {
     // 智能体未准备时的提示
     messages.push({
       id: Date.now() + 1,
-      type: 'ai',
-      content: '智能体正在初始化中，请稍后再试...'
-    })
+      type: "ai",
+      content: "智能体正在初始化中，请稍后再试...",
+    });
   }
-}
+};
 
 const handleQuickHelp = (action) => {
   // 使用智能体处理快速帮助
   const helpMessages = {
-    help: '请问有什么学习问题需要我帮助解答？',
-    advice: '我想获取一些学习建议',
-    plan: '请帮我制定一个学习计划'
-  }
-  
+    help: "请问有什么学习问题需要我帮助解答？",
+    advice: "我想获取一些学习建议",
+    plan: "请帮我制定一个学习计划",
+  };
+
   // 直接调用sendMessage处理
-  inputMessage.value = helpMessages[action]
-  sendMessage()
-}
+  inputMessage.value = helpMessages[action];
+  sendMessage();
+};
 
 const handleQuickAction = (action) => {
   // 使用智能体处理快速操作
   const actionMessages = {
-    learning: '我想获取学习指导建议',
-    creation: '请给我一些艺术创作方面的帮助',
-    community: '如何更好地参与社区互动？'
-  }
-  
+    learning: "我想获取学习指导建议",
+    creation: "请给我一些艺术创作方面的帮助",
+    community: "如何更好地参与社区互动？",
+  };
+
   // 直接调用sendMessage处理
-  inputMessage.value = actionMessages[action]
-  sendMessage()
-}
+  inputMessage.value = actionMessages[action];
+  sendMessage();
+};
 
 // 初始化广州大学智能体
 const initGzhuAgent = async () => {
@@ -357,19 +390,20 @@ const initGzhuAgent = async () => {
       // 初始化广州大学智能体SDK
       await window.CxRobotSdkJs.init(
         "https://myagent.gzhu.edu.cn/embedChat?unitId=250199&robotId=e072948ce98b47c7bfff0070c3dd257a&groupId=0",
-        "689ebf9ac99c2fdc9fea136d1648e507"
-      )
-      isGzhuAgentReady.value = true
-      console.log('广州大学智能体初始化成功')
-      
+        "689ebf9ac99c2fdc9fea136d1648e507",
+      );
+      isGzhuAgentReady.value = true;
+      console.log("广州大学智能体初始化成功");
+
       // 更新欢迎消息
-      messages[0].content = '你好！我是乡艺未来的助教老师，有什么问题欢迎来问我哦！'
+      messages[0].content =
+        "你好！我是乡艺未来的助教老师，有什么问题欢迎来问我哦！";
     }
   } catch (error) {
-    console.error('广州大学智能体初始化失败:', error)
-    isGzhuAgentReady.value = false
+    console.error("广州大学智能体初始化失败:", error);
+    isGzhuAgentReady.value = false;
   }
-}
+};
 
 // 发送消息到广州大学智能体
 const sendToGzhuAgent = async (message) => {
@@ -379,30 +413,28 @@ const sendToGzhuAgent = async (message) => {
         // 调用广州大学智能体SDK发送消息
         // 注意：这里需要根据实际SDK文档调整API调用方式
         window.CxRobotSdkJs.sendMessage(message)
-          .then(response => resolve(response))
-          .catch(error => reject(error))
+          .then((response) => resolve(response))
+          .catch((error) => reject(error));
       } else {
-        reject(new Error('智能体未准备就绪'))
+        reject(new Error("智能体未准备就绪"));
       }
     } catch (error) {
-      reject(error)
+      reject(error);
     }
-  })
-}
-
-
+  });
+};
 
 // Listen for immersive mode trigger from homepage
 onMounted(() => {
-  window.addEventListener('open-ai-immersive', () => {
-    openImmersive()
-  })
-  
+  window.addEventListener("open-ai-immersive", () => {
+    openImmersive();
+  });
+
   // 延迟初始化智能体，确保SDK已加载
   nextTick(() => {
     setTimeout(() => {
-      initGzhuAgent()
-    }, 1000)
-  })
-})
+      initGzhuAgent();
+    }, 1000);
+  });
+});
 </script>

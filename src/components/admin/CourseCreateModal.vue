@@ -1,17 +1,37 @@
 <template>
-  <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="$emit('close')"></div>
+  <div
+    class="fixed inset-0 z-50 overflow-y-auto"
+    aria-labelledby="modal-title"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div
+      class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+    >
+      <div
+        class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+        aria-hidden="true"
+        @click="$emit('close')"
+      ></div>
 
-      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      <span
+        class="hidden sm:inline-block sm:align-middle sm:h-screen"
+        aria-hidden="true"
+        >&#8203;</span
+      >
 
-      <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+      <div
+        class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
+      >
         <form @submit.prevent="handleSubmit">
           <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div class="sm:flex sm:items-start">
               <div class="w-full">
                 <div class="flex items-center justify-between mb-6">
-                  <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                  <h3
+                    class="text-lg leading-6 font-medium text-gray-900"
+                    id="modal-title"
+                  >
                     创建新课程
                   </h3>
                   <button
@@ -26,11 +46,17 @@
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <!-- 基本信息 -->
                   <div class="col-span-2">
-                    <h4 class="text-md font-medium text-gray-900 mb-4">基本信息</h4>
+                    <h4 class="text-md font-medium text-gray-900 mb-4">
+                      基本信息
+                    </h4>
                   </div>
 
                   <div class="col-span-2">
-                    <label for="title" class="block text-sm font-medium text-gray-700">课程标题 *</label>
+                    <label
+                      for="title"
+                      class="block text-sm font-medium text-gray-700"
+                      >课程标题 *</label
+                    >
                     <input
                       id="title"
                       v-model="form.title"
@@ -39,11 +65,17 @@
                       class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                       placeholder="请输入课程标题"
                     />
-                    <p v-if="errors.title" class="mt-1 text-sm text-red-600">{{ errors.title }}</p>
+                    <p v-if="errors.title" class="mt-1 text-sm text-red-600">
+                      {{ errors.title }}
+                    </p>
                   </div>
 
                   <div class="col-span-2">
-                    <label for="description" class="block text-sm font-medium text-gray-700">课程描述 *</label>
+                    <label
+                      for="description"
+                      class="block text-sm font-medium text-gray-700"
+                      >课程描述 *</label
+                    >
                     <textarea
                       id="description"
                       v-model="form.description"
@@ -52,11 +84,20 @@
                       class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                       placeholder="请输入课程描述"
                     ></textarea>
-                    <p v-if="errors.description" class="mt-1 text-sm text-red-600">{{ errors.description }}</p>
+                    <p
+                      v-if="errors.description"
+                      class="mt-1 text-sm text-red-600"
+                    >
+                      {{ errors.description }}
+                    </p>
                   </div>
 
                   <div>
-                    <label for="category" class="block text-sm font-medium text-gray-700">课程分类 *</label>
+                    <label
+                      for="category"
+                      class="block text-sm font-medium text-gray-700"
+                      >课程分类 *</label
+                    >
                     <select
                       id="category"
                       v-model="form.category"
@@ -75,11 +116,17 @@
                       <option value="calligraphy">书法</option>
                       <option value="other">其他</option>
                     </select>
-                    <p v-if="errors.category" class="mt-1 text-sm text-red-600">{{ errors.category }}</p>
+                    <p v-if="errors.category" class="mt-1 text-sm text-red-600">
+                      {{ errors.category }}
+                    </p>
                   </div>
 
                   <div>
-                    <label for="difficulty" class="block text-sm font-medium text-gray-700">难度等级 *</label>
+                    <label
+                      for="difficulty"
+                      class="block text-sm font-medium text-gray-700"
+                      >难度等级 *</label
+                    >
                     <select
                       id="difficulty"
                       v-model="form.difficulty"
@@ -91,11 +138,20 @@
                       <option value="intermediate">中级</option>
                       <option value="advanced">高级</option>
                     </select>
-                    <p v-if="errors.difficulty" class="mt-1 text-sm text-red-600">{{ errors.difficulty }}</p>
+                    <p
+                      v-if="errors.difficulty"
+                      class="mt-1 text-sm text-red-600"
+                    >
+                      {{ errors.difficulty }}
+                    </p>
                   </div>
 
                   <div>
-                    <label for="duration" class="block text-sm font-medium text-gray-700">课程时长（分钟）</label>
+                    <label
+                      for="duration"
+                      class="block text-sm font-medium text-gray-700"
+                      >课程时长（分钟）</label
+                    >
                     <input
                       id="duration"
                       v-model.number="form.duration"
@@ -107,7 +163,11 @@
                   </div>
 
                   <div>
-                    <label for="price" class="block text-sm font-medium text-gray-700">课程价格（元）</label>
+                    <label
+                      for="price"
+                      class="block text-sm font-medium text-gray-700"
+                      >课程价格（元）</label
+                    >
                     <input
                       id="price"
                       v-model.number="form.price"
@@ -117,12 +177,16 @@
                       class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                       placeholder="0.00"
                     />
-                    <p class="mt-1 text-sm text-gray-500">设置为0表示免费课程</p>
+                    <p class="mt-1 text-sm text-gray-500">
+                      设置为0表示免费课程
+                    </p>
                   </div>
 
                   <!-- 课程封面 -->
                   <div class="col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">课程封面</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                      >课程封面</label
+                    >
                     <div class="flex items-center space-x-4">
                       <div class="flex-shrink-0">
                         <img
@@ -147,24 +211,33 @@
                           <PhotoIcon class="-ml-1 mr-2 h-5 w-5" />
                           选择图片
                         </button>
-                        <p class="mt-1 text-sm text-gray-500">支持 JPG、PNG 格式，建议尺寸 16:9</p>
+                        <p class="mt-1 text-sm text-gray-500">
+                          支持 JPG、PNG 格式，建议尺寸 16:9
+                        </p>
                       </div>
                     </div>
                   </div>
 
                   <!-- 标签 -->
                   <div class="col-span-2">
-                    <label for="tags" class="block text-sm font-medium text-gray-700">课程标签</label>
+                    <label
+                      for="tags"
+                      class="block text-sm font-medium text-gray-700"
+                      >课程标签</label
+                    >
                     <div class="mt-1">
                       <input
                         v-model="tagInput"
                         type="text"
                         @keydown.enter.prevent="addTag"
-                        @keydown.comma.prevent="addTag"
+                        @keydown="handleTagKeydown"
                         class="focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                         placeholder="输入标签后按回车或逗号添加"
                       />
-                      <div v-if="form.tags.length > 0" class="flex flex-wrap gap-2 mt-2">
+                      <div
+                        v-if="form.tags.length > 0"
+                        class="flex flex-wrap gap-2 mt-2"
+                      >
                         <span
                           v-for="(tag, index) in form.tags"
                           :key="index"
@@ -185,12 +258,18 @@
 
                   <!-- 课程视频 -->
                   <div class="col-span-2">
-                    <h4 class="text-md font-medium text-gray-900 mb-4 mt-6">课程视频</h4>
+                    <h4 class="text-md font-medium text-gray-900 mb-4 mt-6">
+                      课程视频
+                    </h4>
                   </div>
 
                   <div class="col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">上传视频文件</label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                      >上传视频文件</label
+                    >
+                    <div
+                      class="border-2 border-dashed border-gray-300 rounded-lg p-6"
+                    >
                       <input
                         ref="videoInput"
                         type="file"
@@ -207,7 +286,9 @@
                         >
                           选择视频文件
                         </button>
-                        <p class="mt-2 text-sm text-gray-500">支持 MP4、AVI、MOV 格式</p>
+                        <p class="mt-2 text-sm text-gray-500">
+                          支持 MP4、AVI、MOV 格式
+                        </p>
                       </div>
                       <div v-if="form.videos.length > 0" class="mt-4 space-y-2">
                         <div
@@ -215,7 +296,9 @@
                           :key="index"
                           class="flex items-center justify-between p-3 bg-gray-50 rounded-md"
                         >
-                          <span class="text-sm text-gray-900">{{ video.name }}</span>
+                          <span class="text-sm text-gray-900">{{
+                            video.name
+                          }}</span>
                           <button
                             type="button"
                             @click="removeVideo(index)"
@@ -230,12 +313,18 @@
 
                   <!-- 课程资料 -->
                   <div class="col-span-2">
-                    <h4 class="text-md font-medium text-gray-900 mb-4 mt-6">课程资料</h4>
+                    <h4 class="text-md font-medium text-gray-900 mb-4 mt-6">
+                      课程资料
+                    </h4>
                   </div>
 
                   <div class="col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">上传资料文件</label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                      >上传资料文件</label
+                    >
+                    <div
+                      class="border-2 border-dashed border-gray-300 rounded-lg p-6"
+                    >
                       <input
                         ref="materialInput"
                         type="file"
@@ -251,15 +340,22 @@
                         >
                           选择资料文件
                         </button>
-                        <p class="mt-2 text-sm text-gray-500">支持 PDF、DOC、PPT 等格式</p>
+                        <p class="mt-2 text-sm text-gray-500">
+                          支持 PDF、DOC、PPT 等格式
+                        </p>
                       </div>
-                      <div v-if="form.materials.length > 0" class="mt-4 space-y-2">
+                      <div
+                        v-if="form.materials.length > 0"
+                        class="mt-4 space-y-2"
+                      >
                         <div
                           v-for="(material, index) in form.materials"
                           :key="index"
                           class="flex items-center justify-between p-3 bg-gray-50 rounded-md"
                         >
-                          <span class="text-sm text-gray-900">{{ material.name }}</span>
+                          <span class="text-sm text-gray-900">{{
+                            material.name
+                          }}</span>
                           <button
                             type="button"
                             @click="removeMaterial(index)"
@@ -274,7 +370,9 @@
 
                   <!-- 课程设置 -->
                   <div class="col-span-2">
-                    <h4 class="text-md font-medium text-gray-900 mb-4 mt-6">课程设置</h4>
+                    <h4 class="text-md font-medium text-gray-900 mb-4 mt-6">
+                      课程设置
+                    </h4>
                   </div>
 
                   <div class="col-span-2">
@@ -286,7 +384,10 @@
                           type="checkbox"
                           class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
                         />
-                        <label for="isFree" class="ml-2 block text-sm text-gray-900">
+                        <label
+                          for="isFree"
+                          class="ml-2 block text-sm text-gray-900"
+                        >
                           免费课程
                         </label>
                       </div>
@@ -297,7 +398,10 @@
                           type="checkbox"
                           class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
                         />
-                        <label for="allowComments" class="ml-2 block text-sm text-gray-900">
+                        <label
+                          for="allowComments"
+                          class="ml-2 block text-sm text-gray-900"
+                        >
                           允许评论
                         </label>
                       </div>
@@ -308,7 +412,10 @@
                           type="checkbox"
                           class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
                         />
-                        <label for="isPublished" class="ml-2 block text-sm text-gray-900">
+                        <label
+                          for="isPublished"
+                          class="ml-2 block text-sm text-gray-900"
+                        >
                           立即发布
                         </label>
                       </div>
@@ -325,11 +432,28 @@
               :disabled="loading"
               class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <svg v-if="loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                v-if="loading"
+                class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
-              {{ loading ? '创建中...' : '创建课程' }}
+              {{ loading ? "创建中..." : "创建课程" }}
             </button>
             <button
               type="button"
@@ -346,27 +470,27 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { courseAPI, uploadAPI } from '@/services/api'
-import { XMarkIcon, PhotoIcon } from '@heroicons/vue/24/outline'
+import { ref, reactive } from "vue";
+import { courseAPI, uploadAPI } from "@/services/api";
+import { XMarkIcon, PhotoIcon } from "@heroicons/vue/24/outline";
 
 // 定义事件
-const emit = defineEmits(['close', 'created'])
+const emit = defineEmits(["close", "created"]);
 
 // 响应式数据
-const loading = ref(false)
-const tagInput = ref('')
-const errors = ref({})
+const loading = ref(false);
+const tagInput = ref("");
+const errors = ref({});
 
 // 表单数据
 const form = reactive({
-  title: '',
-  description: '',
-  category: '',
-  difficulty: '',
+  title: "",
+  description: "",
+  category: "",
+  difficulty: "",
   duration: null,
   price: 0,
-  thumbnail: '',
+  thumbnail: "",
   tags: [],
   videos: [],
   materials: [],
@@ -375,173 +499,180 @@ const form = reactive({
   settings: {
     isFree: true,
     allowComments: true,
-    isPublished: false
-  }
-})
+    isPublished: false,
+  },
+});
 
 // 处理封面图片上传
 const handleThumbnailChange = async (event) => {
-  const file = event.target.files[0]
-  if (!file) return
+  const file = event.target.files[0];
+  if (!file) return;
 
   // 验证文件类型
-  if (!file.type.startsWith('image/')) {
-    alert('请选择图片文件')
-    return
+  if (!file.type.startsWith("image/")) {
+    alert("请选择图片文件");
+    return;
   }
 
   // 验证文件大小（5MB）
   if (file.size > 5 * 1024 * 1024) {
-    alert('图片大小不能超过5MB')
-    return
+    alert("图片大小不能超过5MB");
+    return;
   }
 
   try {
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('type', 'course-thumbnail')
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("type", "course-thumbnail");
 
-    const response = await uploadAPI.uploadFile(formData)
+    const response = await uploadAPI.uploadFile(formData);
     if (response.data.success) {
-      form.thumbnail = response.data.data.url
+      form.thumbnail = response.data.data.url;
     }
   } catch (error) {
-    console.error('上传封面失败:', error)
-    alert('上传封面失败，请重试')
+    console.error("上传封面失败:", error);
+    alert("上传封面失败，请重试");
   }
-}
+};
 
 // 添加标签
 const addTag = () => {
-  const tag = tagInput.value.trim().replace(/,/g, '')
+  const tag = tagInput.value.trim().replace(/,/g, "");
   if (tag && !form.tags.includes(tag) && form.tags.length < 10) {
-    form.tags.push(tag)
-    tagInput.value = ''
+    form.tags.push(tag);
+    tagInput.value = "";
   }
-}
+};
+
+const handleTagKeydown = (event) => {
+  if (event.key === ",") {
+    event.preventDefault();
+    addTag();
+  }
+};
 
 // 移除标签
 const removeTag = (index) => {
-  form.tags.splice(index, 1)
-}
+  form.tags.splice(index, 1);
+};
 
 // 处理视频文件上传
 const handleVideoChange = async (event) => {
-  const files = Array.from(event.target.files)
-  if (!files.length) return
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
 
   for (const file of files) {
     // 验证文件类型
-    if (!file.type.startsWith('video/')) {
-      alert(`${file.name} 不是有效的视频文件`)
-      continue
+    if (!file.type.startsWith("video/")) {
+      alert(`${file.name} 不是有效的视频文件`);
+      continue;
     }
 
     // 验证文件大小（100MB）
     if (file.size > 100 * 1024 * 1024) {
-      alert(`${file.name} 文件大小不能超过100MB`)
-      continue
+      alert(`${file.name} 文件大小不能超过100MB`);
+      continue;
     }
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('type', 'course-video')
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "course-video");
 
-      const response = await uploadAPI.uploadFile(formData)
+      const response = await uploadAPI.uploadFile(formData);
       if (response.data.success) {
         form.videos.push({
           name: file.name,
           url: response.data.data.url,
           size: file.size,
-          type: file.type
-        })
+          type: file.type,
+        });
       }
     } catch (error) {
-      console.error(`上传视频 ${file.name} 失败:`, error)
-      alert(`上传视频 ${file.name} 失败，请重试`)
+      console.error(`上传视频 ${file.name} 失败:`, error);
+      alert(`上传视频 ${file.name} 失败，请重试`);
     }
   }
-}
+};
 
 // 处理资料文件上传
 const handleMaterialChange = async (event) => {
-  const files = Array.from(event.target.files)
-  if (!files.length) return
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
 
   for (const file of files) {
     // 验证文件大小（10MB）
     if (file.size > 10 * 1024 * 1024) {
-      alert(`${file.name} 文件大小不能超过10MB`)
-      continue
+      alert(`${file.name} 文件大小不能超过10MB`);
+      continue;
     }
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('type', 'course-material')
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "course-material");
 
-      const response = await uploadAPI.uploadFile(formData)
+      const response = await uploadAPI.uploadFile(formData);
       if (response.data.success) {
         form.materials.push({
           name: file.name,
           url: response.data.data.url,
           size: file.size,
-          type: file.type
-        })
+          type: file.type,
+        });
       }
     } catch (error) {
-      console.error(`上传资料 ${file.name} 失败:`, error)
-      alert(`上传资料 ${file.name} 失败，请重试`)
+      console.error(`上传资料 ${file.name} 失败:`, error);
+      alert(`上传资料 ${file.name} 失败，请重试`);
     }
   }
-}
+};
 
 // 移除视频
 const removeVideo = (index) => {
-  form.videos.splice(index, 1)
-}
+  form.videos.splice(index, 1);
+};
 
 // 移除资料
 const removeMaterial = (index) => {
-  form.materials.splice(index, 1)
-}
+  form.materials.splice(index, 1);
+};
 
 // 表单验证
 const validateForm = () => {
-  errors.value = {}
+  errors.value = {};
 
   if (!form.title.trim()) {
-    errors.value.title = '请输入课程标题'
+    errors.value.title = "请输入课程标题";
   } else if (form.title.length > 100) {
-    errors.value.title = '课程标题不能超过100个字符'
+    errors.value.title = "课程标题不能超过100个字符";
   }
 
   if (!form.description.trim()) {
-    errors.value.description = '请输入课程描述'
+    errors.value.description = "请输入课程描述";
   } else if (form.description.length > 1000) {
-    errors.value.description = '课程描述不能超过1000个字符'
+    errors.value.description = "课程描述不能超过1000个字符";
   }
 
   if (!form.category) {
-    errors.value.category = '请选择课程分类'
+    errors.value.category = "请选择课程分类";
   }
 
   if (!form.difficulty) {
-    errors.value.difficulty = '请选择难度等级'
+    errors.value.difficulty = "请选择难度等级";
   }
 
-  return Object.keys(errors.value).length === 0
-}
+  return Object.keys(errors.value).length === 0;
+};
 
 // 提交表单
 const handleSubmit = async () => {
   if (!validateForm()) {
-    return
+    return;
   }
 
   try {
-    loading.value = true
+    loading.value = true;
 
     // 准备提交数据
     const courseData = {
@@ -560,23 +691,23 @@ const handleSubmit = async () => {
         isFree: form.settings.isFree,
         allowComments: form.settings.allowComments,
         isPublished: form.settings.isPublished,
-        price: form.settings.isFree ? 0 : (form.price || 0)
-      }
-    }
+        price: form.settings.isFree ? 0 : form.price || 0,
+      },
+    };
 
-    const response = await courseAPI.createCourse(courseData)
+    const response = await courseAPI.createCourse(courseData);
     if (response.data.success) {
-      emit('created', response.data.data)
+      emit("created", response.data.data);
     }
   } catch (error) {
-    console.error('创建课程失败:', error)
+    console.error("创建课程失败:", error);
     if (error.response?.data?.message) {
-      alert(error.response.data.message)
+      alert(error.response.data.message);
     } else {
-      alert('创建课程失败，请重试')
+      alert("创建课程失败，请重试");
     }
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 </script>

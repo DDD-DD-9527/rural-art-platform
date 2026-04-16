@@ -12,14 +12,14 @@
 - **集群标识**: cluster0.e1owxn1.mongodb.net
 - **应用名称**: Cluster0
 
-### 连接字符串
+### 连接字符串（示例）
 ```
-mongodb+srv://rural-art-cluster:akw9N0hQmpu0fquY@cluster0.e1owxn1.mongodb.net/rural-art-platform?retryWrites=true&w=majority&appName=Cluster0
+mongodb+srv://<username>:<password>@cluster0.e1owxn1.mongodb.net/rural-art-platform?retryWrites=true&w=majority&appName=Cluster0
 ```
 
 ### 连接参数说明
-- **用户名**: rural-art-cluster
-- **密码**: akw9N0hQmpu0fquY
+- **用户名**: <username>
+- **密码**: <password>
 - **主机**: cluster0.e1owxn1.mongodb.net
 - **数据库**: rural-art-platform
 - **重试写入**: true
@@ -44,7 +44,7 @@ const CONNECTION_OPTIONS = {
 ### 环境变量配置
 ```env
 # 数据库配置
-MONGODB_URI=mongodb+srv://rural-art-cluster:akw9N0hQmpu0fquY@cluster0.e1owxn1.mongodb.net/rural-art-platform?retryWrites=true&w=majority&appName=Cluster0
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.e1owxn1.mongodb.net/rural-art-platform?retryWrites=true&w=majority&appName=Cluster0
 ```
 
 ## 🗄️ 数据库结构
@@ -84,13 +84,13 @@ MONGODB_URI=mongodb+srv://rural-art-cluster:akw9N0hQmpu0fquY@cluster0.e1owxn1.mo
 ### 开发环境
 ```env
 NODE_ENV=development
-MONGODB_URI=mongodb+srv://rural-art-cluster:akw9N0hQmpu0fquY@cluster0.e1owxn1.mongodb.net/rural-art-platform?retryWrites=true&w=majority&appName=Cluster0
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.e1owxn1.mongodb.net/rural-art-platform?retryWrites=true&w=majority&appName=Cluster0
 ```
 
 ### 生产环境
 ```env
 NODE_ENV=production
-MONGODB_URI=mongodb+srv://rural-art-cluster:akw9N0hQmpu0fquY@cluster0.e1owxn1.mongodb.net/rural-art-platform?retryWrites=true&w=majority&appName=Cluster0
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.e1owxn1.mongodb.net/rural-art-platform?retryWrites=true&w=majority&appName=Cluster0
 ```
 
 ## 📈 监控和维护
@@ -129,10 +129,10 @@ MONGODB_URI=mongodb+srv://rural-art-cluster:akw9N0hQmpu0fquY@cluster0.e1owxn1.mo
 ### 测试连接
 ```bash
 # 使用 MongoDB Compass 测试连接
-# 连接字符串: mongodb+srv://rural-art-cluster:akw9N0hQmpu0fquY@cluster0.e1owxn1.mongodb.net/rural-art-platform
+# 连接字符串: mongodb+srv://<username>:<password>@cluster0.e1owxn1.mongodb.net/rural-art-platform
 
 # 使用 Node.js 测试连接
-node -e "const mongoose = require('mongoose'); mongoose.connect('mongodb+srv://rural-art-cluster:akw9N0hQmpu0fquY@cluster0.e1owxn1.mongodb.net/rural-art-platform').then(() => console.log('连接成功')).catch(err => console.error('连接失败:', err));"
+node -e "const mongoose = require('mongoose'); mongoose.connect(process.env.MONGODB_URI).then(() => console.log('连接成功')).catch(err => console.error('连接失败:', err));"
 ```
 
 ## 📞 技术支持

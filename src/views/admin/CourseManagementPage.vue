@@ -30,8 +30,12 @@
               </div>
               <div class="ml-5 w-0 flex-1">
                 <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">总课程数</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ stats.totalCourses }}</dd>
+                  <dt class="text-sm font-medium text-gray-500 truncate">
+                    总课程数
+                  </dt>
+                  <dd class="text-lg font-medium text-gray-900">
+                    {{ stats.totalCourses }}
+                  </dd>
                 </dl>
               </div>
             </div>
@@ -46,8 +50,12 @@
               </div>
               <div class="ml-5 w-0 flex-1">
                 <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">已发布</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ stats.publishedCourses }}</dd>
+                  <dt class="text-sm font-medium text-gray-500 truncate">
+                    已发布
+                  </dt>
+                  <dd class="text-lg font-medium text-gray-900">
+                    {{ stats.publishedCourses }}
+                  </dd>
                 </dl>
               </div>
             </div>
@@ -62,8 +70,12 @@
               </div>
               <div class="ml-5 w-0 flex-1">
                 <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">草稿</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ stats.draftCourses }}</dd>
+                  <dt class="text-sm font-medium text-gray-500 truncate">
+                    草稿
+                  </dt>
+                  <dd class="text-lg font-medium text-gray-900">
+                    {{ stats.draftCourses }}
+                  </dd>
                 </dl>
               </div>
             </div>
@@ -78,8 +90,12 @@
               </div>
               <div class="ml-5 w-0 flex-1">
                 <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">总报名数</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ stats.totalEnrollments }}</dd>
+                  <dt class="text-sm font-medium text-gray-500 truncate">
+                    总报名数
+                  </dt>
+                  <dd class="text-lg font-medium text-gray-900">
+                    {{ stats.totalEnrollments }}
+                  </dd>
                 </dl>
               </div>
             </div>
@@ -90,10 +106,14 @@
       <!-- 筛选和搜索 -->
       <div class="bg-white shadow rounded-lg mb-6">
         <div class="px-6 py-4 border-b border-gray-200">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+          <div
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0"
+          >
             <div class="flex-1 min-w-0">
               <div class="relative rounded-md shadow-sm">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div
+                  class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                >
                   <MagnifyingGlassIcon class="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -140,15 +160,33 @@
       <!-- 课程列表 -->
       <div class="bg-white shadow overflow-hidden sm:rounded-md">
         <div v-if="loading" class="p-6 text-center">
-          <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-gray-500 bg-white">
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <div
+            class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-gray-500 bg-white"
+          >
+            <svg
+              class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
             加载中...
           </div>
         </div>
-        
+
         <ul v-else-if="courses.length > 0" class="divide-y divide-gray-200">
           <li v-for="course in courses" :key="course._id" class="px-6 py-4">
             <div class="flex items-center justify-between">
@@ -162,23 +200,37 @@
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center space-x-2">
-                    <h3 class="text-lg font-medium text-gray-900 truncate">{{ course.title }}</h3>
+                    <h3 class="text-lg font-medium text-gray-900 truncate">
+                      {{ course.title }}
+                    </h3>
                     <span
                       :class="[
                         'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                         course.settings?.isPublished
                           ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
+                          : 'bg-yellow-100 text-yellow-800',
                       ]"
                     >
-                      {{ course.settings?.isPublished ? '已发布' : '草稿' }}
+                      {{ course.settings?.isPublished ? "已发布" : "草稿" }}
                     </span>
                   </div>
-                  <p class="text-sm text-gray-500 mt-1">{{ course.description }}</p>
-                  <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                    <span>创作者: {{ course.creator?.profile?.nickname || course.creator?.username }}</span>
+                  <p class="text-sm text-gray-500 mt-1">
+                    {{ course.description }}
+                  </p>
+                  <div
+                    class="flex items-center space-x-4 mt-2 text-sm text-gray-500"
+                  >
+                    <span
+                      >创作者:
+                      {{
+                        course.creator?.profile?.nickname ||
+                        course.creator?.username
+                      }}</span
+                    >
                     <span>分类: {{ getCategoryName(course.category) }}</span>
-                    <span>难度: {{ getDifficultyName(course.difficulty) }}</span>
+                    <span
+                      >难度: {{ getDifficultyName(course.difficulty) }}</span
+                    >
                     <span>报名: {{ course.stats?.enrolledCount || 0 }}人</span>
                     <span>创建: {{ formatDate(course.createdAt) }}</span>
                   </div>
@@ -226,7 +278,7 @@
             </div>
           </li>
         </ul>
-        
+
         <div v-else class="p-6 text-center text-gray-500">
           <BookOpenIcon class="mx-auto h-12 w-12 text-gray-400" />
           <h3 class="mt-2 text-sm font-medium text-gray-900">暂无课程</h3>
@@ -235,7 +287,10 @@
       </div>
 
       <!-- 分页 -->
-      <div v-if="pagination.pages > 1" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow">
+      <div
+        v-if="pagination.pages > 1"
+        class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6 rounded-lg shadow"
+      >
         <div class="flex-1 flex justify-between sm:hidden">
           <button
             @click="changePage(pagination.current - 1)"
@@ -252,16 +307,31 @@
             下一页
           </button>
         </div>
-        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div
+          class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between"
+        >
           <div>
             <p class="text-sm text-gray-700">
-              显示第 <span class="font-medium">{{ (pagination.current - 1) * pagination.pageSize + 1 }}</span> 到
-              <span class="font-medium">{{ Math.min(pagination.current * pagination.pageSize, pagination.total) }}</span> 条，
-              共 <span class="font-medium">{{ pagination.total }}</span> 条记录
+              显示第
+              <span class="font-medium">{{
+                (pagination.current - 1) * pagination.pageSize + 1
+              }}</span>
+              到
+              <span class="font-medium">{{
+                Math.min(
+                  pagination.current * pagination.pageSize,
+                  pagination.total,
+                )
+              }}</span>
+              条， 共
+              <span class="font-medium">{{ pagination.total }}</span> 条记录
             </p>
           </div>
           <div>
-            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            <nav
+              class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+              aria-label="Pagination"
+            >
               <button
                 @click="changePage(pagination.current - 1)"
                 :disabled="pagination.current <= 1"
@@ -277,7 +347,7 @@
                   'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
                   page === pagination.current
                     ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50',
                 ]"
               >
                 {{ page }}
@@ -313,10 +383,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { courseAPI } from '@/services/api'
-import { debounce } from 'lodash-es'
+import { ref, reactive, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
+import { courseAPI } from "@/services/api";
+import { debounce } from "lodash-es";
 import {
   PlusIcon,
   BookOpenIcon,
@@ -330,254 +400,267 @@ import {
   CheckIcon,
   TrashIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
-} from '@heroicons/vue/24/outline'
-import CourseCreateModal from '@/components/admin/CourseCreateModal.vue'
-import CourseEditModal from '@/components/admin/CourseEditModal.vue'
+  ChevronRightIcon,
+} from "@heroicons/vue/24/outline";
+import CourseCreateModal from "@/components/admin/CourseCreateModal.vue";
+import CourseEditModal from "@/components/admin/CourseEditModal.vue";
 
-const router = useRouter()
+const router = useRouter();
 
 // 响应式数据
-const loading = ref(false)
-const courses = ref([])
-const searchQuery = ref('')
-const showCreateModal = ref(false)
-const showEditModal = ref(false)
-const selectedCourse = ref(null)
+const loading = ref(false);
+const courses = ref([]);
+const searchQuery = ref("");
+const showCreateModal = ref(false);
+const showEditModal = ref(false);
+const selectedCourse = ref(null);
 
 // 统计数据
 const stats = reactive({
   totalCourses: 0,
   publishedCourses: 0,
   draftCourses: 0,
-  totalEnrollments: 0
-})
+  totalEnrollments: 0,
+});
 
 // 筛选条件
 const filters = reactive({
-  category: '',
-  status: ''
-})
+  category: "",
+  status: "",
+});
 
 // 分页数据
 const pagination = reactive({
   current: 1,
   pageSize: 20,
   total: 0,
-  pages: 0
-})
+  pages: 0,
+});
 
 // 防抖搜索
 const debouncedSearch = debounce(() => {
-  pagination.current = 1
-  loadCourses()
-}, 500)
+  pagination.current = 1;
+  loadCourses();
+}, 500);
 
 // 加载课程列表
 const loadCourses = async () => {
   try {
-    loading.value = true
+    loading.value = true;
     const params = {
       page: pagination.current,
       limit: pagination.pageSize,
       search: searchQuery.value,
       category: filters.category,
-      isPublished: filters.status === 'published' ? true : filters.status === 'draft' ? false : undefined,
-      sortBy: 'createdAt',
-      sortOrder: 'desc'
-    }
+      isPublished:
+        filters.status === "published"
+          ? true
+          : filters.status === "draft"
+            ? false
+            : undefined,
+      sortBy: "createdAt",
+      sortOrder: "desc",
+    };
 
-    const response = await courseAPI.getCourses(params)
+    const response = await courseAPI.getCourses(params);
     if (response.data.success) {
-      courses.value = response.data.data.courses
-      Object.assign(pagination, response.data.data.pagination)
+      courses.value = response.data.data.courses;
+      Object.assign(pagination, response.data.data.pagination);
     }
   } catch (error) {
-    console.error('加载课程列表失败:', error)
+    console.error("加载课程列表失败:", error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 加载统计数据
 const loadStats = async () => {
   try {
     // 获取所有课程统计
-    const allCoursesResponse = await courseAPI.getCourses({ limit: 1 })
+    const allCoursesResponse = await courseAPI.getCourses({ limit: 1 });
     if (allCoursesResponse.data.success) {
-      stats.totalCourses = allCoursesResponse.data.data.pagination.total
+      stats.totalCourses = allCoursesResponse.data.data.pagination.total;
     }
 
     // 获取已发布课程统计
-    const publishedResponse = await courseAPI.getCourses({ isPublished: true, limit: 1 })
+    const publishedResponse = await courseAPI.getCourses({
+      isPublished: true,
+      limit: 1,
+    });
     if (publishedResponse.data.success) {
-      stats.publishedCourses = publishedResponse.data.data.pagination.total
+      stats.publishedCourses = publishedResponse.data.data.pagination.total;
     }
 
     // 获取草稿课程统计
-    const draftResponse = await courseAPI.getCourses({ isPublished: false, limit: 1 })
+    const draftResponse = await courseAPI.getCourses({
+      isPublished: false,
+      limit: 1,
+    });
     if (draftResponse.data.success) {
-      stats.draftCourses = draftResponse.data.data.pagination.total
+      stats.draftCourses = draftResponse.data.data.pagination.total;
     }
 
     // 计算总报名数
     stats.totalEnrollments = courses.value.reduce((total, course) => {
-      return total + (course.stats?.enrolledCount || 0)
-    }, 0)
+      return total + (course.stats?.enrolledCount || 0);
+    }, 0);
   } catch (error) {
-    console.error('加载统计数据失败:', error)
+    console.error("加载统计数据失败:", error);
   }
-}
+};
 
 // 查看课程
 const viewCourse = (course) => {
-  router.push(`/course/${course._id}`)
-}
+  router.push(`/course/${course._id}`);
+};
 
 // 编辑课程
 const editCourse = (course) => {
-  selectedCourse.value = course
-  showEditModal.value = true
-}
+  selectedCourse.value = course;
+  showEditModal.value = true;
+};
 
 // 发布课程
 const publishCourse = async (course) => {
   try {
-    const response = await courseAPI.publishCourse(course._id)
+    const response = await courseAPI.publishCourse(course._id);
     if (response.data.success) {
-      course.settings.isPublished = true
-      loadStats()
+      course.settings.isPublished = true;
+      loadStats();
     }
   } catch (error) {
-    console.error('发布课程失败:', error)
+    console.error("发布课程失败:", error);
   }
-}
+};
 
 // 下架课程
 const unpublishCourse = async (course) => {
   try {
-    const response = await courseAPI.unpublishCourse(course._id)
+    const response = await courseAPI.unpublishCourse(course._id);
     if (response.data.success) {
-      course.settings.isPublished = false
-      loadStats()
+      course.settings.isPublished = false;
+      loadStats();
     }
   } catch (error) {
-    console.error('下架课程失败:', error)
+    console.error("下架课程失败:", error);
   }
-}
+};
 
 // 删除课程
 const deleteCourse = async (course) => {
   if (!confirm(`确定要删除课程「${course.title}」吗？此操作不可恢复。`)) {
-    return
+    return;
   }
 
   try {
-    const response = await courseAPI.deleteCourse(course._id)
+    const response = await courseAPI.deleteCourse(course._id);
     if (response.data.success) {
-      await loadCourses()
-      await loadStats()
+      await loadCourses();
+      await loadStats();
     }
   } catch (error) {
-    console.error('删除课程失败:', error)
+    console.error("删除课程失败:", error);
   }
-}
+};
 
 // 切换页码
 const changePage = (page) => {
   if (page >= 1 && page <= pagination.pages) {
-    pagination.current = page
-    loadCourses()
+    pagination.current = page;
+    loadCourses();
   }
-}
+};
 
 // 获取页码数组
 const getPageNumbers = () => {
-  const pages = []
-  const total = pagination.pages
-  const current = pagination.current
-  
+  const pages = [];
+  const total = pagination.pages;
+  const current = pagination.current;
+
   if (total <= 7) {
     for (let i = 1; i <= total; i++) {
-      pages.push(i)
+      pages.push(i);
     }
   } else {
     if (current <= 4) {
       for (let i = 1; i <= 5; i++) {
-        pages.push(i)
+        pages.push(i);
       }
-      pages.push('...')
-      pages.push(total)
+      pages.push("...");
+      pages.push(total);
     } else if (current >= total - 3) {
-      pages.push(1)
-      pages.push('...')
+      pages.push(1);
+      pages.push("...");
       for (let i = total - 4; i <= total; i++) {
-        pages.push(i)
+        pages.push(i);
       }
     } else {
-      pages.push(1)
-      pages.push('...')
+      pages.push(1);
+      pages.push("...");
       for (let i = current - 1; i <= current + 1; i++) {
-        pages.push(i)
+        pages.push(i);
       }
-      pages.push('...')
-      pages.push(total)
+      pages.push("...");
+      pages.push(total);
     }
   }
-  
-  return pages.filter(page => page !== '...' || pages.indexOf(page) === pages.lastIndexOf(page))
-}
+
+  return pages.filter(
+    (page) => page !== "..." || pages.indexOf(page) === pages.lastIndexOf(page),
+  );
+};
 
 // 处理课程创建成功
 const handleCourseCreated = () => {
-  showCreateModal.value = false
-  loadCourses()
-  loadStats()
-}
+  showCreateModal.value = false;
+  loadCourses();
+  loadStats();
+};
 
 // 处理课程更新成功
 const handleCourseUpdated = () => {
-  showEditModal.value = false
-  selectedCourse.value = null
-  loadCourses()
-  loadStats()
-}
+  showEditModal.value = false;
+  selectedCourse.value = null;
+  loadCourses();
+  loadStats();
+};
 
 // 获取分类名称
 const getCategoryName = (category) => {
   const categoryMap = {
-    'traditional-crafts': '传统工艺',
-    'painting': '绘画艺术',
-    'sculpture': '雕塑艺术',
-    'textile': '纺织艺术',
-    'pottery': '陶艺',
-    'woodwork': '木工艺',
-    'paper-art': '纸艺',
-    'folk-art': '民间艺术',
-    'calligraphy': '书法',
-    'other': '其他'
-  }
-  return categoryMap[category] || category
-}
+    "traditional-crafts": "传统工艺",
+    painting: "绘画艺术",
+    sculpture: "雕塑艺术",
+    textile: "纺织艺术",
+    pottery: "陶艺",
+    woodwork: "木工艺",
+    "paper-art": "纸艺",
+    "folk-art": "民间艺术",
+    calligraphy: "书法",
+    other: "其他",
+  };
+  return categoryMap[category] || category;
+};
 
 // 获取难度名称
 const getDifficultyName = (difficulty) => {
   const difficultyMap = {
-    'beginner': '初级',
-    'intermediate': '中级',
-    'advanced': '高级'
-  }
-  return difficultyMap[difficulty] || difficulty
-}
+    beginner: "初级",
+    intermediate: "中级",
+    advanced: "高级",
+  };
+  return difficultyMap[difficulty] || difficulty;
+};
 
 // 格式化日期
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('zh-CN')
-}
+  return new Date(dateString).toLocaleDateString("zh-CN");
+};
 
 // 组件挂载时加载数据
 onMounted(() => {
-  loadCourses()
-  loadStats()
-})
+  loadCourses();
+  loadStats();
+});
 </script>

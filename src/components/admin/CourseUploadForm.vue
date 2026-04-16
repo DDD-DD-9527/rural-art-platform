@@ -12,19 +12,19 @@
         <BookOpenIcon class="w-5 h-5" />
         基本信息
       </h3>
-      
+
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label">课程标题 *</label>
-          <input 
+          <input
             v-model="courseData.title"
-            type="text" 
+            type="text"
             class="form-input"
             placeholder="请输入课程标题"
             required
           />
         </div>
-        
+
         <div class="form-group">
           <label class="form-label">课程分类 *</label>
           <select v-model="courseData.category" class="form-select" required>
@@ -41,7 +41,7 @@
             <option value="other">其他</option>
           </select>
         </div>
-        
+
         <div class="form-group">
           <label class="form-label">难度等级 *</label>
           <select v-model="courseData.level" class="form-select" required>
@@ -51,22 +51,22 @@
             <option value="advanced">高级</option>
           </select>
         </div>
-        
+
         <div class="form-group">
           <label class="form-label">课程时长（分钟）</label>
-          <input 
+          <input
             v-model.number="courseData.duration"
-            type="number" 
+            type="number"
             class="form-input"
             placeholder="预计学习时长"
             min="1"
           />
         </div>
       </div>
-      
+
       <div class="form-group">
         <label class="form-label">课程描述 *</label>
-        <textarea 
+        <textarea
           v-model="courseData.description"
           class="form-textarea"
           rows="4"
@@ -82,7 +82,7 @@
         <ImageIcon class="w-5 h-5" />
         课程封面
       </h3>
-      
+
       <div class="upload-area" @click="triggerThumbnailUpload">
         <div v-if="!courseData.thumbnail" class="upload-placeholder">
           <UploadIcon class="w-12 h-12 text-gray-400" />
@@ -90,7 +90,11 @@
           <p class="upload-hint">支持 JPG、PNG 格式，建议尺寸 800x600</p>
         </div>
         <div v-else class="uploaded-thumbnail">
-          <img :src="courseData.thumbnail.url" :alt="courseData.title" class="thumbnail-preview" />
+          <img
+            :src="courseData.thumbnail.url"
+            :alt="courseData.title"
+            class="thumbnail-preview"
+          />
           <div class="thumbnail-overlay">
             <button @click.stop="removeThumbnail" class="remove-btn">
               <XIcon class="w-4 h-4" />
@@ -98,10 +102,10 @@
           </div>
         </div>
       </div>
-      
-      <input 
+
+      <input
         ref="thumbnailInput"
-        type="file" 
+        type="file"
         accept="image/*"
         @change="handleThumbnailUpload"
         class="hidden"
@@ -114,18 +118,24 @@
         <PlayIcon class="w-5 h-5" />
         课程视频
       </h3>
-      
+
       <div class="video-upload-area">
         <div class="upload-header">
           <button @click="triggerVideoUpload" class="upload-btn">
             <PlusIcon class="w-4 h-4" />
             添加视频
           </button>
-          <p class="upload-info">支持 MP4、AVI、MOV 格式，单个文件不超过 100MB</p>
+          <p class="upload-info">
+            支持 MP4、AVI、MOV 格式，单个文件不超过 100MB
+          </p>
         </div>
-        
+
         <div v-if="courseData.videos.length > 0" class="video-list">
-          <div v-for="(video, index) in courseData.videos" :key="index" class="video-item">
+          <div
+            v-for="(video, index) in courseData.videos"
+            :key="index"
+            class="video-item"
+          >
             <div class="video-info">
               <PlayIcon class="w-5 h-5 text-blue-500" />
               <div class="video-details">
@@ -139,10 +149,10 @@
           </div>
         </div>
       </div>
-      
-      <input 
+
+      <input
         ref="videoInput"
-        type="file" 
+        type="file"
         accept="video/*"
         multiple
         @change="handleVideoUpload"
@@ -156,7 +166,7 @@
         <FileTextIcon class="w-5 h-5" />
         课程材料
       </h3>
-      
+
       <div class="materials-upload-area">
         <div class="upload-header">
           <button @click="triggerMaterialUpload" class="upload-btn">
@@ -165,9 +175,13 @@
           </button>
           <p class="upload-info">支持 PDF、DOC、DOCX 格式的教学材料</p>
         </div>
-        
+
         <div v-if="courseData.materials.length > 0" class="materials-list">
-          <div v-for="(material, index) in courseData.materials" :key="index" class="material-item">
+          <div
+            v-for="(material, index) in courseData.materials"
+            :key="index"
+            class="material-item"
+          >
             <div class="material-info">
               <FileTextIcon class="w-5 h-5 text-green-500" />
               <div class="material-details">
@@ -181,10 +195,10 @@
           </div>
         </div>
       </div>
-      
-      <input 
+
+      <input
         ref="materialInput"
-        type="file" 
+        type="file"
         accept=".pdf,.doc,.docx"
         multiple
         @change="handleMaterialUpload"
@@ -198,7 +212,7 @@
         <BookOpenIcon class="w-5 h-5" />
         学习目标
       </h3>
-      
+
       <div class="objectives-area">
         <div class="objectives-header">
           <button @click="addObjective" type="button" class="upload-btn">
@@ -207,17 +221,28 @@
           </button>
           <p class="upload-info">描述学员完成课程后将掌握的技能或知识</p>
         </div>
-        
-        <div v-if="courseData.learningObjectives.length > 0" class="objectives-list">
-          <div v-for="(objective, index) in courseData.learningObjectives" :key="index" class="objective-item">
-            <textarea 
+
+        <div
+          v-if="courseData.learningObjectives.length > 0"
+          class="objectives-list"
+        >
+          <div
+            v-for="(objective, index) in courseData.learningObjectives"
+            :key="index"
+            class="objective-item"
+          >
+            <textarea
               v-model="courseData.learningObjectives[index]"
               class="objective-input"
               placeholder="输入学习目标"
               rows="2"
               maxlength="200"
             ></textarea>
-            <button @click="removeObjective(index)" type="button" class="remove-objective-btn">
+            <button
+              @click="removeObjective(index)"
+              type="button"
+              class="remove-objective-btn"
+            >
               <TrashIcon class="w-4 h-4" />
             </button>
           </div>
@@ -231,22 +256,31 @@
         <FileTextIcon class="w-5 h-5" />
         课程要求
       </h3>
-      
+
       <div class="form-group">
         <label class="form-label">前置技能或课程</label>
         <div class="prerequisites-input">
           <div class="prerequisites-list">
-            <span v-for="(prerequisite, index) in courseData.requirements.prerequisites" :key="index" class="tag">
+            <span
+              v-for="(prerequisite, index) in courseData.requirements
+                .prerequisites"
+              :key="index"
+              class="tag"
+            >
               {{ prerequisite }}
-              <button @click="removePrerequisite(index)" type="button" class="tag-remove">
+              <button
+                @click="removePrerequisite(index)"
+                type="button"
+                class="tag-remove"
+              >
                 <XIcon class="w-3 h-3" />
               </button>
             </span>
           </div>
-          <input 
+          <input
             v-model="newPrerequisite"
             @keyup.enter="addPrerequisite"
-            type="text" 
+            type="text"
             class="tag-input"
             placeholder="输入前置要求后按回车"
           />
@@ -260,29 +294,33 @@
         <SettingsIcon class="w-5 h-5" />
         课程设置
       </h3>
-      
+
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label">课程标签</label>
           <div class="tags-input">
             <div class="tags-list">
-              <span v-for="(tag, index) in courseData.tags" :key="index" class="tag">
+              <span
+                v-for="(tag, index) in courseData.tags"
+                :key="index"
+                class="tag"
+              >
                 {{ tag }}
                 <button @click="removeTag(index)" class="tag-remove">
                   <XIcon class="w-3 h-3" />
                 </button>
               </span>
             </div>
-            <input 
+            <input
               v-model="newTag"
               @keyup.enter="addTag"
-              type="text" 
+              type="text"
               class="tag-input"
               placeholder="输入标签后按回车"
             />
           </div>
         </div>
-        
+
         <div class="form-group">
           <label class="form-label">课程状态</label>
           <select v-model="courseData.status" class="form-select">
@@ -292,14 +330,10 @@
           </select>
         </div>
       </div>
-      
+
       <div class="form-group">
         <label class="checkbox-label">
-          <input 
-            v-model="courseData.isFree"
-            type="checkbox" 
-            class="checkbox"
-          />
+          <input v-model="courseData.isFree" type="checkbox" class="checkbox" />
           <span class="checkbox-text">免费课程</span>
         </label>
       </div>
@@ -311,7 +345,11 @@
         <SaveIcon class="w-4 h-4" />
         保存草稿
       </button>
-      <button @click="publishCourse" class="btn-primary" :disabled="uploading || !isFormValid">
+      <button
+        @click="publishCourse"
+        class="btn-primary"
+        :disabled="uploading || !isFormValid"
+      >
         <template v-if="uploading">
           <div class="loading-spinner"></div>
           上传中...
@@ -326,7 +364,10 @@
     <!-- 上传进度 -->
     <div v-if="uploadProgress > 0" class="upload-progress">
       <div class="progress-bar">
-        <div class="progress-fill" :style="{ width: uploadProgress + '%' }"></div>
+        <div
+          class="progress-fill"
+          :style="{ width: uploadProgress + '%' }"
+        ></div>
       </div>
       <p class="progress-text">上传进度: {{ uploadProgress }}%</p>
     </div>
@@ -334,33 +375,33 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { 
-  BookOpenIcon, 
-  ImageIcon, 
-  PlayIcon, 
-  FileTextIcon, 
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+import {
+  BookOpenIcon,
+  ImageIcon,
+  PlayIcon,
+  FileTextIcon,
   SettingsIcon,
   UploadIcon,
   PlusIcon,
   XIcon,
   TrashIcon,
   SaveIcon,
-  CheckIcon
-} from 'lucide-vue-next'
-import { uploadAPI } from '../../services/api'
-import { courseAPI } from '../../services/api'
+  CheckIcon,
+} from "lucide-vue-next";
+import { uploadAPI } from "../../services/api";
+import { courseAPI } from "../../services/api";
 
-const router = useRouter()
+const router = useRouter();
 
 // 表单数据
 const courseData = ref({
-  title: '',
-  description: '',
-  category: '',
-  level: '', // 前端使用level，提交时映射为difficulty
+  title: "",
+  description: "",
+  category: "",
+  level: "", // 前端使用level，提交时映射为difficulty
   duration: null,
   thumbnail: null,
   videos: [],
@@ -368,249 +409,268 @@ const courseData = ref({
   tags: [],
   learningObjectives: [],
   requirements: {
-    prerequisites: []
+    prerequisites: [],
   },
-  status: 'draft',
-  isFree: true
-})
+  status: "draft",
+  isFree: true,
+});
 
 // 表单状态
-const uploading = ref(false)
-const uploadProgress = ref(0)
-const newTag = ref('')
-const newPrerequisite = ref('')
+const uploading = ref(false);
+const uploadProgress = ref(0);
+const newTag = ref("");
+const newPrerequisite = ref("");
 
 // 文件输入引用
-const thumbnailInput = ref(null)
-const videoInput = ref(null)
-const materialInput = ref(null)
+const thumbnailInput = ref(null);
+const videoInput = ref(null);
+const materialInput = ref(null);
 
 // 计算属性
 const isFormValid = computed(() => {
-  return courseData.value.title && 
-         courseData.value.description && 
-         courseData.value.category && 
-         courseData.value.level &&
-         courseData.value.thumbnail
-})
+  return (
+    courseData.value.title &&
+    courseData.value.description &&
+    courseData.value.category &&
+    courseData.value.level &&
+    courseData.value.thumbnail
+  );
+});
 
 // 文件上传方法
 const triggerThumbnailUpload = () => {
-  thumbnailInput.value?.click()
-}
+  thumbnailInput.value?.click();
+};
 
 const triggerVideoUpload = () => {
-  videoInput.value?.click()
-}
+  videoInput.value?.click();
+};
 
 const triggerMaterialUpload = () => {
-  materialInput.value?.click()
-}
+  materialInput.value?.click();
+};
 
 // 处理缩略图上传
 const handleThumbnailUpload = async (event) => {
-  const file = event.target.files[0]
-  if (!file) return
-  
+  const file = event.target.files[0];
+  if (!file) return;
+
   try {
-    uploading.value = true
-    const response = await uploadAPI.uploadImage(file, 'course')
-    courseData.value.thumbnail = response.data
+    uploading.value = true;
+    const response = await uploadAPI.uploadImage(file, "course");
+    courseData.value.thumbnail = response.data;
   } catch (error) {
-    console.error('上传缩略图失败:', error)
-    ElMessage.error('上传缩略图失败，请重试')
+    console.error("上传缩略图失败:", error);
+    ElMessage.error("上传缩略图失败，请重试");
   } finally {
-    uploading.value = false
-    event.target.value = ''
+    uploading.value = false;
+    event.target.value = "";
   }
-}
+};
 
 // 处理视频上传
 const handleVideoUpload = async (event) => {
-  const files = Array.from(event.target.files)
-  if (files.length === 0) return
-  
+  const files = Array.from(event.target.files);
+  if (files.length === 0) return;
+
   try {
-    uploading.value = true
-    
+    uploading.value = true;
+
     for (const file of files) {
-      const response = await uploadAPI.uploadImage(file, 'course')
-      courseData.value.videos.push(response.data)
+      const response = await uploadAPI.uploadImage(file, "course");
+      courseData.value.videos.push(response.data);
     }
   } catch (error) {
-    console.error('上传视频失败:', error)
-    ElMessage.error('上传视频失败，请重试')
+    console.error("上传视频失败:", error);
+    ElMessage.error("上传视频失败，请重试");
   } finally {
-    uploading.value = false
-    event.target.value = ''
+    uploading.value = false;
+    event.target.value = "";
   }
-}
+};
 
 // 处理材料上传
 const handleMaterialUpload = async (event) => {
-  const files = Array.from(event.target.files)
-  if (files.length === 0) return
-  
+  const files = Array.from(event.target.files);
+  if (files.length === 0) return;
+
   try {
-    uploading.value = true
-    
+    uploading.value = true;
+
     for (const file of files) {
-      const response = await uploadAPI.uploadImage(file, 'course')
-      courseData.value.materials.push(response.data)
+      const response = await uploadAPI.uploadImage(file, "course");
+      courseData.value.materials.push(response.data);
     }
   } catch (error) {
-    console.error('上传材料失败:', error)
-    ElMessage.error('上传材料失败，请重试')
+    console.error("上传材料失败:", error);
+    ElMessage.error("上传材料失败，请重试");
   } finally {
-    uploading.value = false
-    event.target.value = ''
+    uploading.value = false;
+    event.target.value = "";
   }
-}
+};
 
 // 移除文件方法
 const removeThumbnail = () => {
-  courseData.value.thumbnail = null
-}
+  courseData.value.thumbnail = null;
+};
 
 const removeVideo = (index) => {
-  courseData.value.videos.splice(index, 1)
-}
+  courseData.value.videos.splice(index, 1);
+};
 
 const removeMaterial = (index) => {
-  courseData.value.materials.splice(index, 1)
-}
+  courseData.value.materials.splice(index, 1);
+};
 
 // 标签管理
 const addTag = () => {
-  const tag = newTag.value.trim()
+  const tag = newTag.value.trim();
   if (tag && !courseData.value.tags.includes(tag)) {
-    courseData.value.tags.push(tag)
-    newTag.value = ''
+    courseData.value.tags.push(tag);
+    newTag.value = "";
   }
-}
+};
 
 const removeTag = (index) => {
-  courseData.value.tags.splice(index, 1)
-}
+  courseData.value.tags.splice(index, 1);
+};
 
 // 学习目标管理
 const addObjective = () => {
-  courseData.value.learningObjectives.push('')
-}
+  courseData.value.learningObjectives.push("");
+};
 
 const removeObjective = (index) => {
-  courseData.value.learningObjectives.splice(index, 1)
-}
+  courseData.value.learningObjectives.splice(index, 1);
+};
 
 // 前置要求管理
 const addPrerequisite = () => {
-  const prerequisite = newPrerequisite.value.trim()
-  if (prerequisite && !courseData.value.requirements.prerequisites.includes(prerequisite)) {
-    courseData.value.requirements.prerequisites.push(prerequisite)
-    newPrerequisite.value = ''
+  const prerequisite = newPrerequisite.value.trim();
+  if (
+    prerequisite &&
+    !courseData.value.requirements.prerequisites.includes(prerequisite)
+  ) {
+    courseData.value.requirements.prerequisites.push(prerequisite);
+    newPrerequisite.value = "";
   }
-}
+};
 
 const removePrerequisite = (index) => {
-  courseData.value.requirements.prerequisites.splice(index, 1)
-}
+  courseData.value.requirements.prerequisites.splice(index, 1);
+};
 
 // 文件大小格式化
 const formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
 
 // 数据字段映射函数
 const mapCourseDataForSubmit = (data) => {
   // 验证必填字段
-  if (!data.title || !data.description || !data.category || !data.level || !data.thumbnail) {
-    throw new Error('请填写所有必填字段：标题、描述、分类、难度等级和封面图片')
+  if (
+    !data.title ||
+    !data.description ||
+    !data.category ||
+    !data.level ||
+    !data.thumbnail
+  ) {
+    throw new Error("请填写所有必填字段：标题、描述、分类、难度等级和封面图片");
   }
-  
+
   return {
     ...data,
     // 字段映射：前端level -> 后端difficulty
     difficulty: data.level,
     // 修复thumbnail字段：确保使用正确的字段名
-    thumbnail: typeof data.thumbnail === 'object' ? data.thumbnail.url : data.thumbnail,
+    thumbnail:
+      typeof data.thumbnail === "object" ? data.thumbnail.url : data.thumbnail,
     // 设置预计时长：后端使用estimatedDuration而非duration
     estimatedDuration: data.duration,
     // 设置发布状态到settings对象中
     settings: {
       ...data.settings,
-      isPublished: data.status === 'published',
-      isFree: data.isFree
+      isPublished: data.status === "published",
+      isFree: data.isFree,
     },
     // 移除前端特有字段
     level: undefined,
     status: undefined,
     isFree: undefined,
-    duration: undefined
-  }
-}
+    duration: undefined,
+  };
+};
 
 // 保存草稿
 const saveDraft = async () => {
   try {
-    uploading.value = true
-    const draftData = mapCourseDataForSubmit({ ...courseData.value, status: 'draft' })
-    await courseAPI.createCourse(draftData)
-    ElMessage.success('草稿保存成功')
+    uploading.value = true;
+    const draftData = mapCourseDataForSubmit({
+      ...courseData.value,
+      status: "draft",
+    });
+    await courseAPI.createCourse(draftData);
+    ElMessage.success("草稿保存成功");
   } catch (error) {
-    console.error('保存草稿失败:', error)
-    const errorMessage = error.response?.data?.message || error.message || '保存草稿失败，请重试'
-    ElMessage.error(errorMessage)
+    console.error("保存草稿失败:", error);
+    const errorMessage =
+      error.response?.data?.message || error.message || "保存草稿失败，请重试";
+    ElMessage.error(errorMessage);
   } finally {
-    uploading.value = false
+    uploading.value = false;
   }
-}
+};
 
 // 发布课程
 const publishCourse = async () => {
   if (!isFormValid.value) {
-    ElMessage.warning('请填写必填字段')
-    return
+    ElMessage.warning("请填写必填字段");
+    return;
   }
-  
+
   try {
-    uploading.value = true
-    const publishData = mapCourseDataForSubmit({ ...courseData.value, status: 'published' })
-    console.log('发布课程数据:', publishData) // 调试日志
-    await courseAPI.createCourse(publishData)
-    
+    uploading.value = true;
+    const publishData = mapCourseDataForSubmit({
+      ...courseData.value,
+      status: "published",
+    });
+    console.log("发布课程数据:", publishData); // 调试日志
+    await courseAPI.createCourse(publishData);
+
     // 显示成功消息
     ElMessage.success({
-      message: '课程发布成功！',
+      message: "课程发布成功！",
       duration: 3000,
-      showClose: true
-    })
-    
+      showClose: true,
+    });
+
     // 延迟跳转，让用户看到成功消息
     setTimeout(() => {
-      router.push('/admin/courses')
-    }, 1500)
-    
+      router.push("/admin/courses");
+    }, 1500);
   } catch (error) {
-    console.error('发布课程失败:', error)
+    console.error("发布课程失败:", error);
     // 显示更具体的错误信息
-    const errorMessage = error.response?.data?.message || error.message || '发布课程失败，请重试'
+    const errorMessage =
+      error.response?.data?.message || error.message || "发布课程失败，请重试";
     ElMessage.error({
       message: errorMessage,
       duration: 5000,
-      showClose: true
-    })
+      showClose: true,
+    });
   } finally {
-    uploading.value = false
+    uploading.value = false;
   }
-}
+};
 
 onMounted(() => {
   // 组件挂载时的初始化逻辑
-})
+});
 </script>
 
 <style scoped>
@@ -650,7 +710,9 @@ onMounted(() => {
   @apply block text-sm font-medium text-gray-700;
 }
 
-.form-input, .form-select, .form-textarea {
+.form-input,
+.form-select,
+.form-textarea {
   @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
 }
 
@@ -690,7 +752,8 @@ onMounted(() => {
   @apply p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors;
 }
 
-.video-upload-area, .materials-upload-area {
+.video-upload-area,
+.materials-upload-area {
   @apply space-y-4;
 }
 
@@ -706,23 +769,28 @@ onMounted(() => {
   @apply text-sm text-gray-500;
 }
 
-.video-list, .materials-list {
+.video-list,
+.materials-list {
   @apply space-y-2;
 }
 
-.video-item, .material-item {
+.video-item,
+.material-item {
   @apply flex items-center justify-between p-3 bg-gray-50 rounded-md;
 }
 
-.video-info, .material-info {
+.video-info,
+.material-info {
   @apply flex items-center gap-3;
 }
 
-.video-details, .material-details {
+.video-details,
+.material-details {
   @apply space-y-1;
 }
 
-.objectives-area, .prerequisites-input {
+.objectives-area,
+.prerequisites-input {
   @apply space-y-4;
 }
 
@@ -754,15 +822,18 @@ onMounted(() => {
   @apply flex flex-wrap gap-2 mb-2;
 }
 
-.video-name, .material-name {
+.video-name,
+.material-name {
   @apply font-medium text-gray-900;
 }
 
-.video-size, .material-size {
+.video-size,
+.material-size {
   @apply text-sm text-gray-500;
 }
 
-.remove-video-btn, .remove-material-btn {
+.remove-video-btn,
+.remove-material-btn {
   @apply p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors;
 }
 

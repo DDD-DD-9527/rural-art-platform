@@ -3,6 +3,7 @@ const router = express.Router();
 const { body, param, query } = require('express-validator');
 const socialController = require('../controllers/socialController');
 const { authenticate: auth } = require('../middleware/auth');
+const validate = require('../middleware/validate');
 
 // 验证规则
 const followValidation = [
@@ -27,41 +28,41 @@ const paginationValidation = [
 ];
 
 // 关注相关路由
-router.post('/follow/:userId', auth, followValidation, socialController.followUser);
-router.delete('/follow/:userId', auth, followValidation, socialController.unfollowUser);
-router.get('/follow/status/:userId', auth, followValidation, socialController.checkFollowStatus);
+router.delete('/follow/:userId', auth, followValidation, validate, socialController.unfollowUser);
+router.get('/follow/status/:userId', auth, followValidation, validate, socialController.checkFollowStatus);
+router.post('/follow/:userId', auth, followValidation, validate, socialController.followUser);
 
 // 获取关注列表
 router.get('/following/:userId', auth, [
   param('userId').isMongoId().withMessage('用户ID格式不正确'),
   ...paginationValidation
-], socialController.getFollowingList);
+], validate, socialController.getFollowingList);
 
 // 获取粉丝列表
 router.get('/followers/:userId', auth, [
   param('userId').isMongoId().withMessage('用户ID格式不正确'),
   ...paginationValidation
-], socialController.getFollowersList);
+], validate, socialController.getFollowersList);
 
 // 获取收到的点赞
-router.get('/likes/received', auth, paginationValidation, socialController.getReceivedLikes);
+router.get('/likes/received', auth, paginationValidation, validate, socialController.getReceivedLikes);
 
 // 获取点赞统计
 router.get('/likes/stats', auth, socialController.getLikeStats);
 
 // 获取用户点赞记录
-router.get('/likes/given', auth, paginationValidation, socialController.getUserLikes);
+router.get('/likes/given', auth, paginationValidation, validate, socialController.getUserLikes);
 
 // 获取推荐用户
-router.get('/recommended', auth, paginationValidation, socialController.getRecommendedUsers);
+router.get('/recommended', auth, paginationValidation, validate, socialController.getRecommendedUsers);
 
 // 获取社交统计
-router.get('/stats/:userId', auth, followValidation, socialController.getSocialStats);
+router.get('/stats/:userId', auth, followValidation, validate, socialController.getSocialStats);
 
 // 获取互相关注的用户
-router.get('/mutual-follows', auth, paginationValidation, socialController.getMutualFollows);
+router.get('/mutual-follows', auth, paginationValidation, validate, socialController.getMutualFollows);
 
 // 获取关注统计
-router.get('/follow-stats/:userId', auth, followValidation, socialController.getFollowStats);
+router.get('/follow-stats/:userId', auth, followValidation, validate, socialController.getFollowStats);
 
 module.exports = router;

@@ -20,6 +20,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const gamificationRoutes = require('./routes/gamification');
 const pointsRoutes = require('./routes/pointsRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
 // 创建Express应用
 const app = express();
@@ -28,10 +29,10 @@ const app = express();
 const { CORS_CONFIG, RATE_LIMIT_CONFIG, SECURITY_CONFIG, SERVER_CONFIG } = require('./config/constants');
 
 // 信任代理（如果使用反向代理）
-app.set('trust proxy', 1);
+app.set('trust proxy', SERVER_CONFIG.TRUST_PROXY ? 1 : 0);
 
 // 安全中间件
-app.use(helmet(SECURITY_CONFIG.HELMET_OPTIONS));
+app.use(helmet(SECURITY_CONFIG.HELMET_CONFIG));
 
 // CORS配置
 const corsOptions = {
@@ -40,7 +41,8 @@ const corsOptions = {
     const allowedOrigins = CORS_CONFIG.ALLOWED_ORIGINS;
     
     // 在开发环境中允许所有来源
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' || SERVER_CONFIG.NODE_ENV === 'development') {
+      console.log('开发环境，允许来源:', origin);
       return callback(null, true);
     }
     
@@ -66,8 +68,8 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // 请求体解析
-app.use(express.json({ limit: SERVER_CONFIG.REQUEST_SIZE_LIMIT }));
-app.use(express.urlencoded({ extended: true, limit: SERVER_CONFIG.REQUEST_SIZE_LIMIT }));
+app.use(express.json({ limit: SERVER_CONFIG.REQUEST_SIZE_LIMIT || '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: SERVER_CONFIG.REQUEST_SIZE_LIMIT || '2mb' }));
 
 // 静态文件服务
 app.use('/uploads', (req, res, next) => {
@@ -112,6 +114,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/points', pointsRoutes);
+app.use('/api/ai', aiRoutes);
 
 // 健康检查端点
 app.get('/health', (req, res) => {

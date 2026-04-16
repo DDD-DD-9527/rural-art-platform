@@ -5,7 +5,8 @@ const SERVER_CONFIG = {
   PORT: parseInt(process.env.PORT) || 3000,
   NODE_ENV: process.env.NODE_ENV || 'development',
   BASE_URL: process.env.BASE_URL || 'http://localhost:3000',
-  TRUST_PROXY: process.env.TRUST_PROXY === 'true' || true
+  TRUST_PROXY: process.env.TRUST_PROXY ? process.env.TRUST_PROXY === 'true' : true,
+  REQUEST_SIZE_LIMIT: process.env.REQUEST_SIZE_LIMIT || '2mb'
 };
 
 // 数据库配置
@@ -36,11 +37,19 @@ const CORS_CONFIG = {
     ? process.env.CORS_ALLOWED_ORIGINS.split(',')
     : [
         'http://localhost:5173', // Vite开发服务器
-        'http://localhost:5713', // 当前Vite开发服务器端口
+        'http://localhost:5713', // Vite开发服务器端口
+        'http://localhost:5714', // Vite开发服务器端口
+        'http://localhost:5715', // Vite开发服务器端口
+        'http://localhost:5716', // 当前Vite开发服务器端口
+        'http://localhost:5717', // 备用Vite开发服务器端口
         'http://localhost:3000', // 可能的前端端口
         'http://localhost:8080', // 可能的前端端口
         'http://127.0.0.1:5173',
-        'http://127.0.0.1:5713', // 当前Vite开发服务器端口
+        'http://127.0.0.1:5713',
+        'http://127.0.0.1:5714',
+        'http://127.0.0.1:5715',
+        'http://127.0.0.1:5716', // 当前Vite开发服务器端口
+        'http://127.0.0.1:5717', // 备用端口
         'http://127.0.0.1:3000',
         'http://127.0.0.1:8080',
         'https://cuddly-spork-seven.vercel.app', // Vercel部署的前端
@@ -48,7 +57,7 @@ const CORS_CONFIG = {
         'http://ai-future-rural-art.top', // 用户自定义域名
         'https://*.vercel.app' // 允许所有Vercel子域名
       ],
-  CREDENTIALS: process.env.CORS_CREDENTIALS === 'true' || true,
+  CREDENTIALS: process.env.CORS_CREDENTIALS ? process.env.CORS_CREDENTIALS === 'true' : true,
   METHODS: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   ALLOWED_HEADERS: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
@@ -91,19 +100,20 @@ const UPLOAD_CONFIG = {
 // AI服务配置
 const AI_CONFIG = {
   GZHU_AGENT: {
-    API_URL: process.env.GZHU_AGENT_API_URL || 'https://api.gzhu.edu.cn/agent',
-    API_KEY: process.env.GZHU_AGENT_KEY || '',
-    TIMEOUT: parseInt(process.env.GZHU_AGENT_TIMEOUT) || 30000
+    apiUrl: process.env.GZHU_AGENT_API_URL || 'https://api.gzhu.edu.cn/agent',
+    apiKey: process.env.GZHU_AGENT_KEY || '',
+    timeout: parseInt(process.env.GZHU_AGENT_TIMEOUT) || 30000
   },
   COZE: {
-    API_URL: process.env.COZE_API_URL || 'https://api.coze.com/v1',
-    API_KEY: process.env.COZE_API_KEY || '',
-    TIMEOUT: parseInt(process.env.COZE_TIMEOUT) || 30000,
-    BOTS: {
-      IMAGE_ENHANCE: process.env.COZE_IMAGE_ENHANCE_BOT_ID || '',
-      STYLE_TRANSFER: process.env.COZE_STYLE_TRANSFER_BOT_ID || '',
-      PATTERN_GENERATE: process.env.COZE_PATTERN_GENERATE_BOT_ID || '',
-      SMART_REPAIR: process.env.COZE_SMART_REPAIR_BOT_ID || ''
+    apiUrl: process.env.COZE_API_URL || 'https://api.coze.cn',
+
+    apiKey: process.env.COZE_API_KEY || '',
+    timeout: parseInt(process.env.COZE_TIMEOUT) || 60000,
+    bots: {
+      imageEnhance: process.env.COZE_IMAGE_ENHANCE_BOT_ID || '7538355440988979239',
+      styleTransfer: process.env.COZE_STYLE_TRANSFER_BOT_ID || '7538355440988979239',
+      patternGenerate: process.env.COZE_PATTERN_GENERATE_BOT_ID || '7538355440988979239',
+      smartRepair: process.env.COZE_SMART_REPAIR_BOT_ID || '7538355440988979239'
     }
   }
 };
