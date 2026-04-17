@@ -25,6 +25,9 @@ backend/logs/
 backend/uploads/
 mongodb-backup/
 
+# local binaries
+cloudflared.exe
+
 # editors / OS
 .DS_Store
 Thumbs.db
