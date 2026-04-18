@@ -12,7 +12,8 @@ FROM nginx:1.27-alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
-RUN cat > /etc/nginx/templates/default.conf.template <<'EOF'
+RUN mkdir -p /etc/nginx/templates \
+  && cat > /etc/nginx/templates/default.conf.template <<'EOF'
 server {
   listen 80;
   server_name _;
