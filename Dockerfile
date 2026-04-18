@@ -22,11 +22,22 @@ server {
   index index.html;
 
   location /api/ {
+    proxy_intercept_errors on;
+    error_page 404 = @api_no_prefix;
     proxy_pass ${API_UPSTREAM};
     proxy_http_version 1.1;
     proxy_set_header Host $host;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location @api_no_prefix {
+    rewrite ^/api/(.*)$ /$1 break;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass ${API_UPSTREAM};
   }
 
   location / {
