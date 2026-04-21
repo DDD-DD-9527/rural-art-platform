@@ -33,20 +33,11 @@ server {
   index index.html;
 
   location /api/ {
-    proxy_intercept_errors on;
-    error_page 404 = @api_no_prefix;
-    $( [ -n "$API_UPSTREAM" ] && echo "proxy_pass $API_UPSTREAM;" || echo "return 502;" )
-    proxy_http_version 1.1;
-    proxy_set_header Host \$host;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto \$scheme;
-  }
-
-  location @api_no_prefix {
     rewrite ^/api/(.*)\$ /\$1 break;
     $( [ -n "$API_UPSTREAM" ] && echo "proxy_pass $API_UPSTREAM;" || echo "return 502;" )
     proxy_http_version 1.1;
-    proxy_set_header Host \$host;
+    proxy_ssl_server_name on;
+    proxy_set_header Host \$proxy_host;
     proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto \$scheme;
   }
