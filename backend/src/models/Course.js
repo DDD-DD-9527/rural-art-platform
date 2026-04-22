@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { COURSE_CATEGORIES, COURSE_DIFFICULTIES } = require('../config/courseMeta');
 
 const courseSchema = new mongoose.Schema({
   // 基本信息
@@ -29,25 +30,14 @@ const courseSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, '课程分类不能为空'],
-    enum: [
-      'traditional-crafts', // 传统工艺
-      'painting', // 绘画艺术
-      'sculpture', // 雕塑艺术
-      'textile', // 纺织艺术
-      'pottery', // 陶艺
-      'woodwork', // 木工艺
-      'paper-art', // 纸艺
-      'folk-art', // 民间艺术
-      'calligraphy', // 书法
-      'other' // 其他
-    ]
+    enum: COURSE_CATEGORIES.map(c => c.value)
   },
   
   // 难度等级
   difficulty: {
     type: String,
     required: [true, '难度等级不能为空'],
-    enum: ['beginner', 'intermediate', 'advanced']
+    enum: COURSE_DIFFICULTIES.map(d => d.value)
   },
   
   // 课程标签

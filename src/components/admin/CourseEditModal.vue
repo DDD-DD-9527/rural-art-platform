@@ -653,13 +653,9 @@ const handleThumbnailChange = async (event) => {
   }
 
   try {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("type", "course-thumbnail");
-
-    const response = await uploadAPI.uploadFile(formData);
-    if (response.data.success) {
-      form.thumbnail = response.data.data.url;
+    const response = await uploadAPI.uploadCourseFiles({ thumbnail: file });
+    if (response.success) {
+      form.thumbnail = response.data?.thumbnail?.url || "";
     }
   } catch (error) {
     console.error("上传封面失败:", error);
@@ -708,23 +704,21 @@ const handleLessonVideoUpload = async (event, lessonIndex) => {
   try {
     // 初始化上传进度
     form.lessons[lessonIndex].uploadProgress = 0;
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("type", "lesson-video");
-
-    const response = await uploadAPI.uploadFile(formData, {
-      onUploadProgress: (progressEvent) => {
-        const progress = Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total,
-        );
-        form.lessons[lessonIndex].uploadProgress = progress;
+    const response = await uploadAPI.uploadCourseFiles(
+      { videos: [file] },
+      {
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          );
+          form.lessons[lessonIndex].uploadProgress = progress;
+        },
       },
-    });
+    );
 
-    if (response.data.success) {
-      form.lessons[lessonIndex].videoUrl = response.data.data.url;
-      // 清除上传进度
+    const uploaded = response.data?.videos?.[0];
+    if (response.success && uploaded?.url) {
+      form.lessons[lessonIndex].videoUrl = uploaded.url;
       delete form.lessons[lessonIndex].uploadProgress;
     }
   } catch (error) {
@@ -801,7 +795,7 @@ const handleSubmit = async () => {
       description: form.description.trim(),
       category: form.category,
       difficulty: form.difficulty,
-      duration: form.duration || 0,
+      estimatedDuration: form.duration ? Number(form.duration) : undefined,
       price: form.settings.isFree ? 0 : form.price || 0,
       thumbnail: form.thumbnail,
       tags: form.tags,
@@ -814,16 +808,12 @@ const handleSubmit = async () => {
     };
 
     const response = await courseAPI.updateCourse(props.course._id, courseData);
-    if (response.data.success) {
-      emit("updated", response.data.data);
+    if (response.success) {
+      emit("updated", response.data?.course);
     }
   } catch (error) {
     console.error("更新课程失败:", error);
-    if (error.response?.data?.message) {
-      alert(error.response.data.message);
-    } else {
-      alert("更新课程失败，请重试");
-    }
+    alert(error.message || "更新课程失败，请重试");
   } finally {
     loading.value = false;
   }

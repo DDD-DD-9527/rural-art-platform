@@ -521,13 +521,9 @@ const handleThumbnailChange = async (event) => {
   }
 
   try {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("type", "course-thumbnail");
-
-    const response = await uploadAPI.uploadFile(formData);
-    if (response.data.success) {
-      form.thumbnail = response.data.data.url;
+    const response = await uploadAPI.uploadCourseFiles({ thumbnail: file });
+    if (response.success) {
+      form.thumbnail = response.data?.thumbnail?.url || "";
     }
   } catch (error) {
     console.error("上传封面失败:", error);
@@ -575,18 +571,10 @@ const handleVideoChange = async (event) => {
     }
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("type", "course-video");
-
-      const response = await uploadAPI.uploadFile(formData);
-      if (response.data.success) {
-        form.videos.push({
-          name: file.name,
-          url: response.data.data.url,
-          size: file.size,
-          type: file.type,
-        });
+      const response = await uploadAPI.uploadCourseFiles({ videos: [file] });
+      const uploaded = response.data?.videos?.[0];
+      if (response.success && uploaded) {
+        form.videos.push(uploaded);
       }
     } catch (error) {
       console.error(`上传视频 ${file.name} 失败:`, error);
@@ -608,18 +596,10 @@ const handleMaterialChange = async (event) => {
     }
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("type", "course-material");
-
-      const response = await uploadAPI.uploadFile(formData);
-      if (response.data.success) {
-        form.materials.push({
-          name: file.name,
-          url: response.data.data.url,
-          size: file.size,
-          type: file.type,
-        });
+      const response = await uploadAPI.uploadCourseFiles({ materials: [file] });
+      const uploaded = response.data?.materials?.[0];
+      if (response.success && uploaded) {
+        form.materials.push(uploaded);
       }
     } catch (error) {
       console.error(`上传资料 ${file.name} 失败:`, error);
@@ -662,6 +642,10 @@ const validateForm = () => {
     errors.value.difficulty = "请选择难度等级";
   }
 
+  if (!form.thumbnail) {
+    errors.value.thumbnail = "请上传课程封面";
+  }
+
   return Object.keys(errors.value).length === 0;
 };
 
@@ -680,7 +664,7 @@ const handleSubmit = async () => {
       description: form.description.trim(),
       category: form.category,
       difficulty: form.difficulty,
-      estimatedDuration: form.duration || 0, // 修正字段名
+      estimatedDuration: form.duration ? Number(form.duration) : undefined,
       thumbnail: form.thumbnail,
       tags: form.tags,
       videos: form.videos || [],
@@ -696,16 +680,12 @@ const handleSubmit = async () => {
     };
 
     const response = await courseAPI.createCourse(courseData);
-    if (response.data.success) {
-      emit("created", response.data.data);
+    if (response.success) {
+      emit("created", response.data?.course);
     }
   } catch (error) {
     console.error("创建课程失败:", error);
-    if (error.response?.data?.message) {
-      alert(error.response.data.message);
-    } else {
-      alert("创建课程失败，请重试");
-    }
+    alert(error.message || "创建课程失败，请重试");
   } finally {
     loading.value = false;
   }

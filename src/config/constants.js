@@ -1,9 +1,17 @@
 // 前端配置常量文件 - 统一管理所有硬编码值
 
 // API配置
+const RUNTIME_API_BASE_URL =
+  typeof window !== "undefined" &&
+  window.__APP_CONFIG__ &&
+  typeof window.__APP_CONFIG__.apiBaseUrl === "string" &&
+  window.__APP_CONFIG__.apiBaseUrl.trim()
+    ? window.__APP_CONFIG__.apiBaseUrl.trim()
+    : "";
+
 export const API_CONFIG = {
   TIMEOUT: parseInt(import.meta.env.VITE_API_TIMEOUT) || 10000,
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || "/api",
+  BASE_URL: RUNTIME_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || "/api",
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,
 };

@@ -25,6 +25,7 @@ const {
 } = require('../controllers/courseController');
 const { authenticate, authorize } = require('../middleware/auth');
 const validate = require('../middleware/validate');
+const { COURSE_CATEGORIES, COURSE_DIFFICULTIES } = require('../config/courseMeta');
 
 const router = express.Router();
 
@@ -42,21 +43,10 @@ const courseValidation = [
     .notEmpty()
     .withMessage('课程封面不能为空'),
   body('category')
-    .isIn([
-      'traditional-crafts',
-      'painting',
-      'sculpture',
-      'textile',
-      'pottery',
-      'woodwork',
-      'paper-art',
-      'folk-art',
-      'calligraphy',
-      'other'
-    ])
+    .isIn(COURSE_CATEGORIES.map(c => c.value))
     .withMessage('课程分类无效'),
   body('difficulty')
-    .isIn(['beginner', 'intermediate', 'advanced'])
+    .isIn(COURSE_DIFFICULTIES.map(d => d.value))
     .withMessage('难度等级无效'),
   body('tags')
     .optional()

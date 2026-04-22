@@ -361,7 +361,7 @@ const mapCoursesResponse = (response) => {
     data: {
       ...response.data,
       courses: response.data.courses?.map(mapCourseData) || [],
-      total: response.data.total || 0,
+      total: response.data.pagination?.total || response.data.total || 0,
     },
   };
 };
@@ -556,6 +556,34 @@ export const courseAPI = {
 
 // 文件上传API
 export const uploadAPI = {
+  uploadCourseFiles: (files = {}, config = {}) => {
+    const { thumbnail, videos, materials } = files;
+    const formData = new FormData();
+    formData.append("type", "course");
+
+    if (thumbnail) {
+      formData.append("thumbnail", thumbnail);
+    }
+
+    if (Array.isArray(videos)) {
+      for (const file of videos) {
+        if (file) formData.append("videos", file);
+      }
+    }
+
+    if (Array.isArray(materials)) {
+      for (const file of materials) {
+        if (file) formData.append("materials", file);
+      }
+    }
+
+    return api.post("/upload/course", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      ...config,
+    });
+  },
   // 上传图片
   uploadImage: (file, type = "post") => {
     const formData = new FormData();
@@ -573,6 +601,10 @@ export const uploadAPI = {
   uploadAvatar: (file) => {
     return uploadAPI.uploadImage(file, "avatar");
   },
+};
+
+export const metaAPI = {
+  getCourseMeta: () => api.get("/meta/courses"),
 };
 
 // AI工具相关API

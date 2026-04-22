@@ -19,10 +19,22 @@ RUN mkdir -p /docker-entrypoint.d \
 set -eu
 
 API_UPSTREAM="${API_UPSTREAM:-}"
+API_BASE_URL="${API_BASE_URL:-}"
 
 if [ -z "$API_UPSTREAM" ]; then
   echo "[WARN] API_UPSTREAM is not set; /api/* will return 502" >&2
 fi
+
+RUNTIME_API_BASE_URL="$API_BASE_URL"
+if [ -z "$RUNTIME_API_BASE_URL" ]; then
+  RUNTIME_API_BASE_URL="$API_UPSTREAM"
+fi
+
+cat > /usr/share/nginx/html/runtime-config.js <<CONFJS
+window.__APP_CONFIG__ = {
+  apiBaseUrl: "${RUNTIME_API_BASE_URL}"
+};
+CONFJS
 
 cat > /etc/nginx/conf.d/default.conf <<CONF
 server {

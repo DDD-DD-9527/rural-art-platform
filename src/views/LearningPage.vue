@@ -223,7 +223,7 @@
 import { ref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "../stores/user";
-import { courseAPI, gamificationApi } from "../services/api";
+import { courseAPI, gamificationApi, metaAPI } from "../services/api";
 import {
   ArrowLeftIcon,
   SearchIcon,
@@ -244,7 +244,8 @@ const searchQuery = ref("");
 const activeFilter = ref("全部");
 
 // 筛选标签
-const filterTabs = ["全部", "艺术教育", "数字技能"];
+const filterTabs = ref([]);
+const categoryGroups = ref([]);
 
 // 当前用户ID
 const currentUserId = computed(() => userStore.user?.id || userStore.user?._id);
@@ -263,24 +264,16 @@ const allCourses = computed(() => [...artCourses, ...digitalCourses]);
 const filteredCourses = computed(() => {
   let courses = [];
 
-  if (activeFilter.value === "全部") {
+  const group =
+    categoryGroups.value.find((g) => g.label === activeFilter.value) || null;
+  if (!group) {
     courses = allCourses.value;
-  } else if (activeFilter.value === "艺术教育") {
-    // 艺术教育课程的category包括: paper-art, painting, textile, pottery, calligraphy, folk-art
-    const artCategories = [
-      "paper-art",
-      "painting",
-      "textile",
-      "pottery",
-      "calligraphy",
-      "folk-art",
-    ];
+  } else if (group.id === "all") {
+    courses = allCourses.value;
+  } else {
     courses = allCourses.value.filter((course) =>
-      artCategories.includes(course.category),
+      group.categories.includes(course.category),
     );
-  } else if (activeFilter.value === "数字技能") {
-    // 数字技能课程的category是: other
-    courses = allCourses.value.filter((course) => course.category === "other");
   }
 
   if (searchQuery.value) {
@@ -405,39 +398,29 @@ const fetchEnrolledCourses = async () => {
 // API 获取数据的函数
 const fetchCourses = async () => {
   try {
-    // 获取艺术类课程（传统工艺、绘画、雕塑等）
-    const artCategories = [
-      "traditional-crafts",
-      "painting",
-      "sculpture",
-      "textile",
-      "pottery",
-      "woodwork",
-      "paper-art",
-      "folk-art",
-      "calligraphy",
-    ];
-
-    // 分别获取每个艺术分类的课程，只获取已发布的课程
-    const artCoursesData = [];
-    for (const category of artCategories) {
-      const response = await courseAPI.getCourses({
-        category,
-        isPublished: true, // 只获取已发布的课程
-      });
-      artCoursesData.push(...(response.data?.courses || []));
-    }
-    artCourses.splice(0, artCourses.length, ...artCoursesData);
-
-    // 获取数字技能课程（其他类别），只获取已发布的课程
-    const digitalResponse = await courseAPI.getCourses({
-      category: "other",
-      isPublished: true, // 只获取已发布的课程
+    const response = await courseAPI.getCourses({
+      isPublished: true,
+      limit: 2000,
     });
+    const publishedCourses = response.data?.courses || [];
+
+    const artGroup =
+      categoryGroups.value.find((g) => g.id === "art") || null;
+    const digitalGroup =
+      categoryGroups.value.find((g) => g.id === "digital") || null;
+
+    const artSet = new Set(artGroup?.categories || []);
+    const digitalSet = new Set(digitalGroup?.categories || []);
+
+    artCourses.splice(
+      0,
+      artCourses.length,
+      ...publishedCourses.filter((c) => artSet.has(c.category)),
+    );
     digitalCourses.splice(
       0,
       digitalCourses.length,
-      ...(digitalResponse.data?.courses || []),
+      ...publishedCourses.filter((c) => digitalSet.has(c.category)),
     );
   } catch (error) {
     console.error("获取课程数据失败:", error);
@@ -452,6 +435,20 @@ onMounted(async () => {
     } catch (error) {
       console.error("认证检查失败:", error);
     }
+  }
+
+  try {
+    const meta = await metaAPI.getCourseMeta();
+    if (meta?.success && meta.data?.categoryGroups) {
+      categoryGroups.value = meta.data.categoryGroups;
+      filterTabs.value = meta.data.categoryGroups.map((g) => g.label);
+      if (!filterTabs.value.includes(activeFilter.value)) {
+        activeFilter.value = filterTabs.value[0] || "全部";
+      }
+    }
+  } catch (error) {
+    console.error("获取课程元数据失败:", error);
+    filterTabs.value = ["全部", "艺术教育", "数字技能"];
   }
 
   // 然后获取课程数据

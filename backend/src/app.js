@@ -21,6 +21,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const gamificationRoutes = require('./routes/gamification');
 const pointsRoutes = require('./routes/pointsRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const metaRoutes = require('./routes/metaRoutes');
 
 // 创建Express应用
 const app = express();
@@ -111,6 +112,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/api/topics', topicRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/meta', metaRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/points', pointsRoutes);
@@ -124,6 +126,7 @@ app.use('/comments', commentRoutes);
 app.use('/social', socialRoutes);
 app.use('/topics', topicRoutes);
 app.use('/upload', uploadRoutes);
+app.use('/meta', metaRoutes);
 app.use('/admin', adminRoutes);
 app.use('/gamification', gamificationRoutes);
 app.use('/points', pointsRoutes);

@@ -463,9 +463,9 @@ const loadCourses = async () => {
     };
 
     const response = await courseAPI.getCourses(params);
-    if (response.data.success) {
-      courses.value = response.data.data.courses;
-      Object.assign(pagination, response.data.data.pagination);
+    if (response.success) {
+      courses.value = response.data?.courses || [];
+      Object.assign(pagination, response.data?.pagination || {});
     }
   } catch (error) {
     console.error("加载课程列表失败:", error);
@@ -479,8 +479,8 @@ const loadStats = async () => {
   try {
     // 获取所有课程统计
     const allCoursesResponse = await courseAPI.getCourses({ limit: 1 });
-    if (allCoursesResponse.data.success) {
-      stats.totalCourses = allCoursesResponse.data.data.pagination.total;
+    if (allCoursesResponse.success) {
+      stats.totalCourses = allCoursesResponse.data?.pagination?.total || 0;
     }
 
     // 获取已发布课程统计
@@ -488,8 +488,8 @@ const loadStats = async () => {
       isPublished: true,
       limit: 1,
     });
-    if (publishedResponse.data.success) {
-      stats.publishedCourses = publishedResponse.data.data.pagination.total;
+    if (publishedResponse.success) {
+      stats.publishedCourses = publishedResponse.data?.pagination?.total || 0;
     }
 
     // 获取草稿课程统计
@@ -497,8 +497,8 @@ const loadStats = async () => {
       isPublished: false,
       limit: 1,
     });
-    if (draftResponse.data.success) {
-      stats.draftCourses = draftResponse.data.data.pagination.total;
+    if (draftResponse.success) {
+      stats.draftCourses = draftResponse.data?.pagination?.total || 0;
     }
 
     // 计算总报名数
@@ -525,7 +525,7 @@ const editCourse = (course) => {
 const publishCourse = async (course) => {
   try {
     const response = await courseAPI.publishCourse(course._id);
-    if (response.data.success) {
+    if (response.success) {
       course.settings.isPublished = true;
       loadStats();
     }
@@ -538,7 +538,7 @@ const publishCourse = async (course) => {
 const unpublishCourse = async (course) => {
   try {
     const response = await courseAPI.unpublishCourse(course._id);
-    if (response.data.success) {
+    if (response.success) {
       course.settings.isPublished = false;
       loadStats();
     }
@@ -555,7 +555,7 @@ const deleteCourse = async (course) => {
 
   try {
     const response = await courseAPI.deleteCourse(course._id);
-    if (response.data.success) {
+    if (response.success) {
       await loadCourses();
       await loadStats();
     }
