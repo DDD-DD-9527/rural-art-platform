@@ -404,8 +404,7 @@ const fetchCourses = async () => {
     });
     const publishedCourses = response.data?.courses || [];
 
-    const artGroup =
-      categoryGroups.value.find((g) => g.id === "art") || null;
+    const artGroup = categoryGroups.value.find((g) => g.id === "art") || null;
     const digitalGroup =
       categoryGroups.value.find((g) => g.id === "digital") || null;
 

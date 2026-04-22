@@ -74,27 +74,27 @@ api.interceptors.response.use(
 // 用户相关API
 export const userAPI = {
   // 用户注册
-  register: (userData) => api.post("/users/register", userData),
+  register: (userData) => api.post("users/register", userData),
 
   // 用户登录
-  login: (credentials) => api.post("/users/login", credentials),
+  login: (credentials) => api.post("users/login", credentials),
 
   // 获取用户资料
-  getProfile: () => api.get("/users/profile"),
+  getProfile: () => api.get("users/profile"),
 
   // 更新用户资料
-  updateProfile: (profileData) => api.put("/users/profile", profileData),
+  updateProfile: (profileData) => api.put("users/profile", profileData),
 
   // 修改密码
-  changePassword: (passwordData) => api.put("/users/password", passwordData),
+  changePassword: (passwordData) => api.put("users/password", passwordData),
 
   // 获取用户统计
-  getUserStats: () => api.get("/users/stats"),
+  getUserStats: () => api.get("users/stats"),
 
   // 搜索用户
   searchUsers: (params = {}) => {
     const { keyword, limit = 10 } = params;
-    return api.get("/users/search", {
+    return api.get("users/search", {
       params: { keyword, limit },
     });
   },
@@ -103,18 +103,18 @@ export const userAPI = {
 // 社交相关API
 export const socialAPI = {
   // 关注用户
-  followUser: (userId) => api.post(`/social/follow/${userId}`),
+  followUser: (userId) => api.post(`social/follow/${userId}`),
 
   // 取消关注用户
-  unfollowUser: (userId) => api.delete(`/social/follow/${userId}`),
+  unfollowUser: (userId) => api.delete(`social/follow/${userId}`),
 
   // 检查关注状态
-  checkFollowStatus: (userId) => api.get(`/social/follow/status/${userId}`),
+  checkFollowStatus: (userId) => api.get(`social/follow/status/${userId}`),
 
   // 获取关注列表
   getFollowingList: (userId, params = {}) => {
     const { page = 1, limit = 10, search = "" } = params;
-    return api.get(`/social/following/${userId}`, {
+    return api.get(`social/following/${userId}`, {
       params: { page, limit, search },
     });
   },
@@ -122,7 +122,7 @@ export const socialAPI = {
   // 获取粉丝列表
   getFollowersList: (userId, params = {}) => {
     const { page = 1, limit = 10, search = "" } = params;
-    return api.get(`/social/followers/${userId}`, {
+    return api.get(`social/followers/${userId}`, {
       params: { page, limit, search },
     });
   },
@@ -130,29 +130,29 @@ export const socialAPI = {
   // 获取收到的点赞列表
   getReceivedLikes: (params = {}) => {
     const { page = 1, limit = 10 } = params;
-    return api.get("/social/likes/received", {
+    return api.get("social/likes/received", {
       params: { page, limit },
     });
   },
 
   // 获取社交统计
-  getSocialStats: (userId) => api.get(`/social/stats/${userId}`),
+  getSocialStats: (userId) => api.get(`social/stats/${userId}`),
 
   // 获取互相关注的用户
   getMutualFollows: (params = {}) => {
     const { page = 1, limit = 10 } = params;
-    return api.get("/social/mutual-follows", {
+    return api.get("social/mutual-follows", {
       params: { page, limit },
     });
   },
 
   // 获取点赞统计
-  getLikeStats: () => api.get("/social/likes/stats"),
+  getLikeStats: () => api.get("social/likes/stats"),
 
   // 获取用户点赞记录
   getUserLikes: (params = {}) => {
     const { page = 1, limit = 10, type, search, sort = "recent" } = params;
-    return api.get("/social/likes/given", {
+    return api.get("social/likes/given", {
       params: { page, limit, type, search, sort },
     });
   },
@@ -164,7 +164,7 @@ export const socialAPI = {
     if (!userId) {
       return Promise.reject(new Error("用户未登录"));
     }
-    return api.get(`/social/following/${userId}`, {
+    return api.get(`social/following/${userId}`, {
       params: { page, limit, search, sort },
     });
   },
@@ -176,7 +176,7 @@ export const socialAPI = {
     if (!userId) {
       return Promise.reject(new Error("用户未登录"));
     }
-    return api.get(`/social/followers/${userId}`, {
+    return api.get(`social/followers/${userId}`, {
       params: { page, limit, search, sort },
     });
   },
@@ -184,7 +184,7 @@ export const socialAPI = {
   // 获取推荐用户
   getRecommendedUsers: (params = {}) => {
     const { limit = 10 } = params;
-    return api.get("/social/recommended", {
+    return api.get("social/recommended", {
       params: { limit },
     });
   },
@@ -195,7 +195,7 @@ export const socialAPI = {
     if (!userId) {
       return Promise.reject(new Error("用户未登录"));
     }
-    return api.get(`/social/follow-stats/${userId}`);
+    return api.get(`social/follow-stats/${userId}`);
   },
 };
 
@@ -204,37 +204,37 @@ export const postAPI = {
   // 获取帖子列表
   getPosts: (params = {}) => {
     const { page = 1, limit = 10, type = "recommend" } = params;
-    return api.get("/posts", {
+    return api.get("posts", {
       params: { page, limit, type },
     });
   },
 
   // 获取帖子详情
-  getPostById: (postId) => api.get(`/posts/${postId}`),
+  getPostById: (postId) => api.get(`posts/${postId}`),
 
   // 创建帖子
-  createPost: (postData) => api.post("/posts", postData),
+  createPost: (postData) => api.post("posts", postData),
 
   // 更新帖子
-  updatePost: (postId, postData) => api.put(`/posts/${postId}`, postData),
+  updatePost: (postId, postData) => api.put(`posts/${postId}`, postData),
 
   // 删除帖子
-  deletePost: (postId) => api.delete(`/posts/${postId}`),
+  deletePost: (postId) => api.delete(`posts/${postId}`),
 
   // 点赞/取消点赞帖子
-  toggleLikePost: (postId) => api.post(`/posts/${postId}/like`),
+  toggleLikePost: (postId) => api.post(`posts/${postId}/like`),
 
   // 获取帖子评论
   getPostComments: (postId, params = {}) => {
     const { page = 1, limit = 10 } = params;
-    return api.get(`/posts/${postId}/comments`, {
+    return api.get(`posts/${postId}/comments`, {
       params: { page, limit },
     });
   },
 
   // 添加帖子评论
   addPostComment: (postId, commentData) =>
-    api.post(`/posts/${postId}/comments`, commentData),
+    api.post(`posts/${postId}/comments`, commentData),
 
   // 获取关注用户的帖子
   getFollowingPosts: (params = {}) => {
@@ -244,7 +244,7 @@ export const postAPI = {
       sortBy = "createdAt",
       sortOrder = "desc",
     } = params;
-    return api.get("/posts/following", {
+    return api.get("posts/following", {
       params: { page, limit, sortBy, sortOrder },
     });
   },
@@ -263,7 +263,7 @@ export const commentAPI = {
       sortOrder = "desc",
       parentId,
     } = params;
-    return api.get("/comments", {
+    return api.get("comments", {
       params: {
         targetType,
         targetId,
@@ -277,36 +277,36 @@ export const commentAPI = {
   },
 
   // 创建评论
-  createComment: (commentData) => api.post("/comments", commentData),
+  createComment: (commentData) => api.post("comments", commentData),
 
   // 获取我的评论
   getMyComments: (params = {}) => {
     const { page = 1, limit = 10, type, search, sort = "recent" } = params;
-    return api.get("/comments/my", {
+    return api.get("comments/my", {
       params: { page, limit, type, search, sort },
     });
   },
 
   // 获取评论详情
-  getCommentById: (commentId) => api.get(`/comments/${commentId}`),
+  getCommentById: (commentId) => api.get(`comments/${commentId}`),
 
   // 更新评论
   updateComment: (commentId, commentData) =>
-    api.put(`/comments/${commentId}`, commentData),
+    api.put(`comments/${commentId}`, commentData),
 
   // 删除评论
-  deleteComment: (commentId) => api.delete(`/comments/${commentId}`),
+  deleteComment: (commentId) => api.delete(`comments/${commentId}`),
 
   // 点赞/取消点赞评论
-  toggleLike: (commentId) => api.post(`/comments/${commentId}/like`),
+  toggleLike: (commentId) => api.post(`comments/${commentId}/like`),
 
   // 举报评论
   reportComment: (commentId, reason) =>
-    api.post(`/comments/${commentId}/report`, { reason }),
+    api.post(`comments/${commentId}/report`, { reason }),
 
   // 回复评论
   replyToComment: (commentId, replyData) =>
-    api.post(`/comments/${commentId}/reply`, replyData),
+    api.post(`comments/${commentId}/reply`, replyData),
 };
 
 // 课程相关API
@@ -409,7 +409,7 @@ export const courseAPI = {
       requestParams.isPublished = finalIsPublished;
     }
 
-    const response = await api.get("/courses", {
+    const response = await api.get("courses", {
       params: requestParams,
     });
 
@@ -418,7 +418,7 @@ export const courseAPI = {
 
   // 获取课程详情
   getCourseById: async (courseId) => {
-    const response = await api.get(`/courses/${courseId}`);
+    const response = await api.get(`courses/${courseId}`);
     return {
       ...response,
       data: mapCourseData(response.data),
@@ -426,25 +426,25 @@ export const courseAPI = {
   },
 
   // 创建课程
-  createCourse: (courseData) => api.post("/courses", courseData),
+  createCourse: (courseData) => api.post("courses", courseData),
 
   // 更新课程
   updateCourse: (courseId, courseData) =>
-    api.put(`/courses/${courseId}`, courseData),
+    api.put(`courses/${courseId}`, courseData),
 
   // 删除课程
-  deleteCourse: (courseId) => api.delete(`/courses/${courseId}`),
+  deleteCourse: (courseId) => api.delete(`courses/${courseId}`),
 
   // 发布课程
-  publishCourse: (courseId) => api.patch(`/courses/${courseId}/publish`),
+  publishCourse: (courseId) => api.patch(`courses/${courseId}/publish`),
 
   // 取消发布课程
-  unpublishCourse: (courseId) => api.patch(`/courses/${courseId}/unpublish`),
+  unpublishCourse: (courseId) => api.patch(`courses/${courseId}/unpublish`),
 
   // 获取热门课程
   getPopularCourses: async (params = {}) => {
     const { limit = 10 } = params;
-    const response = await api.get("/courses/popular", {
+    const response = await api.get("courses/popular", {
       params: { limit },
     });
     return {
@@ -456,7 +456,7 @@ export const courseAPI = {
   // 获取推荐课程
   getRecommendedCourses: async (params = {}) => {
     const { limit = 10 } = params;
-    const response = await api.get("/courses/recommended", {
+    const response = await api.get("courses/recommended", {
       params: { limit },
     });
     return {
@@ -466,15 +466,15 @@ export const courseAPI = {
   },
 
   // 报名课程
-  enrollCourse: (courseId) => api.post(`/courses/${courseId}/enroll`),
+  enrollCourse: (courseId) => api.post(`courses/${courseId}/enroll`),
 
   // 更新学习进度
   updateProgress: (courseId, progressData) =>
-    api.put(`/courses/${courseId}/progress`, progressData),
+    api.put(`courses/${courseId}/progress`, progressData),
 
   // 获取学习进度
   getProgress: async (courseId) => {
-    const response = await api.get(`/courses/${courseId}/progress`);
+    const response = await api.get(`courses/${courseId}/progress`);
     return {
       ...response,
       data: {
@@ -495,7 +495,7 @@ export const courseAPI = {
       sortBy = "enrolledAt",
       sortOrder = "desc",
     } = params;
-    const response = await api.get("/courses/enrollments/my", {
+    const response = await api.get("courses/enrollments/my", {
       params: { status, page, limit, sortBy, sortOrder },
     });
     return {
@@ -521,7 +521,7 @@ export const courseAPI = {
       sortBy = "enrolledAt",
       sortOrder = "desc",
     } = params;
-    const response = await api.get(`/courses/${courseId}/enrollments`, {
+    const response = await api.get(`courses/${courseId}/enrollments`, {
       params: { status, page, limit, sortBy, sortOrder },
     });
     return {
@@ -577,7 +577,7 @@ export const uploadAPI = {
       }
     }
 
-    return api.post("/upload/course", formData, {
+    return api.post("upload/course", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -590,7 +590,7 @@ export const uploadAPI = {
     formData.append("file", file);
     formData.append("type", type);
 
-    return api.post("/upload/image", formData, {
+    return api.post("upload/image", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -604,7 +604,7 @@ export const uploadAPI = {
 };
 
 export const metaAPI = {
-  getCourseMeta: () => api.get("/meta/courses"),
+  getCourseMeta: () => api.get("meta/courses"),
 };
 
 // AI工具相关API
@@ -613,7 +613,7 @@ export const topicAPI = {
   // 获取话题分类列表
   getTopicCategories: (params = {}) => {
     const { limit = 20 } = params;
-    return api.get("/topics/categories", {
+    return api.get("topics/categories", {
       params: { limit },
     });
   },
@@ -621,14 +621,14 @@ export const topicAPI = {
   // 获取热门话题
   getTrendingTopics: (params = {}) => {
     const { limit = 10, days = 7 } = params;
-    return api.get("/topics/trending", {
+    return api.get("topics/trending", {
       params: { limit, days },
     });
   },
 
   // 获取话题统计
   getTopicStats: (tags) => {
-    return api.get("/topics/stats", {
+    return api.get("topics/stats", {
       params: { tags: Array.isArray(tags) ? tags.join(",") : tags },
     });
   },
@@ -641,7 +641,7 @@ export const aiAPI = {
     formData.append("image", file);
     formData.append("enhanceType", enhanceType);
 
-    return api.post("/ai/enhance-image", formData, {
+    return api.post("ai/enhance-image", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -654,7 +654,7 @@ export const aiAPI = {
     formData.append("image", file);
     formData.append("style", style);
 
-    return api.post("/ai-tools/style-transfer", formData, {
+    return api.post("ai-tools/style-transfer", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -663,7 +663,7 @@ export const aiAPI = {
 
   // 图案生成
   generatePattern: (generationParams) => {
-    return api.post("/ai-tools/pattern-generate", generationParams);
+    return api.post("ai-tools/pattern-generate", generationParams);
   },
 
   // 智能修复
@@ -672,7 +672,7 @@ export const aiAPI = {
     formData.append("image", file);
     formData.append("repairOptions", JSON.stringify(repairOptions));
 
-    return api.post("/ai-tools/repair", formData, {
+    return api.post("ai-tools/repair", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -682,7 +682,7 @@ export const aiAPI = {
   // 获取AI创作历史
   getAIHistory: (params = {}) => {
     const { page = 1, limit = 10 } = params;
-    return api.get("/ai-tools/history", {
+    return api.get("ai-tools/history", {
       params: { page, limit },
     });
   },
@@ -691,12 +691,12 @@ export const aiAPI = {
 // 管理员相关API
 export const adminAPI = {
   // 获取管理员仪表盘统计数据
-  getDashboardStats: () => api.get("/admin/dashboard/stats"),
+  getDashboardStats: () => api.get("admin/dashboard/stats"),
 
   // 获取系统概览统计
   getSystemOverview: (params = {}) => {
     const { timeRange = "7d" } = params;
-    return api.get("/admin/dashboard/overview", {
+    return api.get("admin/dashboard/overview", {
       params: { timeRange },
     });
   },
@@ -709,15 +709,15 @@ export const gamificationApi = {
     // 检查courseId是否是有效的MongoDB ObjectId格式（24位十六进制字符串）
     const isValidObjectId = courseId && /^[0-9a-fA-F]{24}$/.test(courseId);
     if (isValidObjectId) {
-      return api.get(`/gamification/learning-path/${courseId}`);
+      return api.get(`gamification/learning-path/${courseId}`);
     } else {
-      return api.get("/gamification/learning-path");
+      return api.get("gamification/learning-path");
     }
   },
 
   // 解锁课程
   unlockCourse: (courseId, userId) => {
-    return api.post("/gamification/unlock-course", {
+    return api.post("gamification/unlock-course", {
       courseId,
       userId,
     });
@@ -725,18 +725,18 @@ export const gamificationApi = {
 
   // 完成课时
   completeLessonTime: (data) => {
-    return api.post("/gamification/complete-lesson-time", data);
+    return api.post("gamification/complete-lesson-time", data);
   },
 
   // 获取积分统计
   getPointsStats: (userId) => {
-    return api.get(`/gamification/points/stats/${userId || ""}`);
+    return api.get(`gamification/points/stats/${userId || ""}`);
   },
 
   // 获取积分历史
   getPointsHistory: (params = {}) => {
     const { userId, page = 1, limit = 20, period } = params;
-    return api.get(`/gamification/points/history/${userId || ""}`, {
+    return api.get(`gamification/points/history/${userId || ""}`, {
       params: { page, limit, period },
     });
   },
@@ -744,7 +744,7 @@ export const gamificationApi = {
   // 获取排行榜
   getLeaderboard: (params = {}) => {
     const { type = "points", period = "week", limit = 10 } = params;
-    return api.get("/gamification/leaderboard", {
+    return api.get("gamification/leaderboard", {
       params: { type, period, limit },
     });
   },
@@ -754,15 +754,15 @@ export const gamificationApi = {
     // 检查userId是否是有效的MongoDB ObjectId格式（24位十六进制字符串）
     const isValidObjectId = userId && /^[0-9a-fA-F]{24}$/.test(userId);
     if (isValidObjectId) {
-      return api.get(`/gamification/achievements/${userId}`);
+      return api.get(`gamification/achievements/${userId}`);
     } else {
-      return api.get("/gamification/achievements");
+      return api.get("gamification/achievements");
     }
   },
 
   // 解锁成就
   unlockAchievement: (achievementId, userId) => {
-    return api.post("/gamification/unlock-achievement", {
+    return api.post("gamification/unlock-achievement", {
       achievementId,
       userId,
     });
@@ -770,63 +770,63 @@ export const gamificationApi = {
 
   // 撤销积分
   revokePoints: (data) => {
-    return api.post("/gamification/revoke-points", data);
+    return api.post("gamification/revoke-points", data);
   },
 
   // 获取用户等级信息
   getUserLevel: (userId) => {
-    return api.get(`/gamification/level/${userId || ""}`);
+    return api.get(`gamification/level/${userId || ""}`);
   },
 
   // 获取课程解锁状态
   getCourseUnlockStatus: (courseId, userId) => {
-    return api.get(`/gamification/course-unlock-status/${courseId}`, {
+    return api.get(`gamification/course-unlock-status/${courseId}`, {
       params: { userId },
     });
   },
 
   // 检查课程解锁条件
   checkUnlockRequirements: (courseId, userId) => {
-    return api.get(`/gamification/check-unlock/${courseId}`, {
+    return api.get(`gamification/check-unlock/${courseId}`, {
       params: { userId },
     });
   },
 
   // 获取学习统计
   getLearningStats: (userId, period = "week") => {
-    return api.get(`/gamification/learning-stats/${userId || ""}`, {
+    return api.get(`gamification/learning-stats/${userId || ""}`, {
       params: { period },
     });
   },
 
   // 获取积分获取方式
   getPointsSources: () => {
-    return api.get("/gamification/points/sources");
+    return api.get("gamification/points/sources");
   },
 
   // 获取成就分类
   getAchievementCategories: () => {
-    return api.get("/gamification/achievements/categories");
+    return api.get("gamification/achievements/categories");
   },
 
   // 获取用户进度概览
   getUserProgress: (userId) => {
-    return api.get(`/gamification/progress/${userId || ""}`);
+    return api.get(`gamification/progress/${userId || ""}`);
   },
 
   // 更新学习进度
   updateLearningProgress: (data) => {
-    return api.post("/gamification/update-progress", data);
+    return api.post("gamification/update-progress", data);
   },
 
   // 获取证书信息
   getCertificates: (userId) => {
-    return api.get(`/gamification/certificates/${userId || ""}`);
+    return api.get(`gamification/certificates/${userId || ""}`);
   },
 
   // 领取证书
   claimCertificate: (certificateId, userId) => {
-    return api.post("/gamification/claim-certificate", {
+    return api.post("gamification/claim-certificate", {
       certificateId,
       userId,
     });
