@@ -1,7 +1,17 @@
+const mongoose = require('mongoose');
 const SubsidyConfig = require('../models/SubsidyConfig');
 const { DEFAULT_SUBSIDY_CONFIG } = require('../config/subsidyDefault');
 
 const ensureConfig = async () => {
+  if (mongoose.connection.readyState !== 1) {
+    return {
+      key: 'default',
+      config: DEFAULT_SUBSIDY_CONFIG,
+      createdAt: null,
+      updatedAt: null
+    };
+  }
+
   const existing = await SubsidyConfig.findOne({ key: 'default' }).lean();
   if (existing && existing.config) return existing;
 
@@ -53,6 +63,13 @@ exports.getSubsidyConfigAdmin = async (req, res) => {
 
 exports.updateSubsidyConfigAdmin = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: '数据库未连接，无法保存配置'
+      });
+    }
+
     const { config } = req.body;
     if (!config || typeof config !== 'object') {
       return res.status(400).json({
@@ -84,4 +101,3 @@ exports.updateSubsidyConfigAdmin = async (req, res) => {
     });
   }
 };
-
