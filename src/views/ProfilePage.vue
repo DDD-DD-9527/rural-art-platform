@@ -286,7 +286,7 @@
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-slate-800 flex items-center">
               <LibraryIcon class="w-5 h-5 mr-2 text-emerald-500" />
-              瑶绣制作技能补贴
+              {{ subsidyCard?.title || "技能补贴" }}
             </h3>
             <button
               @click="goToSubsidy"
@@ -300,22 +300,30 @@
           >
             <div class="flex items-center justify-between mb-3">
               <div>
-                <div class="text-lg font-bold text-emerald-600">¥800</div>
-                <div class="text-sm text-slate-600">专项职业能力补贴</div>
+                <div class="text-lg font-bold text-emerald-600">
+                  ¥{{ subsidyCard?.leftAmount ?? "-" }}
+                </div>
+                <div class="text-sm text-slate-600">
+                  {{ subsidyCard?.leftLabel || "" }}
+                </div>
               </div>
               <div class="text-right">
-                <div class="text-lg font-bold text-green-600">5门</div>
-                <div class="text-sm text-slate-600">瑶绣相关课程</div>
+                <div class="text-lg font-bold text-green-600">
+                  {{ subsidyCard?.rightCount ?? 0 }}门
+                </div>
+                <div class="text-sm text-slate-600">
+                  {{ subsidyCard?.rightLabel || "" }}
+                </div>
               </div>
             </div>
             <div class="space-y-2">
-              <div class="flex items-center text-sm text-slate-600">
+              <div
+                v-for="(line, idx) in subsidyCard?.bullets || []"
+                :key="idx"
+                class="flex items-center text-sm text-slate-600"
+              >
                 <CheckCircleIcon class="w-4 h-4 mr-1 text-green-500" />
-                符合广东省瑶绣制作专项职业能力补贴条件
-              </div>
-              <div class="flex items-center text-sm text-slate-600">
-                <CheckCircleIcon class="w-4 h-4 mr-1 text-green-500" />
-                已完成瑶绣制作技艺培训课程
+                {{ line }}
               </div>
             </div>
           </div>
@@ -687,7 +695,7 @@
 import { ref, reactive, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "../stores/user";
-import { socialAPI, commentAPI } from "../services/api";
+import { socialAPI, commentAPI, subsidyAPI } from "../services/api";
 import {
   ArrowLeft as ArrowLeftIcon,
   User as UserIcon,
@@ -712,6 +720,9 @@ import { DEFAULT_ASSETS } from "@/config/constants";
 const router = useRouter();
 const userStore = useUserStore();
 const activeTab = ref("profile");
+
+const subsidyConfig = ref(null);
+const subsidyCard = computed(() => subsidyConfig.value?.profileCard || null);
 
 // 当前用户ID
 const currentUserId = computed(() => userStore.user?.id || userStore.user?._id);
@@ -775,7 +786,19 @@ const refreshAllData = async () => {
     loadFollowingList(),
     loadMyLikedPosts(),
     loadFollowersList(),
+    loadSubsidyConfig(),
   ]);
+};
+
+const loadSubsidyConfig = async () => {
+  try {
+    const resp = await subsidyAPI.getConfig();
+    if (resp?.success) {
+      subsidyConfig.value = resp.data?.config || null;
+    }
+  } catch (error) {
+    void error;
+  }
 };
 
 // 组件挂载时加载数据

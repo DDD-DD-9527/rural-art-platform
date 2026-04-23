@@ -236,6 +236,33 @@
                 </div>
               </div>
             </button>
+
+            <button
+              @click="goToSubsidyConfig"
+              class="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg p-4 text-left transition-colors"
+            >
+              <div class="flex items-center">
+                <svg
+                  class="h-6 w-6 text-emerald-600 mr-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-10V6m0 12v-2m9-4a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <div>
+                  <h4 class="text-sm font-medium text-gray-900">
+                    技能补贴配置
+                  </h4>
+                  <p class="text-sm text-gray-500">配置补贴政策与课程</p>
+                </div>
+              </div>
+            </button>
           </div>
         </div>
       </div>
@@ -421,6 +448,10 @@ const goToUserManagement = () => {
 
 const goToContentManagement = () => {
   router.push("/admin/posts");
+};
+
+const goToSubsidyConfig = () => {
+  router.push("/admin/subsidy-config");
 };
 
 const handleLogout = async () => {

@@ -54,14 +54,22 @@
         </div>
 
         <div class="filter-controls">
-          <select v-model="status" @change="handleFilterChange" class="filter-select">
+          <select
+            v-model="status"
+            @change="handleFilterChange"
+            class="filter-select"
+          >
             <option value="">全部状态</option>
             <option value="active">active</option>
             <option value="inactive">inactive</option>
             <option value="banned">banned</option>
           </select>
 
-          <select v-model="role" @change="handleFilterChange" class="filter-select">
+          <select
+            v-model="role"
+            @change="handleFilterChange"
+            class="filter-select"
+          >
             <option value="">全部角色</option>
             <option value="user">user</option>
             <option value="creator">creator</option>
@@ -122,7 +130,9 @@
                 </select>
               </td>
               <td>
-                <span class="badge" :class="statusBadgeClass(u.status)">{{ u.status }}</span>
+                <span class="badge" :class="statusBadgeClass(u.status)">{{
+                  u.status
+                }}</span>
               </td>
               <td>{{ formatDate(u.createdAt) }}</td>
               <td class="actions-col">
@@ -161,7 +171,9 @@
         >
           上一页
         </button>
-        <div class="pagination-info">第 {{ pagination.current }} 页，共 {{ pagination.pages }} 页</div>
+        <div class="pagination-info">
+          第 {{ pagination.current }} 页，共 {{ pagination.pages }} 页
+        </div>
         <button
           @click="changePage(pagination.current + 1)"
           :disabled="pagination.current === pagination.pages || loading"
@@ -471,7 +483,8 @@ th {
   background: #fafafa;
 }
 .mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
 }
 .inline-select {
@@ -542,4 +555,3 @@ th {
   }
 }
 </style>
-

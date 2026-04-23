@@ -54,7 +54,11 @@
         </div>
 
         <div class="filter-controls">
-          <select v-model="status" @change="handleFilterChange" class="filter-select">
+          <select
+            v-model="status"
+            @change="handleFilterChange"
+            class="filter-select"
+          >
             <option value="">全部状态</option>
             <option value="published">published</option>
             <option value="hidden">hidden</option>
@@ -62,7 +66,11 @@
             <option value="deleted">deleted</option>
           </select>
 
-          <select v-model="type" @change="handleFilterChange" class="filter-select">
+          <select
+            v-model="type"
+            @change="handleFilterChange"
+            class="filter-select"
+          >
             <option value="">全部类型</option>
             <option value="share">share</option>
             <option value="question">question</option>
@@ -71,7 +79,11 @@
             <option value="discussion">discussion</option>
           </select>
 
-          <select v-model="visibility" @change="handleFilterChange" class="filter-select">
+          <select
+            v-model="visibility"
+            @change="handleFilterChange"
+            class="filter-select"
+          >
             <option value="">全部可见性</option>
             <option value="public">public</option>
             <option value="followers">followers</option>
@@ -79,12 +91,20 @@
           </select>
 
           <label class="checkbox">
-            <input type="checkbox" v-model="reportedOnly" @change="handleFilterChange" />
+            <input
+              type="checkbox"
+              v-model="reportedOnly"
+              @change="handleFilterChange"
+            />
             仅举报
           </label>
 
           <label class="checkbox">
-            <input type="checkbox" v-model="pinnedOnly" @change="handleFilterChange" />
+            <input
+              type="checkbox"
+              v-model="pinnedOnly"
+              @change="handleFilterChange"
+            />
             仅置顶
           </label>
         </div>
@@ -115,14 +135,21 @@
                 />
                 <div class="author-text">
                   <div class="author-name">
-                    {{ p.author?.profile?.nickname || p.author?.username || "-" }}
+                    {{
+                      p.author?.profile?.nickname || p.author?.username || "-"
+                    }}
                     <span class="mono">({{ p.author?.userId || "-" }})</span>
                   </div>
                   <div class="muted">
                     {{ formatDate(p.createdAt) }}
-                    · <span class="badge" :class="statusBadgeClass(p.status)">{{ p.status }}</span>
+                    ·
+                    <span class="badge" :class="statusBadgeClass(p.status)">{{
+                      p.status
+                    }}</span>
                     · <span class="badge badge-gray">{{ p.visibility }}</span>
-                    <span v-if="p.isPinned" class="badge badge-blue">pinned</span>
+                    <span v-if="p.isPinned" class="badge badge-blue"
+                      >pinned</span
+                    >
                     <span v-if="p.reportsCount > 0" class="badge badge-red">
                       reports {{ p.reportsCount }}
                     </span>
@@ -162,7 +189,12 @@
 
           <div class="post-bottom">
             <div class="tags">
-              <span v-for="t in (p.tags || []).slice(0, 6)" :key="t" class="tag">{{ t }}</span>
+              <span
+                v-for="t in (p.tags || []).slice(0, 6)"
+                :key="t"
+                class="tag"
+                >{{ t }}</span
+              >
               <span v-if="(p.tags || []).length > 6" class="tag-more">
                 +{{ (p.tags || []).length - 6 }}
               </span>
@@ -184,7 +216,9 @@
         >
           上一页
         </button>
-        <div class="pagination-info">第 {{ pagination.current }} 页，共 {{ pagination.pages }} 页</div>
+        <div class="pagination-info">
+          第 {{ pagination.current }} 页，共 {{ pagination.pages }} 页
+        </div>
         <button
           @click="changePage(pagination.current + 1)"
           :disabled="pagination.current === pagination.pages || loading"
@@ -539,7 +573,8 @@ onMounted(() => {
   align-items: center;
 }
 .mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
 }
 .badge {
@@ -654,4 +689,3 @@ onMounted(() => {
   }
 }
 </style>
-

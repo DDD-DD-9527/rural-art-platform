@@ -22,6 +22,7 @@ const gamificationRoutes = require('./routes/gamification');
 const pointsRoutes = require('./routes/pointsRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const metaRoutes = require('./routes/metaRoutes');
+const subsidyRoutes = require('./routes/subsidyRoutes');
 
 // 创建Express应用
 const app = express();
@@ -117,6 +118,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/points', pointsRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/subsidy', subsidyRoutes);
 
 // 兼容没有 /api 前缀的反向代理/路由配置（例如平台路由把 /api 前缀剥离）
 app.use('/users', userRoutes);
@@ -131,6 +133,7 @@ app.use('/admin', adminRoutes);
 app.use('/gamification', gamificationRoutes);
 app.use('/points', pointsRoutes);
 app.use('/ai', aiRoutes);
+app.use('/subsidy', subsidyRoutes);
 
 // 健康检查端点
 app.get('/health', (req, res) => {

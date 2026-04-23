@@ -43,6 +43,7 @@ import AdminDashboard from "./views/admin/AdminDashboard.vue";
 import AdminCoursesPage from "./views/admin/AdminCoursesPage.vue";
 import AdminUsersPage from "./views/admin/AdminUsersPage.vue";
 import AdminPostsPage from "./views/admin/AdminPostsPage.vue";
+import AdminSubsidyConfigPage from "./views/admin/AdminSubsidyConfigPage.vue";
 import YaoEmbroideryCoursePage from "./views/YaoEmbroideryCoursePage.vue";
 
 const pinia = createPinia();
@@ -91,6 +92,7 @@ const routes = [
   { path: "/admin/courses", component: AdminCoursesPage },
   { path: "/admin/users", component: AdminUsersPage },
   { path: "/admin/posts", component: AdminPostsPage },
+  { path: "/admin/subsidy-config", component: AdminSubsidyConfigPage },
   // 瑶绣制作课程专门页面
   { path: "/yao-embroidery", component: YaoEmbroideryCoursePage },
 ];

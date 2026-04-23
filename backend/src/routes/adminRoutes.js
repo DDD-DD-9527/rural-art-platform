@@ -3,6 +3,7 @@ const router = express.Router();
 const { getDashboardStats, getSystemOverview } = require('../controllers/adminController');
 const { listUsers, getUserById, updateUserStatus, updateUserRole } = require('../controllers/adminUserController');
 const { listPosts, updatePostStatus, setPostPinned, deletePost } = require('../controllers/adminPostController');
+const { getSubsidyConfigAdmin, updateSubsidyConfigAdmin } = require('../controllers/subsidyController');
 const { authenticate, authorize } = require('../middleware/auth');
 const { query, param, body } = require('express-validator');
 const validate = require('../middleware/validate');
@@ -16,6 +17,15 @@ router.get('/dashboard/stats', getDashboardStats);
 
 // 获取系统概览统计
 router.get('/dashboard/overview', getSystemOverview);
+
+router.get('/subsidy-config', getSubsidyConfigAdmin);
+
+router.put(
+  '/subsidy-config',
+  [body('config').custom((v) => v && typeof v === 'object')],
+  validate,
+  updateSubsidyConfigAdmin
+);
 
 router.get(
   '/users',

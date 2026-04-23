@@ -607,6 +607,10 @@ export const metaAPI = {
   getCourseMeta: () => api.get("meta/courses"),
 };
 
+export const subsidyAPI = {
+  getConfig: () => api.get("subsidy/config"),
+};
+
 // AI工具相关API
 // 话题相关API
 export const topicAPI = {
@@ -731,6 +735,14 @@ export const adminAPI = {
 
   deletePost: (id) => {
     return api.delete(`admin/posts/${id}`);
+  },
+
+  getSubsidyConfig: () => {
+    return api.get("admin/subsidy-config");
+  },
+
+  updateSubsidyConfig: (config) => {
+    return api.put("admin/subsidy-config", { config });
   },
 };
 
