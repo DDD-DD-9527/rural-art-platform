@@ -325,8 +325,8 @@ const fetchStats = async () => {
     loading.value = true;
     const response = await adminAPI.getDashboardStats();
 
-    if (response.data.success) {
-      const { stats: apiStats, activities } = response.data.data;
+    if (response.success) {
+      const { stats: apiStats, activities } = response.data;
 
       // 更新统计数据
       stats.totalUsers = apiStats.users.total;
@@ -342,6 +342,7 @@ const fetchStats = async () => {
         allActivities.push({
           content: `${user.name} 注册了账号`,
           time: formatTime(user.time),
+          originalTime: user.time,
           icon: "UserPlusIcon",
           iconBg: "bg-green-500",
         });
@@ -352,6 +353,7 @@ const fetchStats = async () => {
         allActivities.push({
           content: `${course.creator} 发布了课程《${course.title}》`,
           time: formatTime(course.time),
+          originalTime: course.time,
           icon: "BookOpenIcon",
           iconBg: "bg-blue-500",
         });
@@ -362,6 +364,7 @@ const fetchStats = async () => {
         allActivities.push({
           content: `${post.author} 发布了新帖子：${post.content}`,
           time: formatTime(post.time),
+          originalTime: post.time,
           icon: "ChatBubbleLeftIcon",
           iconBg: "bg-yellow-500",
         });
@@ -413,13 +416,11 @@ const goToCourseManagement = () => {
 };
 
 const goToUserManagement = () => {
-  // TODO: 实现用户管理页面
-  console.log("跳转到用户管理");
+  router.push("/admin/users");
 };
 
 const goToContentManagement = () => {
-  // TODO: 实现内容管理页面
-  console.log("跳转到内容管理");
+  router.push("/admin/posts");
 };
 
 const handleLogout = async () => {

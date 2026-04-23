@@ -700,6 +700,38 @@ export const adminAPI = {
       params: { timeRange },
     });
   },
+
+  getUsers: (params = {}) => {
+    return api.get("admin/users", { params });
+  },
+
+  getUserById: (id) => {
+    return api.get(`admin/users/${id}`);
+  },
+
+  updateUserStatus: (id, status) => {
+    return api.patch(`admin/users/${id}/status`, { status });
+  },
+
+  updateUserRole: (id, role) => {
+    return api.patch(`admin/users/${id}/role`, { role });
+  },
+
+  getPosts: (params = {}) => {
+    return api.get("admin/posts", { params });
+  },
+
+  updatePostStatus: (id, status) => {
+    return api.patch(`admin/posts/${id}/status`, { status });
+  },
+
+  setPostPinned: (id, isPinned) => {
+    return api.patch(`admin/posts/${id}/pin`, { isPinned: !!isPinned });
+  },
+
+  deletePost: (id) => {
+    return api.delete(`admin/posts/${id}`);
+  },
 };
 
 // 游戏化系统API

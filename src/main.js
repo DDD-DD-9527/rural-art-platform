@@ -5,6 +5,8 @@ import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 import App from "./App.vue";
 import "./style.css";
+import { createPersistedState } from "pinia-plugin-persistedstate";
+import { useUserStore } from "./stores/user.js";
 
 // 导入页面组件
 import HomePage from "./views/HomePage.vue";
@@ -39,7 +41,16 @@ import LearningDaysPage from "./views/LearningDaysPage.vue";
 // 导入后台管理页面
 import AdminDashboard from "./views/admin/AdminDashboard.vue";
 import AdminCoursesPage from "./views/admin/AdminCoursesPage.vue";
+import AdminUsersPage from "./views/admin/AdminUsersPage.vue";
+import AdminPostsPage from "./views/admin/AdminPostsPage.vue";
 import YaoEmbroideryCoursePage from "./views/YaoEmbroideryCoursePage.vue";
+
+const pinia = createPinia();
+pinia.use(
+  createPersistedState({
+    storage: localStorage,
+  }),
+);
 
 // 路由配置
 const routes = [
@@ -78,6 +89,8 @@ const routes = [
   // 管理员路由
   { path: "/admin", component: AdminDashboard },
   { path: "/admin/courses", component: AdminCoursesPage },
+  { path: "/admin/users", component: AdminUsersPage },
+  { path: "/admin/posts", component: AdminPostsPage },
   // 瑶绣制作课程专门页面
   { path: "/yao-embroidery", component: YaoEmbroideryCoursePage },
 ];
@@ -87,14 +100,26 @@ const router = createRouter({
   routes,
 });
 
-import { createPersistedState } from "pinia-plugin-persistedstate";
+router.beforeEach(async (to) => {
+  if (!to.path.startsWith("/admin")) return true;
+  const token = localStorage.getItem("auth_token");
+  if (!token) return "/login";
 
-const pinia = createPinia();
-pinia.use(
-  createPersistedState({
-    storage: localStorage,
-  }),
-);
+  const userStore = useUserStore(pinia);
+  if (!userStore.user?.role || userStore.user.role === "guest") {
+    try {
+      await userStore.checkAuth();
+    } catch (e) {
+      void e;
+    }
+  }
+
+  if (userStore.user?.role !== "admin") {
+    return "/";
+  }
+
+  return true;
+});
 
 const app = createApp(App);
 
@@ -106,7 +131,6 @@ app.use(ElementPlus);
 app.mount("#app");
 
 // 在应用挂载后初始化用户状态
-import { useUserStore } from "./stores/user.js";
 const userStore = useUserStore();
 
 // 检查用户登录状态并获取数据
