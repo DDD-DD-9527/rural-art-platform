@@ -319,7 +319,7 @@ const startRepair = async () => {
 
   try {
     const res = await aiAPI.repairImage(uploadedFile.value, { repairType, quality });
-    const data = res?.data?.data || {};
+    const data = res?.data || {};
     const url = data.repairedUrl || data.previewUrls?.[0];
     if (url) {
       repairResult.value = { image: url };

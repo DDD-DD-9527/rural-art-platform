@@ -198,7 +198,7 @@ const enhanceImage = async () => {
   try {
     if (!uploadedFile.value) return;
     const res = await aiAPI.enhanceImage(uploadedFile.value, "quality");
-    const data = res?.data?.data || {};
+    const data = res?.data || {};
 
     enhancedResults.length = 0;
     if (data.colorizedUrl) {

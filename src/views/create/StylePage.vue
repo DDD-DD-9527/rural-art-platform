@@ -254,7 +254,7 @@ const convertStyle = async () => {
   try {
     if (!uploadedFile.value || !selectedStyle.value) return;
     const res = await aiAPI.styleTransfer(uploadedFile.value, selectedStyle.value.id);
-    const data = res?.data?.data || {};
+    const data = res?.data || {};
     convertedResults.length = 0;
     const url = data.styledUrl || data.previewUrls?.[0];
     if (url) {

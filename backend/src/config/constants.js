@@ -118,7 +118,7 @@ const AI_CONFIG = {
     workflow: {
       runUrl: process.env.COZE_WORKFLOW_RUN_URL || 'https://n86p8sr4b4.coze.site/run',
       token: process.env.COZE_WORKFLOW_TOKEN || '',
-      timeout: parseInt(process.env.COZE_WORKFLOW_TIMEOUT) || 120000
+      timeout: parseInt(process.env.COZE_WORKFLOW_TIMEOUT) || 300000
     }
   }
 };

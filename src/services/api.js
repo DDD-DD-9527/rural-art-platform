@@ -646,6 +646,7 @@ export const aiAPI = {
     formData.append("enhanceType", enhanceType);
 
     return api.post("ai/enhance-image", formData, {
+      timeout: 300000,
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -659,6 +660,7 @@ export const aiAPI = {
     formData.append("style", style);
 
     return api.post("ai/style-transfer", formData, {
+      timeout: 300000,
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -667,7 +669,7 @@ export const aiAPI = {
 
   // 图案生成
   generatePattern: (generationParams) => {
-    return api.post("ai/pattern-generate", generationParams);
+    return api.post("ai/pattern-generate", generationParams, { timeout: 300000 });
   },
 
   // 智能修复
@@ -682,6 +684,7 @@ export const aiAPI = {
     }
 
     return api.post("ai/smart-repair", formData, {
+      timeout: 300000,
       headers: {
         "Content-Type": "multipart/form-data",
       },

@@ -330,7 +330,7 @@ const generatePattern = () => {
   aiAPI
     .generatePattern(payload)
     .then((res) => {
-      const data = res?.data?.data || {};
+      const data = res?.data || {};
       generatedPatterns.length = 0;
       const urls = data.variations?.length ? data.variations : data.patternUrl ? [data.patternUrl] : [];
       urls.forEach((url, index) => {
