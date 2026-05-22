@@ -658,7 +658,7 @@ export const aiAPI = {
     formData.append("image", file);
     formData.append("style", style);
 
-    return api.post("ai-tools/style-transfer", formData, {
+    return api.post("ai/style-transfer", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -667,27 +667,24 @@ export const aiAPI = {
 
   // 图案生成
   generatePattern: (generationParams) => {
-    return api.post("ai-tools/pattern-generate", generationParams);
+    return api.post("ai/pattern-generate", generationParams);
   },
 
   // 智能修复
   repairImage: (file, repairOptions) => {
     const formData = new FormData();
     formData.append("image", file);
-    formData.append("repairOptions", JSON.stringify(repairOptions));
+    if (repairOptions && typeof repairOptions === "object") {
+      Object.entries(repairOptions).forEach(([k, v]) => {
+        if (v === undefined || v === null) return;
+        formData.append(k, String(v));
+      });
+    }
 
-    return api.post("ai-tools/repair", formData, {
+    return api.post("ai/smart-repair", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    });
-  },
-
-  // 获取AI创作历史
-  getAIHistory: (params = {}) => {
-    const { page = 1, limit = 10 } = params;
-    return api.get("ai-tools/history", {
-      params: { page, limit },
     });
   },
 };

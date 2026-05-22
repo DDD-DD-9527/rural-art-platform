@@ -167,49 +167,16 @@
                 {{ pattern.description }}
               </p>
               <div class="flex space-x-2">
-                <button
+                <a
+                  :href="pattern.image"
+                  download
                   class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm hover:bg-white/30 transition-colors"
                 >
                   下载
-                </button>
-                <button
-                  class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm hover:bg-white/30 transition-colors"
-                >
-                  编辑
-                </button>
-                <button
-                  class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm hover:bg-white/30 transition-colors"
-                >
-                  分享
-                </button>
+                </a>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- AI助手建议 -->
-      <div class="glass-effect rounded-3xl p-6">
-        <div class="flex items-center space-x-3 mb-4">
-          <div
-            class="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center"
-          >
-            <BotIcon class="w-5 h-5 text-white" />
-          </div>
-          <h3 class="text-lg font-semibold text-slate-800">AI助手建议</h3>
-        </div>
-        <div class="space-y-3">
-          <div
-            class="p-4 bg-gradient-to-r from-orange-100 to-red-100 rounded-2xl"
-          >
-            <p class="text-slate-700">{{ aiSuggestion }}</p>
-          </div>
-          <button
-            @click="getDesignTip"
-            class="text-orange-600 hover:text-orange-700 font-medium transition-colors"
-          >
-            获取设计技巧
-          </button>
         </div>
       </div>
     </main>
@@ -224,7 +191,6 @@ import { useRouter } from "vue-router";
 import {
   ArrowLeftIcon,
   LayersIcon,
-  BotIcon,
   FlowerIcon,
   CloudIcon,
   StarIcon,
@@ -235,6 +201,7 @@ import {
   MountainIcon,
 } from "lucide-vue-next";
 import BottomNavigation from "../../components/BottomNavigation.vue";
+import { aiAPI } from "../../services/api";
 
 const router = useRouter();
 const activeTab = ref("create");
@@ -242,9 +209,6 @@ const activeTab = ref("create");
 const selectedElements = ref([]);
 const isGenerating = ref(false);
 const textDescription = ref("");
-const aiSuggestion = ref(
-  "选择2-4个传统元素进行组合，能创造出既有传统韵味又富有创新的图案。建议从寓意吉祥的元素开始。",
-);
 
 const patternSettings = reactive({
   complexity: "medium",
@@ -335,23 +299,50 @@ const clearSelection = () => {
 const generatePattern = () => {
   isGenerating.value = true;
 
-  // 直接显示额度用完提示
-  setTimeout(() => {
-    generatedPatterns.length = 0; // 不显示任何生成结果
-    isGenerating.value = false;
-    aiSuggestion.value = "🚫 Coze额度已用完，待管理员重新补充额度再行测试";
-  }, 1000);
-};
+  const elementNames = selectedElements.value
+    .map((id) => traditionalElements.find((e) => e.id === id)?.name)
+    .filter(Boolean);
 
-const getDesignTip = () => {
-  const tips = [
-    "对称图案给人稳重平衡的感觉，适合用于正式场合的装饰。",
-    "边框图案可以用来装饰文档、海报或其他设计作品的边缘。",
-    "平铺图案适合用作背景或纺织品设计，具有很好的延展性。",
-    "传统色彩搭配能更好地体现文化内涵，现代色彩则更具时尚感。",
-    "简洁的图案更容易应用，复杂的图案则更具艺术价值。",
-    "结合不同寓意的元素，可以创造出富有故事性的图案设计。",
-  ];
-  aiSuggestion.value = tips[Math.floor(Math.random() * tips.length)];
+  const complexityMap = {
+    simple: "low",
+    medium: "medium",
+    complex: "high",
+  };
+
+  const colorSchemeMap = {
+    traditional: "red_gold",
+    modern: "colorful",
+    monochrome: "ink_gray",
+  };
+
+  const payload = {
+    description:
+      textDescription.value?.trim() ||
+      `基于传统元素生成图案：${elementNames.join("、")}`,
+    elements: elementNames,
+    style: "traditional",
+    size: "medium",
+    colorScheme: colorSchemeMap[patternSettings.colorScheme] || "auto",
+    complexity: complexityMap[patternSettings.complexity] || "medium",
+    numResults: 4,
+  };
+
+  aiAPI
+    .generatePattern(payload)
+    .then((res) => {
+      const data = res?.data?.data || {};
+      generatedPatterns.length = 0;
+      const urls = data.variations?.length ? data.variations : data.patternUrl ? [data.patternUrl] : [];
+      urls.forEach((url, index) => {
+        generatedPatterns.push({
+          title: `图案 ${index + 1}`,
+          image: url,
+          description: elementNames.join("、"),
+        });
+      });
+    })
+    .finally(() => {
+      isGenerating.value = false;
+    });
 };
 </script>

@@ -132,7 +132,7 @@ router.post('/style-transfer', upload.single('image'), async (req, res) => {
  */
 router.post('/pattern-generate', async (req, res) => {
   try {
-    const { description, style, size, colorScheme, complexity } = req.body;
+    const { description, style, size, colorScheme, complexity, elements, numResults } = req.body;
 
     if (!description) {
       return res.status(400).json({
@@ -145,7 +145,9 @@ router.post('/pattern-generate', async (req, res) => {
       style: style || 'traditional',
       size: size || 'medium',
       colorScheme: colorScheme || 'auto',
-      complexity: complexity || 'medium'
+      complexity: complexity || 'medium',
+      elements: Array.isArray(elements) ? elements : [],
+      numResults: typeof numResults === 'number' ? numResults : undefined
     });
 
     if (result.success) {

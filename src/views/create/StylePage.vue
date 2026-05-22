@@ -145,43 +145,15 @@
               class="w-full rounded-xl shadow-lg"
             />
             <div class="flex space-x-3">
-              <button
-                class="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-300"
+              <a
+                :href="convertedResults[0].image"
+                download
+                class="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-medium hover:shadow-lg transition-all duration-300 text-center"
               >
                 下载图片
-              </button>
-              <button
-                class="flex-1 px-4 py-2 border border-purple-300 text-purple-600 rounded-xl font-medium hover:bg-purple-50 transition-colors"
-              >
-                分享作品
-              </button>
+              </a>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- AI助手建议 -->
-      <div class="glass-effect rounded-3xl p-6">
-        <div class="flex items-center space-x-3 mb-4">
-          <div
-            class="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center"
-          >
-            <BotIcon class="w-5 h-5 text-white" />
-          </div>
-          <h3 class="text-lg font-semibold text-slate-800">AI助手建议</h3>
-        </div>
-        <div class="space-y-3">
-          <div
-            class="p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl"
-          >
-            <p class="text-slate-700">{{ aiSuggestion }}</p>
-          </div>
-          <button
-            @click="getStyleAdvice"
-            class="text-purple-600 hover:text-purple-700 font-medium transition-colors"
-          >
-            获取风格建议
-          </button>
         </div>
       </div>
     </main>
@@ -193,25 +165,19 @@
 <script setup>
 import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
-import {
-  ArrowLeftIcon,
-  PaletteIcon,
-  UploadIcon,
-  BotIcon,
-} from "lucide-vue-next";
+import { ArrowLeftIcon, PaletteIcon, UploadIcon } from "lucide-vue-next";
 import BottomNavigation from "../../components/BottomNavigation.vue";
+import { aiAPI } from "../../services/api";
 
 const router = useRouter();
 const activeTab = ref("create");
 
 const uploadedImage = ref(null);
+const uploadedFile = ref(null);
 const isDragging = ref(false);
 const isProcessing = ref(false);
 const fileInput = ref(null);
 const selectedStyle = ref(null);
-const aiSuggestion = ref(
-  "选择合适的艺术风格可以让你的作品呈现完全不同的视觉效果。建议根据作品内容和想要表达的情感来选择风格。",
-);
 
 const convertedResults = reactive([]);
 
@@ -231,21 +197,6 @@ const artStyles = reactive([
     name: "油画风",
     preview: "/original-works-placeholder.png",
   },
-  {
-    id: "paper-cut",
-    name: "剪纸风",
-    preview: "/traditional-paper-cutting.png",
-  },
-  {
-    id: "sketch",
-    name: "素描风",
-    preview: "/placeholder.jpg",
-  },
-  {
-    id: "watercolor",
-    name: "水彩风",
-    preview: "/paper-cutting-flower-bird.png",
-  },
 ]);
 
 const goBack = () => {
@@ -263,6 +214,7 @@ const triggerFileInput = () => {
 const handleFileSelect = (event) => {
   const file = event.target.files[0];
   if (file) {
+    uploadedFile.value = file;
     const reader = new FileReader();
     reader.onload = (e) => {
       uploadedImage.value = e.target.result;
@@ -276,6 +228,7 @@ const handleDrop = (event) => {
   isDragging.value = false;
   const file = event.dataTransfer.files[0];
   if (file && file.type.startsWith("image/")) {
+    uploadedFile.value = file;
     const reader = new FileReader();
     reader.onload = (e) => {
       uploadedImage.value = e.target.result;
@@ -286,6 +239,7 @@ const handleDrop = (event) => {
 
 const clearImage = () => {
   uploadedImage.value = null;
+  uploadedFile.value = null;
   selectedStyle.value = null;
   convertedResults.length = 0;
 };
@@ -294,26 +248,20 @@ const selectStyle = (style) => {
   selectedStyle.value = style;
 };
 
-const convertStyle = () => {
+const convertStyle = async () => {
   isProcessing.value = true;
 
-  // 直接显示额度用完提示
-  setTimeout(() => {
-    convertedResults.length = 0; // 不显示任何转换结果
+  try {
+    if (!uploadedFile.value || !selectedStyle.value) return;
+    const res = await aiAPI.styleTransfer(uploadedFile.value, selectedStyle.value.id);
+    const data = res?.data?.data || {};
+    convertedResults.length = 0;
+    const url = data.styledUrl || data.previewUrls?.[0];
+    if (url) {
+      convertedResults.push({ title: "风格转换", image: url });
+    }
+  } finally {
     isProcessing.value = false;
-    aiSuggestion.value = "🚫 Coze额度已用完，待管理员重新补充额度再行测试";
-  }, 1000);
-};
-
-const getStyleAdvice = () => {
-  const advices = [
-    "水墨风格适合表现意境深远的作品，特别是山水和花鸟题材。",
-    "卡通风格能让作品更加生动有趣，适合儿童教育和趣味表达。",
-    "油画风格能增强作品的质感和层次，适合人物肖像和静物。",
-    "剪纸风格体现了传统文化特色，适合节庆和民俗主题。",
-    "素描风格突出线条和结构，适合学习绘画基础和表现形体。",
-    "水彩风格清新淡雅，适合表现自然风光和抒情主题。",
-  ];
-  aiSuggestion.value = advices[Math.floor(Math.random() * advices.length)];
+  }
 };
 </script>

@@ -1,82 +1,600 @@
-扣子是新一代一站式 AI 智能体开发平台。无论你是否有编程基础，都可以在平台上快速搭建基于 AI 模型的各类问答智能体。而且你可以将搭建的智能体发布到各类社交平台和通讯软件上，让更多的用户与你搭建的智能体聊天。
-扣子支持将 AI 智能体和扣子应用发布为 API 服务，你可以通过 HTTP 方式与其进行交互。
-费用说明
-个人免费版：免费使用扣子 API，但有一定的额度限制。
-个人进阶版、团队版和企业版：如果调用发起对话、执行工作流、执行工作流（流式响应）、执行对话流、恢复运行工作流 API，则根据输入和输出的 Token 数量扣减套餐中的资源点，具体请参见计费概述。如果团队版和企业版中调用了方舟模型，会根据方舟模型 Token 消耗收取费用；调用其他接口免费。
-限制说明
-限流策略
-扣子 API 限流策略分为以下两个维度，且不同用户类型的限流策略不同。
-限流策略
-个人免费版
-个人进阶版
-团队版
-企业版
-API 流控
-发起对话 API 个人免费版的流控限制为 20 Queries Per Second(QPS)，个人进阶版的流控限制为 200 QPS。
-执行工作流、执行工作流（流式响应）、执行对话流、查询工作流异步执行结果、查询输出节点的执行结果 API 的流控限制为 200 QPS。
-上传文件API 的流控限制为 10 QPS。
-发起对话 、执行工作流、执行工作流（流式响应）、执行对话流、查询工作流异步执行结果、查询输出节点的执行结果 API 的流控限制为 500 QPS。扣子企业版中，企业超级管理员或管理员可以扩容 API 的 QPS，具体步骤请参见购买扩容服务。
-上传文件API 的流控限制为 20 QPS。
-模型流控
-调用发起对话、执行工作流、执行工作流（流式响应）、执行对话流等涉及模型处理的 API 时，每个用户使用模型的频率受限。模型的流控限制为：
-模型每分钟请求数（RPM）为 300。
-模型每分钟请求数（RPM）为 1000。
-模型每分钟请求数（RPM）为 5000。
+artwork-workflow-api
 
+<br />
 
-模型每分钟请求数（RPM）为 12000。
-API调用量
-累计 100 次免费额度。
-一旦累计调用次数超过免费额度，此账号将无法继续使用任何扣子 API。API 免费额度不适用于通过扣子平台、其他发布渠道或 SDK 产生的请求。
+示例 token（请勿提交真实密钥）：`<YOUR_TOKEN>`
 
-不限
-不限
-不限
+# 艺术作品处理工作流 - API接入文档
 
-请求体限制
-API 请求体大小限制如下：
-工作流相关的 API 请求体大小限制为 20MB。
-其他类类别的 API 请求体大小限制为 15MB。
-发送请求
-将以下命令粘贴到终端中以运行你的第一个 API 请求。
-在发送请求前，请将示例中的以下参数值替换成真实数据：
-Authorization：生成的个人访问令牌。线上环境注意替换为 OAuth 访问密钥，详情参考OAuth 应用管理。
-bot_id：智能体ID。进入智能体的开发页面，开发页面 URL 中 bot 参数后的数字就是智能体ID。例如https://www.coze.cn/space/341****/bot/73428668*****，bot_id 为73428668*****。
-确保智能体已发布为 API 服务。详情参考准备工作。
+## 概述
 
-user_id：标识当前与智能体交互的用户。调试时可将此参数固定为一个任意字符串，例如 123。
-content：发送的消息内容。
-curl --location --request POST 'https://api.coze.cn/v3/chat' \
---header 'Authorization: Bearer pat_OYDacMzM3WyOWV3Dtj2bHRMymzxP****' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "bot_id": "73428668*****",
-    "user_id": "123123***",
-    "stream": false,
-    "auto_save_history":true,
-    "additional_messages":[
-        {
-            "role":"user",
-            "content":"早上好",
-            "content_type":"text"
+本文档说明如何通过 HTTP API 接入艺术作品处理工作流，适用于：
+
+- 外部网站/应用通过 API 调用
+- 微服务架构集成
+- 前后端分离项目
+
+***
+
+## 零、快速配置
+
+### 0.1 API密钥选择
+
+Coze平台提供两种API密钥类型：
+
+| 类型         | 适用场景      | 推荐度            |
+| :--------- | :-------- | :------------- |
+| **服务身份凭证** | 生产环境、团队协作 | ⭐⭐⭐⭐⭐ **强烈推荐** |
+| **个人访问令牌** | 个人开发、测试   | ⭐⭐⭐            |
+
+**推荐使用服务身份凭证**，原因：
+
+- 更安全：可设置最小权限
+- 更稳定：不依赖个人账号
+- 可追溯：审计日志更清晰
+- 可管理：支持团队协作
+
+详见：[docs/COZE\_DEPLOYMENT\_GUIDE.md#3-获取api密钥](COZE_DEPLOYMENT_GUIDE.md#3-获取api密钥)
+
+### 0.2 文件存储配置
+
+**三种方式可选**：
+
+| 方式        | 适用场景       | 配置复杂度   |
+| :-------- | :--------- | :------ |
+| **本地存储**  | 有自己的服务器和域名 | ⭐ 最简单   |
+| **自定义接口** | 已有文件存储服务   | ⭐⭐ 中等   |
+| **对象存储**  | 需要独立的存储服务  | ⭐⭐⭐ 较复杂 |
+
+**推荐使用本地存储**，只需配置：
+
+```bash
+export STORAGE_TYPE="local"
+export LOCAL_OUTPUT_DIR="assets/output"
+export BASE_URL="https://your-domain.com"
+```
+
+详见：[docs/COZE\_DEPLOYMENT\_GUIDE.md#4-配置文件存储](COZE_DEPLOYMENT_GUIDE.md#4-配置文件存储)
+
+***
+
+## 一、API 接口说明
+
+### 1.1 基础信息
+
+| 项目    | 说明                        |
+| :---- | :------------------------ |
+| 基础URL | `http://your-domain:9000` |
+| 协议    | HTTP/HTTPS                |
+| 数据格式  | JSON                      |
+| 编码    | UTF-8                     |
+
+### 1.2 同步执行接口
+
+**接口路径**: `POST /run`
+
+**请求头**:
+
+```http
+Content-Type: application/json
+```
+
+**请求体**:
+
+```json
+{
+  "sketch_image": {
+    "url": "https://example.com/sketch.png",
+    "file_type": "image"
+  }
+}
+```
+
+**请求参数说明**:
+
+| 参数                       | 类型     | 必填 | 说明                          |
+| :----------------------- | :----- | :- | :-------------------------- |
+| sketch\_image.url        | string | 是  | 手绘作品图片URL（支持 HTTP/HTTPS 链接） |
+| sketch\_image.file\_type | string | 否  | 文件类型，固定为 "image"            |
+
+**响应体**:
+
+```json
+{
+  "final_result_url": "https://storage.example.com/optimized_result.jpeg?sign=xxx",
+  "colorized_image_url": "https://storage.example.com/colorized.jpeg",
+  "optimized_image_url": "https://storage.example.com/optimized.jpeg",
+  "run_id": "18fc8015-6ca5-4f6f-8d5b-f997055d523e"
+}
+```
+
+**响应字段说明**:
+
+| 字段                    | 类型     | 说明                    |
+| :-------------------- | :----- | :-------------------- |
+| final\_result\_url    | string | 最终优化后作品的下载链接（有效期24小时） |
+| colorized\_image\_url | string | 色彩补全后的图片链接（用于预览对比）    |
+| optimized\_image\_url | string | 构图优化后的图片链接（用于预览对比）    |
+| run\_id               | string | 本次执行的任务ID             |
+
+### 1.3 流式执行接口
+
+**接口路径**: `POST /stream`
+
+**请求头**:
+
+```http
+Content-Type: application/json
+Accept: text/event-stream
+```
+
+**请求体**: 同同步接口
+
+**响应**: Server-Sent Events (SSE) 流式数据
+
+**事件格式**:
+
+```
+event: message
+data: {"node": "analyze_sketch", "status": "running", ...}
+
+event: message
+data: {"node": "analyze_sketch", "status": "completed", "output": {...}}
+
+event: message
+data: {"node": "colorize", "status": "running", ...}
+...
+```
+
+***
+
+## 二、接入示例
+
+### 2.1 JavaScript/TypeScript (Fetch API)
+
+```typescript
+interface SketchOptimizeRequest {
+  sketch_image: {
+    url: string;
+    file_type: string;
+  };
+}
+
+interface SketchOptimizeResponse {
+  final_result_url: string;
+  colorized_image_url: string;
+  optimized_image_url: string;
+  run_id: string;
+}
+
+async function optimizeSketch(imageUrl: string): Promise<SketchOptimizeResponse> {
+  const response = await fetch('http://your-domain:9000/run', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      sketch_image: {
+        url: imageUrl,
+        file_type: 'image'
+      }
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+// 使用示例
+const result = await optimizeSketch('https://example.com/my-sketch.png');
+console.log('最终作品下载链接:', result.final_result_url);
+console.log('色彩补全预览:', result.colorized_image_url);
+```
+
+### 2.2 Python (requests)
+
+```python
+import requests
+from typing import Dict, Any
+
+def optimize_sketch(image_url: str, api_base: str = "http://your-domain:9000") -> Dict[str, Any]:
+    """
+    调用手绘作品优化API
+    
+    Args:
+        image_url: 手绘作品图片URL
+        api_base: API基础地址
+    
+    Returns:
+        包含优化结果的字典
+    """
+    payload = {
+        "sketch_image": {
+            "url": image_url,
+            "file_type": "image"
         }
-    ]
-}'
+    }
+    
+    response = requests.post(
+        f"{api_base}/run",
+        json=payload,
+        headers={"Content-Type": "application/json"},
+        timeout=300  # 建议设置较长超时时间
+    )
+    
+    response.raise_for_status()
+    return response.json()
 
-如果需要通过火山引擎私有网络访问扣子 API ，请参见通过私网连接访问扣子 API。
+# 使用示例
+result = optimize_sketch("https://example.com/my-sketch.png")
+print(f"最终作品下载链接: {result['final_result_url']}")
+print(f"色彩补全预览: {result['colorized_image_url']}")
+print(f"构图优化预览: {result['optimized_image_url']}")
+```
 
-基础概念
-名词
-说明
-会话（Conversation）
-智能体和用户之间的一段问答交互。一个会话包含一条或多条消息，并且能够自动处理截断，以适应模型的上下文内容。
-消息（Message）
-一条由用户或智能体创建的消息，消息内容可以包括文本、图片或文件。消息以列表的形式储存在对话中。
-对话（Chat）
-在会话中对智能体的一次调用。智能体收到请求后，结合用户输入、通过预设的一系列工作流等配置来调用模型或工具执行指定任务。每个对话都是会话的一部分，智能体会将对话中产生的消息添加到会话中。
-你可以直接发起对话，与智能体进行一次交互；也可以创建会话和消息，并在指定会话中发起对话，会话中的其他消息会作为历史消息传递给大模型。
-上下文段落（Section）
-在智能体对话管理中，Section 是一个独立的上下文段落，用于分隔不同的对话阶段或主题。创建会话时会生成一个 Section，Section 中包含上下文消息，当用户清除上下文时，系统会创建一个新的 Section，从而确保新的对话不受历史消息的影响。
-会话、消息和上下文段落的关系如下图所示。
- 
+### 2.3 cURL
 
+```bash
+curl -X POST 'http://your-domain:9000/run' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "sketch_image": {
+      "url": "https://example.com/sketch.png",
+      "file_type": "image"
+    }
+  }'
+```
+
+### 2.4 Java (OkHttp)
+
+```java
+import okhttp3.*;
+import org.json.JSONObject;
+
+public class SketchOptimizer {
+    private final OkHttpClient client = new OkHttpClient();
+    private final String apiBase;
+    
+    public SketchOptimizer(String apiBase) {
+        this.apiBase = apiBase;
+    }
+    
+    public JSONObject optimizeSketch(String imageUrl) throws Exception {
+        JSONObject requestBody = new JSONObject()
+            .put("sketch_image", new JSONObject()
+                .put("url", imageUrl)
+                .put("file_type", "image"));
+        
+        Request request = new Request.Builder()
+            .url(apiBase + "/run")
+            .post(RequestBody.create(
+                requestBody.toString(),
+                MediaType.parse("application/json")
+            ))
+            .build();
+        
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new RuntimeException("API error: " + response.code());
+            }
+            return new JSONObject(response.body().string());
+        }
+    }
+}
+
+// 使用示例
+SketchOptimizer optimizer = new SketchOptimizer("http://your-domain:9000");
+JSONObject result = optimizer.optimizeSketch("https://example.com/sketch.png");
+System.out.println("最终作品: " + result.getString("final_result_url"));
+```
+
+***
+
+## 三、前端集成示例
+
+### 3.1 React 组件示例
+
+```tsx
+import React, { useState } from 'react';
+
+interface OptimizeResult {
+  final_result_url: string;
+  colorized_image_url: string;
+  optimized_image_url: string;
+}
+
+const SketchOptimizer: React.FC = () => {
+  const [imageUrl, setImageUrl] = useState('');
+  const [result, setResult] = useState<OptimizeResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleOptimize = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch('http://your-domain:9000/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sketch_image: { url: imageUrl, file_type: 'image' }
+        })
+      });
+      
+      if (!response.ok) throw new Error('API request failed');
+      
+      const data = await response.json();
+      setResult(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="sketch-optimizer">
+      <h2>手绘作品优化工具</h2>
+      
+      <div className="input-section">
+        <input
+          type="text"
+          placeholder="输入手绘作品图片URL"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+        />
+        <button onClick={handleOptimize} disabled={loading}>
+          {loading ? '处理中...' : '开始优化'}
+        </button>
+      </div>
+
+      {error && <div className="error">{error}</div>}
+
+      {result && (
+        <div className="result-section">
+          <h3>优化结果</h3>
+          
+          <div className="preview-grid">
+            <div className="preview-item">
+              <h4>色彩补全</h4>
+              <img src={result.colorized_image_url} alt="色彩补全" />
+            </div>
+            
+            <div className="preview-item">
+              <h4>构图优化</h4>
+              <img src={result.optimized_image_url} alt="构图优化" />
+            </div>
+          </div>
+          
+          <a 
+            href={result.final_result_url} 
+            download
+            className="download-btn"
+          >
+            下载最终作品
+          </a>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default SketchOptimizer;
+```
+
+### 3.2 Vue 3 组件示例
+
+```vue
+<template>
+  <div class="sketch-optimizer">
+    <h2>手绘作品优化工具</h2>
+    
+    <div class="input-section">
+      <input
+        v-model="imageUrl"
+        type="text"
+        placeholder="输入手绘作品图片URL"
+      />
+      <button @click="handleOptimize" :disabled="loading">
+        {{ loading ? '处理中...' : '开始优化' }}
+      </button>
+    </div>
+
+    <div v-if="error" class="error">{{ error }}</div>
+
+    <div v-if="result" class="result-section">
+      <h3>优化结果</h3>
+      
+      <div class="preview-grid">
+        <div class="preview-item">
+          <h4>色彩补全</h4>
+          <img :src="result.colorized_image_url" alt="色彩补全" />
+        </div>
+        
+        <div class="preview-item">
+          <h4>构图优化</h4>
+          <img :src="result.optimized_image_url" alt="构图优化" />
+        </div>
+      </div>
+      
+      <a 
+        :href="result.final_result_url" 
+        download
+        class="download-btn"
+      >
+        下载最终作品
+      </a>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const imageUrl = ref('');
+const result = ref<any>(null);
+const loading = ref(false);
+const error = ref<string | null>(null);
+
+const handleOptimize = async () => {
+  loading.value = true;
+  error.value = null;
+  
+  try {
+    const response = await fetch('http://your-domain:9000/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sketch_image: { url: imageUrl.value, file_type: 'image' }
+      })
+    });
+    
+    if (!response.ok) throw new Error('API request failed');
+    
+    result.value = await response.json();
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Unknown error';
+  } finally {
+    loading.value = false;
+  }
+};
+</script>
+```
+
+***
+
+## 四、错误处理
+
+### 4.1 错误响应格式
+
+```json
+{
+  "detail": "错误描述信息",
+  "error_code": "ERROR_CODE",
+  "run_id": "xxx"
+}
+```
+
+### 4.2 常见错误码
+
+| HTTP状态码 | 说明     | 解决方案           |
+| :------ | :----- | :------------- |
+| 400     | 请求参数错误 | 检查请求体格式和必填字段   |
+| 422     | 参数验证失败 | 确保图片URL有效且可访问  |
+| 500     | 服务内部错误 | 联系管理员或查看日志     |
+| 504     | 请求超时   | 图片过大或服务繁忙，建议重试 |
+
+### 4.3 错误处理示例
+
+```python
+import requests
+from requests.exceptions import RequestException
+
+def optimize_sketch_safe(image_url: str) -> dict:
+    try:
+        response = requests.post(
+            "http://your-domain:9000/run",
+            json={"sketch_image": {"url": image_url, "file_type": "image"}},
+            timeout=300
+        )
+        
+        if response.status_code == 400:
+            raise ValueError("请求参数错误，请检查图片URL")
+        elif response.status_code == 422:
+            raise ValueError("图片URL无效或无法访问")
+        elif response.status_code >= 500:
+            raise RuntimeError("服务内部错误，请稍后重试")
+        
+        return response.json()
+        
+    except requests.Timeout:
+        raise RuntimeError("请求超时，请检查网络连接")
+    except requests.ConnectionError:
+        raise RuntimeError("无法连接到服务，请检查服务状态")
+```
+
+***
+
+## 五、最佳实践
+
+### 5.1 性能优化
+
+1. **图片预处理**
+   - 建议上传前将图片压缩至 2MB 以内
+   - 推荐分辨率：1024x1024 至 2048x2048
+   - 支持格式：PNG、JPG、JPEG
+2. **超时设置**
+   - 建议客户端超时设置：300-600秒
+   - 工作流完整执行约需 30-120秒
+3. **并发控制**
+   - 建议单个客户端并发数不超过 3
+   - 使用队列管理批量请求
+
+### 5.2 安全建议
+
+1. **HTTPS**: 生产环境务必使用 HTTPS
+2. **认证**: 可添加 API Key 或 Token 认证
+3. **限流**: 配置请求频率限制
+4. **日志**: 记录所有 API 调用日志
+
+### 5.3 监控指标
+
+```python
+# 建议监控的指标
+metrics = {
+    "request_count": "请求总数",
+    "success_rate": "成功率",
+    "avg_latency": "平均延迟",
+    "p95_latency": "P95延迟",
+    "error_count": "错误总数"
+}
+```
+
+***
+
+## 六、部署说明
+
+### 6.1 环境变量
+
+```bash
+# 对象存储配置
+COZE_BUCKET_ENDPOINT_URL=https://your-bucket.endpoint
+COZE_BUCKET_NAME=your-bucket-name
+
+# 工作目录
+COZE_WORKSPACE_PATH=/path/to/workspace
+```
+
+### 6.2 启动服务
+
+```bash
+# 开发环境
+python src/main.py
+
+# 生产环境 (使用 uvicorn)
+uvicorn src.main:app --host 0.0.0.0 --port 9000 --workers 4
+```
+
+***
+
+## 七、常见问题 FAQ
+
+**Q: 图片URL必须是公网可访问的吗？**
+
+A: 是的，当前版本需要图片URL可被服务端访问。如需上传本地文件，请先上传至对象存储获取URL。
+
+**Q: 处理一张图片需要多长时间？**
+
+A: 通常需要 30-120 秒，具体取决于图片大小和网络状况。
+
+**Q: 返回的图片链接有效期是多久？**
+
+A: `final_result_url` 有效期为 24 小时，请及时下载保存。
+
+**Q: 支持批量处理吗？**
+
+A: 当前为单张处理，批量请通过循环调用实现，建议控制并发数。

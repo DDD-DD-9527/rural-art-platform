@@ -9,6 +9,7 @@ class AIService {
 
     // Coze智能体配置
     this.cozeConfig = AI_CONFIG.COZE;
+    this.cozeWorkflowConfig = this.cozeConfig.workflow || {};
 
     // 创建广州大学HTTP客户端
     this.gzhuClient = axios.create({
@@ -24,6 +25,14 @@ class AIService {
     this.cozeClient = new CozeAPI({
       token: this.cozeConfig.apiKey,
       baseURL: this.cozeConfig.apiUrl
+    });
+
+    this.cozeWorkflowClient = axios.create({
+      baseURL: '',
+      timeout: this.cozeWorkflowConfig.timeout || 120000,
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
 
     // 设置请求拦截器
@@ -66,6 +75,60 @@ class AIService {
     );
 
     // Coze SDK不需要设置拦截器，已在callCozeBot方法中添加日志
+  }
+
+  async callCozeWorkflow(payload) {
+    const runUrl = this.cozeWorkflowConfig.runUrl;
+    const token = this.cozeWorkflowConfig.token;
+
+    if (!runUrl) {
+      return {
+        success: false,
+        message: 'Coze工作流未配置runUrl'
+      };
+    }
+
+    if (!token) {
+      return {
+        success: false,
+        message: 'Coze工作流未配置token'
+      };
+    }
+
+    try {
+      const response = await this.cozeWorkflowClient.post(runUrl, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        validateStatus: () => true
+      });
+
+      if (response.status >= 200 && response.status < 300) {
+        return { success: true, data: response.data };
+      }
+
+      return {
+        success: false,
+        message: response.data?.msg || response.data?.message || 'Coze工作流调用失败',
+        status: response.status,
+        error: response.data
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Coze工作流调用失败',
+        status: error.response?.status,
+        error: error.message
+      };
+    }
+  }
+
+  toWorkflowStyleId(styleType) {
+    const s = String(styleType || '').toLowerCase();
+    if (s.includes('ink') || s.includes('水墨')) return 'ink';
+    if (s.includes('cartoon') || s.includes('卡通')) return 'cartoon';
+    if (s.includes('oil') || s.includes('油画')) return 'oil';
+    return 'ink';
   }
 
   // ==================== 广州大学智能体服务 ====================
@@ -213,107 +276,156 @@ class AIService {
   }
 
   /**
-   * 图片增强 - 暂时返回额度用完提示
+   * 图片增强 - 调用Coze工作流
    * @param {string} imageUrl - 图片URL
    * @param {Object} options - 增强选项
    * @returns {Promise<Object>} 增强结果
    */
   async enhanceImage(imageUrl, options = {}) {
-    console.log('📤 图片增强请求 - 返回额度用完提示', {
-      imageUrl: imageUrl,
-      options: options
-    });
+    const startedAt = Date.now();
+    const payload = {
+      sketch_image: {
+        url: imageUrl,
+        file_type: 'image'
+      }
+    };
 
-    // 直接返回额度用完的提示，不调用Coze API
+    const result = await this.callCozeWorkflow(payload);
+    if (!result.success) return result;
+
+    const data = result.data || {};
     return {
-      success: true,  // 改为成功状态，避免前端报错
-      message: 'Coze额度已用完，待管理员重新补充额度再行测试',
+      success: true,
       data: {
         originalUrl: imageUrl,
-        enhancedUrl: null,
-        suggestion: '🚫 Coze额度已用完，待管理员重新补充额度再行测试',
-        processing_time: Date.now(),
-        quota_exhausted: true
+        enhancedUrl: data.final_result_url || data.result?.final_url || null,
+        colorizedUrl: data.colorized_image_url || null,
+        optimizedUrl: data.optimized_image_url || null,
+        suggestion: options?.suggestion || '',
+        processing_time: Date.now() - startedAt,
+        run_id: data.run_id
       }
     };
   }
 
   /**
-   * 风格转换 - 暂时返回额度用完提示
+   * 风格转换 - 调用Coze工作流
    * @param {string} imageUrl - 原图URL
    * @param {string} styleType - 风格类型
    * @param {Object} options - 转换选项
    * @returns {Promise<Object>} 转换结果
    */
   async transferStyle(imageUrl, styleType, options = {}) {
-    console.log('🎨 风格转换请求 - 返回额度用完提示', {
-      imageUrl: imageUrl,
-      styleType: styleType,
-      options: options
-    });
+    const startedAt = Date.now();
+    const style = this.toWorkflowStyleId(styleType);
+    const payload = {
+      tool_id: 'style',
+      input: {
+        image_url: imageUrl,
+        options: {
+          style,
+          strength: typeof options.intensity === 'number' ? options.intensity : 0.8,
+          num_results: 1
+        }
+      }
+    };
 
+    const result = await this.callCozeWorkflow(payload);
+    if (!result.success) return result;
+
+    const data = result.data || {};
     return {
-      success: true,  // 改为成功状态，避免前端报错
-      message: 'Coze额度已用完，待管理员重新补充额度再行测试',
+      success: true,
       data: {
         originalUrl: imageUrl,
-        styledUrl: null,
-        styleType,
-        suggestion: '🚫 Coze额度已用完，待管理员重新补充额度再行测试',
-        processingTime: Date.now(),
-        quota_exhausted: true
+        styledUrl: data.result?.final_url || data.final_url || null,
+        previewUrls: data.result?.preview_urls || data.preview_urls || [],
+        styleType: style,
+        processingTime: Date.now() - startedAt,
+        run_id: data.run_id
       }
     };
   }
 
   /**
-   * 图案生成 - 暂时返回额度用完提示
+   * 图案生成 - 调用Coze工作流
    * @param {string} description - 图案描述
    * @param {Object} options - 生成选项
    * @returns {Promise<Object>} 生成结果
    */
   async generatePattern(description, options = {}) {
-    console.log('🖼️ 图案生成请求 - 返回额度用完提示', {
-      description: description,
-      options: options
-    });
+    const startedAt = Date.now();
+    const payload = {
+      tool_id: 'generate',
+      input: {
+        text: description,
+        options: {
+          elements: Array.isArray(options.elements) ? options.elements : [],
+          style: options.style || 'traditional',
+          color_scheme: options.colorScheme || 'auto',
+          complexity: options.complexity || 'medium',
+          num_results: options.numResults || 4
+        }
+      }
+    };
 
+    const result = await this.callCozeWorkflow(payload);
+    if (!result.success) return result;
+
+    const data = result.data || {};
     return {
-      success: true,  // 改为成功状态，避免前端报错
-      message: 'Coze额度已用完，待管理员重新补充额度再行测试',
+      success: true,
       data: {
-        patternUrl: null,
+        patternUrl: data.result?.final_url || data.final_url || null,
         description,
-        suggestion: '🚫 Coze额度已用完，待管理员重新补充额度再行测试',
-        variations: [],
-        processingTime: Date.now(),
-        quota_exhausted: true
+        variations: data.result?.preview_urls || data.preview_urls || [],
+        meta: data.result?.meta || data.meta,
+        processingTime: Date.now() - startedAt,
+        run_id: data.run_id
       }
     };
   }
 
   /**
-   * 智能修复 - 暂时返回额度用完提示
+   * 智能修复 - 调用Coze工作流
    * @param {string} imageUrl - 待修复图片URL
    * @param {Object} options - 修复选项
    * @returns {Promise<Object>} 修复结果
    */
   async smartRepair(imageUrl, options = {}) {
-    console.log('🔧 智能修复请求 - 返回额度用完提示', {
-      imageUrl: imageUrl,
-      options: options
-    });
+    const startedAt = Date.now();
+    const strength = options.quality === 'high' ? 'high' : 'medium';
+    const repairType = String(options.repairType || 'auto');
 
+    let repairModes = ['damage_fix', 'denoise_upscale', 'color_restore'];
+    if (repairType === 'color_restore') repairModes = ['color_restore'];
+    if (repairType === 'damage_fix') repairModes = ['damage_fix'];
+    if (repairType === 'denoise_upscale') repairModes = ['denoise_upscale'];
+
+    const payload = {
+      tool_id: 'repair',
+      input: {
+        image_url: imageUrl,
+        options: {
+          repair_modes: repairModes,
+          strength
+        }
+      }
+    };
+
+    const result = await this.callCozeWorkflow(payload);
+    if (!result.success) return result;
+
+    const data = result.data || {};
     return {
-      success: true,  // 改为成功状态，避免前端报错
-      message: 'Coze额度已用完，待管理员重新补充额度再行测试',
+      success: true,
       data: {
         originalUrl: imageUrl,
-        repairedUrl: null,
-        suggestion: '🚫 Coze额度已用完，待管理员重新补充额度再行测试',
+        repairedUrl: data.result?.final_url || data.final_url || null,
+        previewUrls: data.result?.preview_urls || data.preview_urls || [],
         repairDetails: [],
-        processingTime: Date.now(),
-        quota_exhausted: true
+        processingTime: Date.now() - startedAt,
+        run_id: data.run_id
       }
     };
   }

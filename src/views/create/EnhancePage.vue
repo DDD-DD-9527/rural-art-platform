@@ -112,44 +112,16 @@
             >
               <h4 class="text-white font-semibold mb-2">{{ result.title }}</h4>
               <div class="flex space-x-2">
-                <button
+                <a
+                  :href="result.image"
+                  download
                   class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm hover:bg-white/30 transition-colors"
                 >
                   下载
-                </button>
-                <button
-                  class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm hover:bg-white/30 transition-colors"
-                >
-                  分享
-                </button>
+                </a>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- AI助手建议 -->
-      <div class="glass-effect rounded-3xl p-6">
-        <div class="flex items-center space-x-3 mb-4">
-          <div
-            class="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center"
-          >
-            <BotIcon class="w-5 h-5 text-white" />
-          </div>
-          <h3 class="text-lg font-semibold text-slate-800">AI助手建议</h3>
-        </div>
-        <div class="space-y-3">
-          <div
-            class="p-4 bg-gradient-to-r from-emerald-100 to-blue-100 rounded-2xl"
-          >
-            <p class="text-slate-700">{{ aiSuggestion }}</p>
-          </div>
-          <button
-            @click="getNewSuggestion"
-            class="text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
-          >
-            获取更多建议
-          </button>
         </div>
       </div>
     </main>
@@ -159,25 +131,20 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from "vue";
+import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
-import { ArrowLeftIcon, ImageIcon, UploadIcon, BotIcon } from "lucide-vue-next";
+import { ArrowLeftIcon, ImageIcon, UploadIcon } from "lucide-vue-next";
 import BottomNavigation from "../../components/BottomNavigation.vue";
+import { aiAPI } from "../../services/api";
 
 const router = useRouter();
 const activeTab = ref("create");
 
 const uploadedImage = ref(null);
+const uploadedFile = ref(null);
 const isDragging = ref(false);
 const isProcessing = ref(false);
 const fileInput = ref(null);
-const aiSuggestion = ref(
-  "上传您的手绘作品，AI将智能分析并增强图片质量、优化色彩和细节。",
-);
-
-// AI服务相关状态
-const isAIReady = ref(true);
-const aiProcessing = ref(false);
 
 const enhancedResults = reactive([]);
 
@@ -196,6 +163,7 @@ const triggerFileInput = () => {
 const handleFileSelect = (event) => {
   const file = event.target.files[0];
   if (file) {
+    uploadedFile.value = file;
     const reader = new FileReader();
     reader.onload = (e) => {
       uploadedImage.value = e.target.result;
@@ -209,6 +177,7 @@ const handleDrop = (event) => {
   isDragging.value = false;
   const file = event.dataTransfer.files[0];
   if (file && file.type.startsWith("image/")) {
+    uploadedFile.value = file;
     const reader = new FileReader();
     reader.onload = (e) => {
       uploadedImage.value = e.target.result;
@@ -219,108 +188,31 @@ const handleDrop = (event) => {
 
 const clearImage = () => {
   uploadedImage.value = null;
+  uploadedFile.value = null;
   enhancedResults.length = 0;
-};
-
-// 初始化AI服务
-const initAIService = async () => {
-  try {
-    console.log("初始化AI图片增强服务");
-    isAIReady.value = true;
-    aiSuggestion.value = "AI图片增强服务已就绪！请上传您的手绘作品开始体验。";
-  } catch (error) {
-    console.error("AI服务初始化失败:", error);
-    isAIReady.value = false;
-    aiSuggestion.value = "AI服务初始化失败，将使用本地增强功能。";
-  }
-};
-
-// 直接返回额度用完提示，不调用任何API
-const enhanceImageWithCoze = async (imageData) => {
-  console.log("🚫 Coze额度已用完，直接返回提示");
-
-  // 模拟一点处理时间，让用户感觉有在处理
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  // 直接返回额度用完的提示
-  return {
-    success: true,
-    images: [], // 不显示任何图片
-    suggestion: "🚫 Coze额度已用完，待管理员重新补充额度再行测试",
-  };
 };
 
 const enhanceImage = async () => {
   isProcessing.value = true;
-  aiProcessing.value = true;
 
   try {
-    if (isAIReady.value && uploadedImage.value) {
-      // 使用后端AI服务处理图片增强
-      const response = await enhanceImageWithCoze(uploadedImage.value);
+    if (!uploadedFile.value) return;
+    const res = await aiAPI.enhanceImage(uploadedFile.value, "quality");
+    const data = res?.data?.data || {};
 
-      // 处理AI服务的响应
-      if (response && response.success && response.images) {
-        enhancedResults.length = 0; // 清空之前的结果
-        response.images.forEach((img, index) => {
-          enhancedResults.push({
-            title: img.title || `AI增强版本 ${index + 1}`,
-            image: img.url || img.data,
-          });
-        });
-        aiSuggestion.value =
-          response.suggestion ||
-          "✨ AI已成功增强您的图片！增强了色彩饱和度、优化了细节清晰度，提升了整体视觉效果。";
-      } else {
-        // 如果AI响应格式不符合预期，使用降级图片
-        enhancedResults.push({
-          title: "AI增强完成版",
-          image: "/file-1755693510987-720790481.png",
-        });
-        aiSuggestion.value =
-          "🎨 AI增强完成！采用智能算法优化了图片质量，提升了艺术表现力。";
-      }
-    } else {
-      // 降级处理
-      enhancedResults.push({
-        title: "AI增强完成版",
-        image: "/file-1755693510987-720790481.png",
-      });
-      aiSuggestion.value = isAIReady.value
-        ? "🚀 AI处理完成！"
-        : "⚠️ AI服务正在初始化中，已为您提供增强结果。";
+    enhancedResults.length = 0;
+    if (data.colorizedUrl) {
+      enhancedResults.push({ title: "色彩补全", image: data.colorizedUrl });
+    }
+    if (data.optimizedUrl) {
+      enhancedResults.push({ title: "构图优化", image: data.optimizedUrl });
+    }
+    if (data.enhancedUrl) {
+      enhancedResults.push({ title: "最终作品", image: data.enhancedUrl });
     }
   } catch (error) {
-    console.error("图片增强处理失败:", error);
-    // 错误时使用降级图片
-    enhancedResults.push({
-      title: "AI增强完成版",
-      image: "/file-1755693510987-720790481.png",
-    });
-    aiSuggestion.value =
-      "⚡ 处理过程中遇到网络问题，已为您提供增强版本。您可以稍后重试获得更好的效果。";
   } finally {
     isProcessing.value = false;
-    aiProcessing.value = false;
   }
 };
-
-const getNewSuggestion = () => {
-  const suggestions = [
-    "尝试上传不同类型的手绘作品，比如素描、水彩或彩铅画，AI会根据不同媒介提供相应的增强效果。",
-    "在拍摄手绘作品时，建议使用自然光源，避免阴影遮挡，这样能让AI更准确地识别线条和色彩。",
-    "如果你的作品包含传统元素，AI会自动识别并提供相应的文化背景增强建议。",
-    "Coze智能体可以识别多种艺术风格，包括传统中国画、剪纸艺术、水墨画等，为您提供专业的增强建议。",
-    "上传高分辨率的图片可以获得更好的AI增强效果，建议图片尺寸不小于800x600像素。",
-  ];
-  aiSuggestion.value =
-    suggestions[Math.floor(Math.random() * suggestions.length)];
-};
-
-// 组件挂载时初始化AI服务
-onMounted(() => {
-  nextTick(() => {
-    initAIService();
-  });
-});
 </script>

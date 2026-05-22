@@ -175,23 +175,6 @@
         </div>
       </div>
 
-      <!-- 修复进度 -->
-      <div v-if="isRepairing" class="glass-effect rounded-3xl p-8 mb-8">
-        <h2 class="text-2xl font-bold text-slate-800 mb-6">修复进度</h2>
-        <div class="space-y-4">
-          <div class="flex items-center justify-between">
-            <span class="text-slate-700">{{ currentStep }}</span>
-            <span class="text-purple-600 font-semibold">{{ progress }}%</span>
-          </div>
-          <div class="w-full bg-slate-200 rounded-full h-3">
-            <div
-              class="bg-gradient-to-r from-purple-500 to-pink-600 h-3 rounded-full transition-all duration-500"
-              :style="{ width: progress + '%' }"
-            ></div>
-          </div>
-        </div>
-      </div>
-
       <!-- 修复结果 -->
       <div v-if="repairResult" class="glass-effect rounded-3xl p-8 mb-8">
         <h2 class="text-2xl font-bold text-slate-800 mb-6">修复结果</h2>
@@ -215,62 +198,19 @@
           </div>
         </div>
 
-        <div
-          class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 mb-6"
-        >
-          <h4 class="font-semibold text-slate-800 mb-3">修复报告</h4>
-          <ul class="space-y-2 text-slate-700">
-            <li
-              v-for="item in repairResult.report"
-              :key="item"
-              class="flex items-center space-x-2"
-            >
-              <CheckIcon class="w-4 h-4 text-green-600" />
-              <span>{{ item }}</span>
-            </li>
-          </ul>
-        </div>
-
         <div class="flex flex-wrap gap-4 justify-center">
-          <button
+          <a
+            :href="repairResult.image"
+            download
             class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-2xl font-semibold hover:shadow-lg transition-all duration-300"
           >
             下载修复图片
-          </button>
-          <button
-            class="px-6 py-3 border-2 border-purple-500 text-purple-600 rounded-2xl font-semibold hover:bg-purple-50 transition-all duration-300"
-          >
-            对比查看
-          </button>
+          </a>
           <button
             class="px-6 py-3 border-2 border-slate-300 text-slate-600 rounded-2xl font-semibold hover:bg-slate-50 transition-all duration-300"
+            @click="startRepair"
           >
             重新修复
-          </button>
-        </div>
-      </div>
-
-      <!-- AI助手建议 -->
-      <div class="glass-effect rounded-3xl p-6">
-        <div class="flex items-center space-x-3 mb-4">
-          <div
-            class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center"
-          >
-            <BotIcon class="w-5 h-5 text-white" />
-          </div>
-          <h3 class="text-lg font-semibold text-slate-800">AI助手建议</h3>
-        </div>
-        <div class="space-y-3">
-          <div
-            class="p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl"
-          >
-            <p class="text-slate-700">{{ aiSuggestion }}</p>
-          </div>
-          <button
-            @click="getRepairTip"
-            class="text-purple-600 hover:text-purple-700 font-medium transition-colors"
-          >
-            获取修复技巧
           </button>
         </div>
       </div>
@@ -283,28 +223,18 @@
 <script setup>
 import { ref, reactive, computed } from "vue";
 import { useRouter } from "vue-router";
-import {
-  ArrowLeftIcon,
-  WandIcon,
-  UploadIcon,
-  XIcon,
-  CheckIcon,
-  BotIcon,
-} from "lucide-vue-next";
+import { ArrowLeftIcon, WandIcon, UploadIcon, XIcon } from "lucide-vue-next";
 import BottomNavigation from "../../components/BottomNavigation.vue";
+import { aiAPI } from "../../services/api";
 
 const router = useRouter();
 const activeTab = ref("create");
 
 const uploadedImage = ref("");
+const uploadedFile = ref(null);
 const isDragging = ref(false);
 const isRepairing = ref(false);
-const progress = ref(0);
-const currentStep = ref("");
 const repairResult = ref(null);
-const aiSuggestion = ref(
-  "上传需要修复的艺术品图片，AI将智能识别损坏区域并提供最佳修复方案。建议上传清晰度较高的图片以获得更好的修复效果。",
-);
 
 const repairOptions = reactive({
   cracks: false,
@@ -348,11 +278,10 @@ const handleFileSelect = (e) => {
 
 const handleFile = (file) => {
   if (file.type.startsWith("image/")) {
+    uploadedFile.value = file;
     const reader = new FileReader();
     reader.onload = (e) => {
       uploadedImage.value = e.target.result;
-      aiSuggestion.value =
-        "图片上传成功！AI正在分析图片内容，请选择需要修复的类型。建议根据图片的实际损坏情况选择相应的修复选项。";
     };
     reader.readAsDataURL(file);
   }
@@ -360,66 +289,44 @@ const handleFile = (file) => {
 
 const removeImage = () => {
   uploadedImage.value = "";
+  uploadedFile.value = null;
   repairResult.value = null;
   Object.keys(repairOptions).forEach((key) => {
     repairOptions[key] = false;
   });
-  aiSuggestion.value =
-    "上传需要修复的艺术品图片，AI将智能识别损坏区域并提供最佳修复方案。建议上传清晰度较高的图片以获得更好的修复效果。";
 };
 
-const startRepair = () => {
+const startRepair = async () => {
+  if (!uploadedFile.value) return;
   isRepairing.value = true;
-  progress.value = 0;
   repairResult.value = null;
 
-  const steps = [
-    "分析图片内容...",
-    "识别损坏区域...",
-    "生成修复方案...",
-    "应用AI修复算法...",
-    "优化修复效果...",
-    "生成修复报告...",
-  ];
+  const selected = {
+    cracks: !!repairOptions.cracks,
+    stains: !!repairOptions.stains,
+    missing: !!repairOptions.missing,
+    fading: !!repairOptions.fading,
+  };
 
-  let stepIndex = 0;
-  const interval = setInterval(() => {
-    if (stepIndex < steps.length) {
-      currentStep.value = steps[stepIndex];
-      progress.value = Math.min(((stepIndex + 1) / steps.length) * 100, 95);
-      stepIndex++;
-    } else {
-      clearInterval(interval);
-      completeRepair();
+  let repairType = "auto";
+  if (selected.fading && !selected.cracks && !selected.stains && !selected.missing) {
+    repairType = "color_restore";
+  } else if (!selected.fading && (selected.cracks || selected.stains || selected.missing)) {
+    repairType = "damage_fix";
+  }
+
+  const quality = repairSettings.fidelity === "high" ? "high" : "medium";
+
+  try {
+    const res = await aiAPI.repairImage(uploadedFile.value, { repairType, quality });
+    const data = res?.data?.data || {};
+    const url = data.repairedUrl || data.previewUrls?.[0];
+    if (url) {
+      repairResult.value = { image: url };
     }
-  }, 800);
-};
-
-const completeRepair = () => {
-  progress.value = 100;
-  currentStep.value = "修复完成！";
-
-  setTimeout(() => {
+  } finally {
     isRepairing.value = false;
-
-    // 不显示任何修复结果
-    repairResult.value = null;
-
-    // 直接显示额度用完提示
-    aiSuggestion.value = "🚫 Coze额度已用完，待管理员重新补充额度再行测试";
-  }, 1000);
-};
-
-const getRepairTip = () => {
-  const tips = [
-    "对于古画修复，建议选择高保真模式以最大程度保持原作风貌。",
-    "如果图片有多种损坏，可以分步骤进行修复，先处理主要问题。",
-    "修复强度不宜过高，适度修复能更好地保持艺术品的历史感。",
-    "对于严重缺失的部分，AI会根据周围内容智能推测并补全。",
-    "修复后的图片建议保存为高质量格式，便于后续使用和保存。",
-    "如果对修复效果不满意，可以调整参数重新修复。",
-  ];
-  aiSuggestion.value = tips[Math.floor(Math.random() * tips.length)];
+  }
 };
 </script>
 

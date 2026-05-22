@@ -114,6 +114,11 @@ const AI_CONFIG = {
       styleTransfer: process.env.COZE_STYLE_TRANSFER_BOT_ID || '7538355440988979239',
       patternGenerate: process.env.COZE_PATTERN_GENERATE_BOT_ID || '7538355440988979239',
       smartRepair: process.env.COZE_SMART_REPAIR_BOT_ID || '7538355440988979239'
+    },
+    workflow: {
+      runUrl: process.env.COZE_WORKFLOW_RUN_URL || 'https://n86p8sr4b4.coze.site/run',
+      token: process.env.COZE_WORKFLOW_TOKEN || '',
+      timeout: parseInt(process.env.COZE_WORKFLOW_TIMEOUT) || 120000
     }
   }
 };
