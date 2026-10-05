@@ -33,29 +33,11 @@ const JWT_CONFIG = {
 
 // CORS配置
 const CORS_CONFIG = {
-  ALLOWED_ORIGINS: process.env.CORS_ALLOWED_ORIGINS 
-    ? process.env.CORS_ALLOWED_ORIGINS.split(',')
+  ALLOWED_ORIGINS: process.env.CORS_ALLOWED_ORIGINS
+    ? process.env.CORS_ALLOWED_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean)
     : [
-        'http://localhost:5173', // Vite开发服务器
-        'http://localhost:5713', // Vite开发服务器端口
-        'http://localhost:5714', // Vite开发服务器端口
-        'http://localhost:5715', // Vite开发服务器端口
-        'http://localhost:5716', // 当前Vite开发服务器端口
-        'http://localhost:5717', // 备用Vite开发服务器端口
-        'http://localhost:3000', // 可能的前端端口
-        'http://localhost:8080', // 可能的前端端口
+        'http://localhost:5173',
         'http://127.0.0.1:5173',
-        'http://127.0.0.1:5713',
-        'http://127.0.0.1:5714',
-        'http://127.0.0.1:5715',
-        'http://127.0.0.1:5716', // 当前Vite开发服务器端口
-        'http://127.0.0.1:5717', // 备用端口
-        'http://127.0.0.1:3000',
-        'http://127.0.0.1:8080',
-        'https://cuddly-spork-seven.vercel.app', // Vercel部署的前端
-        'https://ai-future-rural-art.top',
-        'http://ai-future-rural-art.top', // 用户自定义域名
-        'https://*.vercel.app' // 允许所有Vercel子域名
       ],
   CREDENTIALS: process.env.CORS_CREDENTIALS ? process.env.CORS_CREDENTIALS === 'true' : true,
   METHODS: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],

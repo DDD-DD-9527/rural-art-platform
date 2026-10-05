@@ -1,4 +1,6 @@
 **/node_modules
+backend
+文档
 dist
 backend/uploads
 backend/logs

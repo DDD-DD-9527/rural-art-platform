@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: parseInt(env.VITE_DEV_SERVER_PORT) || 5173,
       open: true,
-      allowedHosts: ["localhost", "127.0.0.1", "api.ai-future-rural-art.top"],
+      allowedHosts: ["localhost", "127.0.0.1"],
       proxy: {
         "/api": {
           target: `http://localhost:${backendPort}`,
