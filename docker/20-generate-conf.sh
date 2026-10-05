@@ -2,7 +2,7 @@
 set -eu
 
 API_UPSTREAM="${API_UPSTREAM:-}"
-RUNTIME_API_BASE_URL="${API_BASE_URL:-/api}"
+RUNTIME_API_BASE_URL="${API_BASE_URL:-https://rural-art-platform-server.preview.tencent-zeabur.cn/api}"
 
 case "$RUNTIME_API_BASE_URL" in
   *[\"\'\;\{\}]*|*' '*|*'	'*)
