@@ -6,7 +6,7 @@ import { resolve } from "path";
 export default defineConfig(({ mode }) => {
   // 加载环境变量
   const env = loadEnv(mode, process.cwd(), "");
-  const backendPort = parseInt(env.VITE_BACKEND_PORT) || 3001;
+  const backendPort = parseInt(env.VITE_BACKEND_PORT) || 3000;
 
   return {
     plugins: [vue()],

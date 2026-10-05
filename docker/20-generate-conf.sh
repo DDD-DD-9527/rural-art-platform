@@ -4,6 +4,20 @@ set -eu
 API_UPSTREAM="${API_UPSTREAM:-}"
 RUNTIME_API_BASE_URL="${API_BASE_URL:-/api}"
 
+case "$RUNTIME_API_BASE_URL" in
+  *[\"\'\;\{\}]*|*' '*|*'	'*)
+    echo "[ERROR] API_BASE_URL contains invalid characters" >&2
+    exit 1
+    ;;
+esac
+
+case "$API_UPSTREAM" in
+  *[\"\'\;\{\}]*|*' '*|*'	'*)
+    echo "[ERROR] API_UPSTREAM contains invalid characters" >&2
+    exit 1
+    ;;
+esac
+
 if [ -z "$API_UPSTREAM" ]; then
   echo "[WARN] API_UPSTREAM is not set; /api/* will return 502" >&2
   API_LOCATION="return 502;"

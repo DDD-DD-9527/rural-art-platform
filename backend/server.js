@@ -1,11 +1,11 @@
 const app = require('./src/app');
 const database = require('./src/config/database');
 const { SERVER_CONFIG } = require('./src/config/constants');
-const path = require('path');
 const fs = require('fs');
+const { UPLOAD_ROOT } = require('./src/config/paths');
 
 // 确保上传目录存在
-const uploadDir = path.join(__dirname, 'uploads');
+const uploadDir = UPLOAD_ROOT;
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }

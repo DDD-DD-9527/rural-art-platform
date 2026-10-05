@@ -32,7 +32,7 @@
 
 ## 本地开发
 
-需要 Node.js 20+ 和 MongoDB 连接。先在仓库根目录执行 `npm ci`，再在 `backend/` 执行 `npm ci`。将 `backend/.env.example` 复制为 `backend/.env`，填写 `MONGODB_URI`、`JWT_SECRET` 等配置。
+需要 Node.js 20+ 和 MongoDB 连接。先在仓库根目录执行 `npm ci`，再在 `backend/` 执行 `npm ci`。将根目录 `.env.example` 复制为 `.env`，将 `backend/.env.example` 复制为 `backend/.env`，分别填写配置。
 
 分别启动：
 
@@ -66,15 +66,26 @@ npm run dev
 | `JWT_SECRET` | 登录令牌签名密钥，使用随机长字符串 |
 | `BASE_URL` | 后端的公开 HTTPS 根地址，用于生成上传文件 URL；末尾不加 `/` |
 | `CORS_ALLOWED_ORIGINS` | 前端公开源地址，多个用逗号分隔；仅在浏览器跨域直连后端时需要 |
-| `COZE_API_KEY` 等 | 按实际启用的 AI 功能填写，见 `backend/.env.example` |
+| `COZE_API_KEY`、`COZE_WORKFLOW_*` 等 | 按实际启用的 AI 功能填写，见 `backend/.env.example`；留空时对应功能保持不可用，不会使用仓库内置账号 |
 
-`PORT` 通常由平台注入；后端会监听该端口。后端将文件写入 `backend/uploads/`（容器内为 `/app/uploads`）。如果需要保留用户上传文件，必须在 Zeabur 为后端挂载持久卷到 `/app/uploads`；仅有 MongoDB 持久化并不能保存这些文件。`/health` 只检查 HTTP 服务存活，不检查数据库连接。
+生产环境的 `MONGODB_URI`、`JWT_SECRET`、`BASE_URL`、`CORS_ALLOWED_ORIGINS` 是必填项。后端启动时会校验这些值；`JWT_SECRET` 至少 32 个字符，不能使用示例值。可用 `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` 生成密钥。
+
+`PORT` 通常由平台注入；后端会监听该端口。开发环境默认将文件写入 `backend/uploads/`，Zeabur 建议将 `UPLOAD_DIR` 设为 `/app/uploads`。如果需要保留用户上传文件，必须在 Zeabur 为后端挂载持久卷到 `/app/uploads`；仅有 MongoDB 持久化并不能保存这些文件。`/health` 只检查 HTTP 服务存活，不检查数据库连接。
 
 ### 前端连接后端
 
-推荐在前端服务的**运行时环境变量**中设置 `API_BASE_URL=https://<后端域名>/api`，并在后端设置 `CORS_ALLOWED_ORIGINS=https://<前端域名>`。前端容器启动时会生成 `runtime-config.js`，所以修改后重启前端服务即可生效，无需重新构建。
+推荐在前端服务的**运行时环境变量**中设置 `API_BASE_URL=https://<后端域名>/api`，并在后端设置 `CORS_ALLOWED_ORIGINS=https://<前端域名>`。前端容器启动时会生成 `runtime-config.js`，所以修改后重启前端服务即可生效，无需重新构建。`API_BASE_URL` 必须包含 `/api` 路径。
 
-也可以使用同源代理：前端服务设置 `API_UPSTREAM` 为后端服务可访问的 HTTP 根地址，不设置 `API_BASE_URL`。浏览器请求 `/api/...`，由前端 Nginx 保留 `/api` 前缀转发到后端。此时仍需设置后端 `BASE_URL` 为公开地址，以便上传文件 URL 可访问。`API_UPSTREAM` 必须使用 Zeabur 实际提供的服务地址，不要填写占位符。
+前端服务只需要配置下面两个变量中的一个连接方案：
+
+| 变量 | 直连后端 | Nginx 同源代理 |
+| --- | --- | --- |
+| `API_BASE_URL` | `https://<后端域名>/api` | `/api` |
+| `API_UPSTREAM` | 留空 | `https://<后端域名>` |
+
+后端服务至少配置：`NODE_ENV=production`、`MONGODB_URI`、`JWT_SECRET`、`BASE_URL=https://<后端域名>`、`CORS_ALLOWED_ORIGINS=https://<前端域名>`。`PORT` 由 Zeabur 注入，不要强行改成前端端口。需要保留上传文件时，将后端持久卷挂载到 `/app/uploads`，并保持 `UPLOAD_DIR=/app/uploads`。
+
+也可以使用同源代理：前端服务设置 `API_UPSTREAM` 为后端服务可访问的 HTTP 根地址，同时将 `API_BASE_URL` 保持为 `/api`（默认值）。浏览器请求 `/api/...`，由前端 Nginx 保留 `/api` 前缀转发到后端。此时仍需设置后端 `BASE_URL` 为公开地址，以便上传文件 URL 可访问。`API_UPSTREAM` 必须使用 Zeabur 实际提供的服务地址，不要填写占位符。
 
 Zeabur 上不要依赖仓库中的本地 `.env`；密钥只在服务环境变量中配置。修改前端代码需重新构建前端服务，修改后端代码需重新部署后端服务。
 

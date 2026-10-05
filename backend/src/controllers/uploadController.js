@@ -3,6 +3,7 @@ const fs = require('fs');
 const sharp = require('sharp');
 const { promisify } = require('util');
 const { SERVER_CONFIG } = require('../config/constants');
+const { UPLOAD_ROOT } = require('../config/paths');
 const unlinkAsync = promisify(fs.unlink);
 
 // 图片压缩和优化
@@ -260,7 +261,7 @@ const deleteFile = async (req, res) => {
     const { filename } = req.params;
     const { type = 'temp' } = req.query;
     
-    const filePath = path.join(__dirname, '../../uploads', type, filename);
+    const filePath = path.join(UPLOAD_ROOT, type, filename);
     
     // 检查文件是否存在
     if (!fs.existsSync(filePath)) {
@@ -293,7 +294,7 @@ const getFileInfo = async (req, res) => {
     const { filename } = req.params;
     const { type = 'temp' } = req.query;
     
-    const filePath = path.join(__dirname, '../../uploads', type, filename);
+    const filePath = path.join(UPLOAD_ROOT, type, filename);
     
     // 检查文件是否存在
     if (!fs.existsSync(filePath)) {

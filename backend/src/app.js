@@ -7,6 +7,9 @@ const path = require('path');
 
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
+const { validateEnvironment } = require('./config/env');
+validateEnvironment();
+
 // 导入路由
 const userRoutes = require('./routes/userRoutes');
 const courseRoutes = require('./routes/courseRoutes');
@@ -27,6 +30,7 @@ const app = express();
 
 // 导入配置
 const { CORS_CONFIG, RATE_LIMIT_CONFIG, SECURITY_CONFIG, SERVER_CONFIG } = require('./config/constants');
+const { UPLOAD_ROOT: uploadRoot } = require('./config/paths');
 
 // 信任代理（如果使用反向代理）
 app.set('trust proxy', SERVER_CONFIG.TRUST_PROXY ? 1 : 0);
@@ -53,9 +57,9 @@ const corsOptions = {
       callback(new Error('不允许的CORS来源'));
     }
   },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  credentials: CORS_CONFIG.CREDENTIALS,
+  methods: CORS_CONFIG.METHODS,
+  allowedHeaders: CORS_CONFIG.ALLOWED_HEADERS
 };
 
 app.use(cors(corsOptions));
@@ -96,7 +100,7 @@ app.use('/uploads', (req, res, next) => {
   }
   
   next();
-}, express.static(path.join(__dirname, '../uploads')));
+}, express.static(uploadRoot));
 
 // 速率限制
 const limiter = rateLimit(RATE_LIMIT_CONFIG.DEFAULT_LIMITER);

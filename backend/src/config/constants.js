@@ -4,7 +4,7 @@
 const SERVER_CONFIG = {
   PORT: parseInt(process.env.PORT) || 3000,
   NODE_ENV: process.env.NODE_ENV || 'development',
-  BASE_URL: process.env.BASE_URL || 'http://localhost:3000',
+  BASE_URL: (process.env.BASE_URL || 'http://localhost:3000').replace(/\/+$/, ''),
   TRUST_PROXY: process.env.TRUST_PROXY ? process.env.TRUST_PROXY === 'true' : true,
   REQUEST_SIZE_LIMIT: process.env.REQUEST_SIZE_LIMIT || '2mb'
 };
@@ -34,7 +34,9 @@ const JWT_CONFIG = {
 // CORS配置
 const CORS_CONFIG = {
   ALLOWED_ORIGINS: process.env.CORS_ALLOWED_ORIGINS
-    ? process.env.CORS_ALLOWED_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean)
+    ? process.env.CORS_ALLOWED_ORIGINS.split(',')
+        .map((origin) => origin.trim().replace(/\/+$/, ''))
+        .filter(Boolean)
     : [
         'http://localhost:5173',
         'http://127.0.0.1:5173',
@@ -73,7 +75,7 @@ const RATE_LIMIT_CONFIG = {
 const UPLOAD_CONFIG = {
   MAX_FILE_SIZE: parseInt(process.env.UPLOAD_MAX_FILE_SIZE) || 10 * 1024 * 1024, // 10MB
   ALLOWED_TYPES: process.env.UPLOAD_ALLOWED_TYPES
-    ? process.env.UPLOAD_ALLOWED_TYPES.split(',')
+    ? process.env.UPLOAD_ALLOWED_TYPES.split(',').map((type) => type.trim()).filter(Boolean)
     : ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
   UPLOAD_DIR: process.env.UPLOAD_DIR || 'uploads',
   MAX_FILES: parseInt(process.env.UPLOAD_MAX_FILES) || 5
@@ -82,7 +84,7 @@ const UPLOAD_CONFIG = {
 // AI服务配置
 const AI_CONFIG = {
   GZHU_AGENT: {
-    apiUrl: process.env.GZHU_AGENT_API_URL || 'https://api.gzhu.edu.cn/agent',
+    apiUrl: process.env.GZHU_AGENT_API_URL || '',
     apiKey: process.env.GZHU_AGENT_KEY || '',
     timeout: parseInt(process.env.GZHU_AGENT_TIMEOUT) || 30000
   },
@@ -92,13 +94,13 @@ const AI_CONFIG = {
     apiKey: process.env.COZE_API_KEY || '',
     timeout: parseInt(process.env.COZE_TIMEOUT) || 60000,
     bots: {
-      imageEnhance: process.env.COZE_IMAGE_ENHANCE_BOT_ID || '7538355440988979239',
-      styleTransfer: process.env.COZE_STYLE_TRANSFER_BOT_ID || '7538355440988979239',
-      patternGenerate: process.env.COZE_PATTERN_GENERATE_BOT_ID || '7538355440988979239',
-      smartRepair: process.env.COZE_SMART_REPAIR_BOT_ID || '7538355440988979239'
+      imageEnhance: process.env.COZE_IMAGE_ENHANCE_BOT_ID || '',
+      styleTransfer: process.env.COZE_STYLE_TRANSFER_BOT_ID || '',
+      patternGenerate: process.env.COZE_PATTERN_GENERATE_BOT_ID || '',
+      smartRepair: process.env.COZE_SMART_REPAIR_BOT_ID || ''
     },
     workflow: {
-      runUrl: process.env.COZE_WORKFLOW_RUN_URL || 'https://n86p8sr4b4.coze.site/run',
+      runUrl: process.env.COZE_WORKFLOW_RUN_URL || '',
       token: process.env.COZE_WORKFLOW_TOKEN || '',
       timeout: parseInt(process.env.COZE_WORKFLOW_TIMEOUT) || 300000
     }

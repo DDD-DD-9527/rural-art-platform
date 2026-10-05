@@ -4,11 +4,12 @@ const path = require('path');
 const fs = require('fs');
 const { authenticate } = require('../middleware/auth');
 const uploadController = require('../controllers/uploadController');
+const { UPLOAD_CONFIG } = require('../config/constants');
+const { UPLOAD_ROOT: uploadDir } = require('../config/paths');
 
 const router = express.Router();
 
 // 确保上传目录存在
-const uploadDir = path.join(__dirname, '../../uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -58,14 +59,7 @@ const storage = multer.diskStorage({
 
 // 文件过滤器
 const fileFilter = (req, file, cb) => {
-  // 检查文件类型
-  const allowedTypes = {
-    image: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-    video: ['video/mp4', 'video/avi', 'video/mov', 'video/wmv'],
-    document: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-  };
-  
-  const allAllowedTypes = [...allowedTypes.image, ...allowedTypes.video, ...allowedTypes.document];
+  const allAllowedTypes = UPLOAD_CONFIG.ALLOWED_TYPES;
   
   if (allAllowedTypes.includes(file.mimetype)) {
     cb(null, true);
@@ -78,8 +72,8 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB
-    files: 5 // 最多5个文件
+    fileSize: UPLOAD_CONFIG.MAX_FILE_SIZE,
+    files: UPLOAD_CONFIG.MAX_FILES
   },
   fileFilter: fileFilter
 });
@@ -90,7 +84,7 @@ const upload = multer({
 router.post('/image', authenticate, upload.single('file'), uploadController.uploadImage);
 
 // 上传多个图片
-router.post('/images', authenticate, upload.array('files', 5), uploadController.uploadImages);
+router.post('/images', authenticate, upload.array('files', UPLOAD_CONFIG.MAX_FILES), uploadController.uploadImages);
 
 // 上传头像
 router.post('/avatar', authenticate, upload.single('avatar'), uploadController.uploadAvatar);

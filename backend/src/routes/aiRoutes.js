@@ -3,14 +3,19 @@ const multer = require('multer');
 const path = require('path');
 const { authenticate } = require('../middleware/auth');
 const aiService = require('../services/aiService');
+const { UPLOAD_CONFIG } = require('../config/constants');
+const { UPLOAD_ROOT } = require('../config/paths');
 
 const router = express.Router();
 
 // 配置multer用于文件上传
+const aiUploadDir = path.join(UPLOAD_ROOT, 'temp');
+require('fs').mkdirSync(aiUploadDir, { recursive: true });
+
 const upload = multer({
-  dest: 'uploads/temp/',
+  dest: aiUploadDir,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB
+    fileSize: UPLOAD_CONFIG.MAX_FILE_SIZE,
   },
   fileFilter: (req, file, cb) => {
     // 只允许图片文件

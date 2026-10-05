@@ -442,22 +442,25 @@ class AIService {
       coze: { available: false, latency: null }
     };
 
-    // 检查广州大学智能体
-    try {
+    // 未配置密钥或地址时不发起外部请求。
+    if (this.gzhuConfig.apiUrl && this.gzhuConfig.apiKey) {
+      try {
       const start = Date.now();
       await this.gzhuClient.get('/health');
       status.gzhu.available = true;
       status.gzhu.latency = Date.now() - start;
-    } catch (error) {
-      console.warn('GZHU智能体不可用:', error.message);
+      } catch (error) {
+        console.warn('GZHU智能体不可用:', error.message);
+      }
     }
 
-    // 检查Coze智能体 - 通过尝试简单调用来测试
-    try {
+    const healthCheckBotId = this.cozeConfig.bots.imageEnhance;
+    if (this.cozeConfig.apiKey && healthCheckBotId) {
+      try {
       const start = Date.now();
       
       // 尝试调用Coze API来检查连接性
-      const testResult = await this.callCozeBot('7538355440988979239', {
+      const testResult = await this.callCozeBot(healthCheckBotId, {
         query: 'test',
         userId: 'health-check'
       });
@@ -469,8 +472,9 @@ class AIService {
       } else {
         console.warn('Coze API测试失败:', testResult.message);
       }
-    } catch (error) {
-      console.warn('Coze智能体不可用:', error.message);
+      } catch (error) {
+        console.warn('Coze智能体不可用:', error.message);
+      }
     }
 
     return status;
