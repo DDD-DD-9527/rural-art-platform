@@ -62,7 +62,7 @@ npm run dev
 | 变量 | 用途 |
 | --- | --- |
 | `NODE_ENV=production` | 启用生产环境行为 |
-| `MONGODB_URI` | MongoDB 连接串，必须指向可持久化的数据库 |
+| `MONGODB_URI` | MongoDB Atlas 连接串；当前集群主机为 `cluster0.9ntlclu.mongodb.net`，数据库为 `rural-art-platform` |
 | `JWT_SECRET` | 登录令牌签名密钥，使用随机长字符串 |
 | `BASE_URL` | 后端的公开 HTTPS 根地址，用于生成上传文件 URL；末尾不加 `/` |
 | `CORS_ALLOWED_ORIGINS` | 前端公开源地址，多个用逗号分隔；仅在浏览器跨域直连后端时需要 |
@@ -74,7 +74,7 @@ npm run dev
 
 ### 前端连接后端
 
-推荐在前端服务的**运行时环境变量**中设置 `API_BASE_URL=https://<后端域名>/api`，并在后端设置 `CORS_ALLOWED_ORIGINS=https://<前端域名>`。前端容器启动时会生成 `runtime-config.js`，所以修改后重启前端服务即可生效，无需重新构建。`API_BASE_URL` 必须包含 `/api` 路径。
+当前后端服务地址是 `https://rural-art-platform-server.preview.tencent-zeabur.cn`。推荐在前端服务的**运行时环境变量**中设置 `API_BASE_URL=https://rural-art-platform-server.preview.tencent-zeabur.cn/api`，并在后端设置 `CORS_ALLOWED_ORIGINS` 为前端服务的实际公开域名。前端容器启动时会生成 `runtime-config.js`，所以修改后重启前端服务即可生效，无需重新构建。`API_BASE_URL` 必须包含 `/api` 路径。
 
 前端服务只需要配置下面两个变量中的一个连接方案：
 
@@ -83,7 +83,7 @@ npm run dev
 | `API_BASE_URL` | `https://<后端域名>/api` | `/api` |
 | `API_UPSTREAM` | 留空 | `https://<后端域名>` |
 
-后端服务至少配置：`NODE_ENV=production`、`MONGODB_URI`、`JWT_SECRET`、`BASE_URL=https://<后端域名>`、`CORS_ALLOWED_ORIGINS=https://<前端域名>`。`PORT` 由 Zeabur 注入，不要强行改成前端端口。需要保留上传文件时，将后端持久卷挂载到 `/app/uploads`，并保持 `UPLOAD_DIR=/app/uploads`。
+后端服务至少配置：`NODE_ENV=production`、`MONGODB_URI`、`JWT_SECRET`、`BASE_URL=https://<后端域名>`、`CORS_ALLOWED_ORIGINS=https://<前端域名>`。当前 Atlas 集群的数据库名是 `rural-art-platform`，连接串中的用户名和密码只放在 Zeabur Secret 环境变量中，不要提交到仓库。`PORT` 由 Zeabur 注入，不要强行改成前端端口。需要保留上传文件时，将后端持久卷挂载到 `/app/uploads`，并保持 `UPLOAD_DIR=/app/uploads`。
 
 也可以使用同源代理：前端服务设置 `API_UPSTREAM` 为后端服务可访问的 HTTP 根地址，同时将 `API_BASE_URL` 保持为 `/api`（默认值）。浏览器请求 `/api/...`，由前端 Nginx 保留 `/api` 前缀转发到后端。此时仍需设置后端 `BASE_URL` 为公开地址，以便上传文件 URL 可访问。`API_UPSTREAM` 必须使用 Zeabur 实际提供的服务地址，不要填写占位符。
 
